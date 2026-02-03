@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 __all__ = [
     "__title__",
@@ -30,7 +30,7 @@ __licence_full__ = (
     "This is free software: you are free to change and redistribute it. "
     "There is NO WARRANTY, to the extent permitted by law."
 )
-__copyright__ = f"Copyright 2007-2024 {__author__}"
+__copyright__ = f"Copyright 2007-2026 {__author__}"
 
 __help_epilog__ = (
     "If the environment variable RPD_SCAN_DEBUG is set to any value, the program's "

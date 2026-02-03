@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Handle Devices and Device Collections.
@@ -23,7 +23,11 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QFileIconProvider
 
 import raphodo.metadata.exiftool as exiftool
-from raphodo.camera import autodetect_cameras, generate_devname  # noqa: F401
+from raphodo.camera import (  # noqa: F401
+    autodetect_cameras,
+    camera_list_iterator,
+    generate_devname,
+)
 from raphodo.constants import (
     BackupFailureType,
     BackupLocationType,
@@ -99,7 +103,7 @@ class Device:
 
     >>> cameras = autodetect_cameras()
     >>> c = Device()
-    >>> for model, port in cameras:
+    >>> for model, port in camera_list_iterator(cameras):
     ...     c.set_download_from_camera(model, port)
     ...     isinstance(c.display_name, str)
     True

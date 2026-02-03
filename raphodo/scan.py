@@ -51,7 +51,12 @@ import raphodo.metadata.metadataphoto as metadataphoto
 import raphodo.metadata.metadatavideo as metadatavideo
 import raphodo.rpdfile as rpdfile
 from raphodo.cache import ThumbnailCacheSql
-from raphodo.camera import Camera, gphoto2_named_error, gphoto2_python_logging
+from raphodo.camera import (
+    Camera,
+    camera_list_iterator,
+    gphoto2_named_error,
+    gphoto2_python_logging,
+)
 from raphodo.cameraerror import CameraError, CameraProblemEx, iOSDeviceError
 from raphodo.constants import (
     CameraErrorCode,
@@ -679,7 +684,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         if files_in_folder:
             # Distinguish the file type for every file in the folder
-            names = [name for name, value in files_in_folder]
+            names = [name for name, value in camera_list_iterator(files_in_folder)]
             if ".nomedia" in names:
                 # do nothing with this folder
                 logging.debug("Ignoring %s because it contains a .nomedia file", path)
@@ -805,7 +810,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         self.problems.append(UnhandledFileProblem(name=name, uri=uri))
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(path):
+            for name, value in camera_list_iterator(
+                self.camera.camera.folder_list_folders(path)
+            ):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:

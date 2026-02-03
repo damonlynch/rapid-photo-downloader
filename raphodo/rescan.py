@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Given a collection of RPDFiles, rescans a camera to locate their 'new' location.
@@ -16,7 +16,7 @@ from itertools import chain
 
 import gphoto2 as gp
 
-from raphodo.camera import Camera, CameraProblemEx
+from raphodo.camera import Camera, CameraProblemEx, camera_list_iterator
 from raphodo.prefs.preferences import Preferences, ScanPreferences
 from raphodo.rpdfile import RPDFile
 
@@ -105,7 +105,7 @@ class RescanCamera:
         except gp.GPhoto2Error as e:
             logging.error("Unable to scan files on camera: error %s", e.code)
 
-        for name, value in files_in_folder:
+        for name, value in camera_list_iterator(files_in_folder):
             if name in self.prev_scanned_files:
                 prev_rpd_files = self.prev_scanned_files[name]
                 if len(prev_rpd_files) > 1:
@@ -145,7 +145,9 @@ class RescanCamera:
         # Recurse over subfolders in which we should
         folders = []
         try:
-            for name, value in self.camera.camera.folder_list_folders(path):
+            for name, value in camera_list_iterator(
+                self.camera.camera.folder_list_folders(path)
+            ):
                 if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
         except gp.GPhoto2Error as e:
