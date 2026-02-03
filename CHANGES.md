@@ -34,6 +34,8 @@ Changelog for Rapid Photo Downloader
 
 - Handle python-gphoto2 API change in CameraList iterators.
 
+- Purge use of depreciated Python function locale.getdefaultlocale().
+
 0.9.37a5 (2024-04-28)
 ---------------------
 

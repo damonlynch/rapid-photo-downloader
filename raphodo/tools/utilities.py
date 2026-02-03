@@ -839,7 +839,7 @@ def arrow_locale(lang: str) -> str:
     default = "en_us"
     if not lang:
         try:
-            lang = locale.getdefaultlocale()[0]
+            lang = locale.getlocale()[0]
         except Exception:
             return default
 
@@ -1057,7 +1057,7 @@ def available_languages(display_locale_code: str = "") -> list[tuple[str, str]]:
 
     if not display_locale_code:
         try:
-            locale_code = locale.getdefaultlocale()[0]
+            locale_code = locale.getlocale()[0]
         except Exception:
             locale_code = "en_US"
     else:

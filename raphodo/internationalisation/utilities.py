@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2007-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import locale
 
@@ -81,6 +81,7 @@ def thousands(i: int) -> str:
     except TypeError:
         return str(i)
 
+
 def current_locale() -> str:
     assert have_pyqt
     settings = QSettings("Rapid Photo Downloader", "Rapid Photo Downloader")
@@ -89,5 +90,7 @@ def current_locale() -> str:
     settings.endGroup()
     if lang:
         return lang
-    lang, encoding = locale.getdefaultlocale()
-    return lang
+
+    # The "C" locale is represented as (None, None).
+    lang, encoding = locale.getlocale()
+    return lang or ""
