@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Initialize gettext translations.
@@ -67,7 +67,7 @@ def install_gettext() -> None:
         settings.endGroup()
 
         if not lang:
-            lang, encoding = locale.getdefaultlocale()
+            lang, encoding = locale.getlocale()
 
         try:
             gnulang = gettext.translation(
