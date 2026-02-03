@@ -58,23 +58,22 @@ def autodetect_cameras(suppress_errors: bool = True) -> gp.CameraList | list:
 # Removed CameraList.__iter__, use CameraList.items() instead.
 
 
-def pre260_camera_list_iterator(
-    camera_list: gp.CameraList | list,
+def pre240_camera_list_iterator(
+        camera_list: gp.CameraList | list,
 ) -> Iterator[tuple[str, str]]:
     yield from camera_list
 
 
-def post260_camera_list_iterator(
-    camera_list: gp.CameraList | list,
+def post240_camera_list_iterator(
+        camera_list: gp.CameraList | list,
 ) -> Iterator[tuple[str, str]]:
     yield from camera_list.items()
 
 
-if parse(gp.__version__) >= parse("2.6.0"):
-    camera_list_iterator = post260_camera_list_iterator
+if parse(gp.__version__) >= parse("2.4.0"):
+    camera_list_iterator = post240_camera_list_iterator
 else:
-    camera_list_iterator = pre260_camera_list_iterator
-
+    camera_list_iterator = pre240_camera_list_iterator
 
 # convert error codes to error names
 gphoto2_error_codes = {
