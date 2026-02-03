@@ -74,7 +74,11 @@ class AboutDialog(QDialog):
         gpl3link = "https://www.gnu.org/licenses/gpl-3.0.html"
         lgpl3link = "https://www.gnu.org/licenses/lgpl-3.0.html"
 
-        msg = f"""Copyright &copy; 2007-2024 Damon Lynch.<br><br>
+        rpd_copyright = __about__.__copyright__.replace(
+            "Copyright ", "Copyright &copy; "
+        )
+
+        msg = f"""{rpd_copyright}.<br><br>
         <a href="https://damonlynch.net/rapid" {link_style}>
         damonlynch.net/rapid</a><br><br>
         This program comes with absolutely no warranty.<br>
@@ -155,7 +159,7 @@ class AboutDialog(QDialog):
             qt_licence = lgpl3desc
 
         credits_text = f"""
-        Copyright © 2007-2026 Damon Lynch.
+        {rpd_copyright}.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.
