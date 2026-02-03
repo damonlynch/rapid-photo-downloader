@@ -36,6 +36,9 @@ Changelog for Rapid Photo Downloader
 
 - Purge use of depreciated Python function locale.getdefaultlocale().
 
+- Fix bug [#244](https://github.com/damonlynch/rapid-photo-downloader/issues/244):
+  Changing language causes settings to fail to open. 
+
 0.9.37a5 (2024-04-28)
 ---------------------
 
