@@ -39,6 +39,11 @@ Changelog for Rapid Photo Downloader
 - Fix bug [#244](https://github.com/damonlynch/rapid-photo-downloader/issues/244):
   Changing language causes settings to fail to open. 
 
+- Changed .desktop filename from `net.damonlynch.rapid_photo_downloader.
+desktop` to `net.damonlynch.RapidPhotoDownloader.desktop`
+
+
+
 0.9.37a5 (2024-04-28)
 ---------------------
 
