@@ -82,10 +82,11 @@ path = "raphodo/__about__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["raphodo"]
+exclude = ["./pip-uninstall.py"]
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo"]
-exclude = ["pip-install.py"]
+exclude = ["./pip-uninstall.py"]
 
 [tool.hatch.build.hooks.argparse-manpage]
 include-url = false
