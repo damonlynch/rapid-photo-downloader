@@ -101,8 +101,8 @@ regenerate-template = true
 show-report = false
 
 [tool.hatch.build.hooks.gettext.files]
-"share/applications" = ["data/net.damonlynch.rapid_photo_downloader.desktop.in"]
-"share/solid/actions" = ["data/kde/net.damonlynch.rapid_photo_downloader.desktop.in"]
+"share/applications" = ["data/net.damonlynch.RapidPhotoDownloader.desktop.in"]
+"share/solid/actions" = ["data/kde/net.damonlynch.RapidPhotoDownloader.desktop.in"]
 "share/metainfo" = ["data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in"]
 
 

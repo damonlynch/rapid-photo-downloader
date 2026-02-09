@@ -43,7 +43,7 @@ try:
     gi.require_version("Unity", "7.0")
     from gi.repository import Unity
 
-    launcher = "net.damonlynch.rapid_photo_downloader.desktop"
+    launcher = "net.damonlynch.RapidPhotoDownloader.desktop"
     Unity.LauncherEntry.get_for_desktop_id(launcher)
     have_unity = True
 except (ImportError, ValueError, gi.repository.GLib.GError):
@@ -842,7 +842,7 @@ class RapidWindow(QMainWindow):
 
         if have_unity:
             logging.info("Unity LauncherEntry API installed")
-            launchers = ("net.damonlynch.rapid_photo_downloader.desktop",)
+            launchers = ("net.damonlynch.RapidPhotoDownloader.desktop",)
             for launcher in launchers:
                 desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
                 if desktop_launcher is not None:
