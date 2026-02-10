@@ -12,6 +12,9 @@ Release Notes for Rapid Photo Downloader 0.9.37
      deleted.
    - The manpage is generated at build time, and is output into 
      `man/rapid-photo-downloader.1`.
+   - The .desktop filename has changed, from  to 
+    `net.damonlynch.rapid_photo_downloader.desktop` to
+    `net.damonlynch.RapidPhotoDownloader.desktop`.
 
  - To generate localization files and the manpage, two new Hatch plugins  
    are used, which are new build-time dependencies (these plugins can be 
