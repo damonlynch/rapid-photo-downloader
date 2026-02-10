@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.37b1 (2026-02-10)
+0.9.37b1 (2026-02-11)
 ---------------------
 
 - Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues/261):
