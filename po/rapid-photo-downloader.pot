@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-04 18:42+1300\n"
+"POT-Creation-Date: 2026-02-11 11:40+1300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2285,7 +2285,7 @@ msgstr ""
 #: ../raphodo/rapid.py:4672 ../raphodo/rapid.py:5354 ../raphodo/rapid.py:5988
 #: ../raphodo/rapid.py:6510 ../raphodo/ui/rememberthisdialog.py:95
 #: ../raphodo/ui/viewutils.py:727
-#: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:3
+#: ../data/net.damonlynch.RapidPhotoDownloader.desktop.in.h:3
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:1
 msgid "Rapid Photo Downloader"
 msgstr ""
@@ -4369,22 +4369,22 @@ msgstr ""
 msgid "Local Drive"
 msgstr ""
 
-#: ../data/kde/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
+#: ../data/kde/net.damonlynch.RapidPhotoDownloader.desktop.in.h:1
 msgid "Download Photos and Videos with Rapid Photo Downloader"
 msgstr ""
 
-#: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:1
+#: ../data/net.damonlynch.RapidPhotoDownloader.desktop.in.h:1
 #: ../data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in.h:2
 msgid ""
 "Download, rename and back up photos and videos from cameras and other devices"
 msgstr ""
 
-#: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:2
+#: ../data/net.damonlynch.RapidPhotoDownloader.desktop.in.h:2
 msgid "Photo Downloader"
 msgstr ""
 
 #. TRANSLATORS: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: ../data/net.damonlynch.rapid_photo_downloader.desktop.in.h:5
+#: ../data/net.damonlynch.RapidPhotoDownloader.desktop.in.h:5
 msgid ""
 "photo;download;photography;import;video;RAW;camera;phone;ingest;backup;"
 "memory;card;"
