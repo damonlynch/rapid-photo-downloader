@@ -17,7 +17,7 @@ professional and amateur photographers.
 
 This project has only ever had one software developer. My ability to work on 
 the project is affected by my having Long Covid. If you notice slow 
-progress in responding to pull requests and issues,  my health is 
+progress in responding to pull requests and issues, my health is 
 the most likely reason. Sorry about that.
 
 
@@ -66,17 +66,17 @@ processes that communicate with each other using the messaging library
 Report new issues on the
 [developer's GitHub repository](https://github.com/damonlynch/rapid-photo-downloader/issues).
 
-Historic issues are at the previous code repository,
-[Launchpad](https://bugs.launchpad.net/rapid). 
-
-
 ## Releases
 
-Project releases have been historically hosted on the 
+Releases are now hosted on the project's 
+[GitHub repository](https://github.com/damonlynch/rapid-photo-downloader/releases). Project releases were historically hosted on the 
 [project's Launchpad repository](https://launchpad.net/rapid/+download).
 
-Future releases are to be hosted on the project's 
-[GitHub repository](https://github.com/damonlynch/rapid-photo-downloader/releases). 
+## Translation
+
+The project had historically been translated using the translation service 
+provided by [Launchpad](https://launchpad.net/rapid/+download). This is no 
+longer used. A replacement service will be announced in the future.    
 
 
 ## Support
@@ -97,7 +97,10 @@ interact with cameras it requires being able to break out of the
 confinement Snap and flatpak enforce. This may change in future if 
 there are workarounds for this confinement.
 
-To install from source, consult [INSTALL.md](INSTALL.md).
+To install from source, advanced users can consult [INSTALL.md](INSTALL.md). 
+You will need to manually copy and source code and `.desktop` file from the 
+resulting tarball to appropriate locations on your system. See the 
+[Release notes](RELEASE_NOTES.md) for limited guidance.
 
 ## License
 
