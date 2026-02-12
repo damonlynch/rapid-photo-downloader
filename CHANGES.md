@@ -1,6 +1,23 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.37b2 (2026-02-1x)
+---------------------
+
+- Corrected build configuration error in tarball of 0.9.37b1 release, which 
+  resulted in incorrect file selection.
+
+- Consequently, `hatch build -t sdist` now produces an archive of the project's 
+  source code, suitable for ingestion by Linux distro packagers.
+
+- Additionally, `hatch build -t wheel` now produces a wheel (zip archive) of 
+  the program's Python code, as well as associated compiled files, i.e. 
+  manpage, `.mo` files used for internationalization, and appstream and
+  `.desktop` files.  
+
+- Updated RELEASE_NOTES.md
+
+
 0.9.37b1 (2026-02-11)
 ---------------------
 

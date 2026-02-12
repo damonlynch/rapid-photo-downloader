@@ -59,10 +59,12 @@ Recommended, optional dependencies:
 
 ## Building Rapid Photo Downloader
 
-Run:
+### Building a sdist distribution
+
 ```bash
 hatch build -t sdist
 ```
+### Building a sdist distribution
 
 Running the build creates desktop integration files in the `share` folder 
 (localization files do not need to be installed system-wide).  
