@@ -42,6 +42,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Multimedia :: Graphics",
     "Topic :: Multimedia :: Video",
 ]
@@ -67,7 +69,6 @@ dependencies = [
 
 [project.optional-dependencies]
 color_ouput = ["colorlog"]
-progress_bar = ["pyprind"]
 
 [project.gui-scripts]
 rapid-photo-downloader = "raphodo.rapid:main"
@@ -81,26 +82,25 @@ Source = "https://github.com/damonlynch/rapid-photo-downloader"
 path = "raphodo/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["raphodo"]
-exclude = ["./pip-uninstall.py"]
+packages = ["raphodo", "man", "share", "/*.md"]
 
 [tool.hatch.build.targets.sdist]
-include = ["raphodo"]
-exclude = ["./pip-uninstall.py"]
+include = ["raphodo", "data", "po", "/*.md"]
+exclude = [".github"]
 
-[tool.hatch.build.hooks.argparse-manpage]
+[tool.hatch.build.targets.wheel.hooks.argparse-manpage]
 include-url = false
 manpages = [
     "man/rapid-photo-downloader.1:function=get_parser:pyfile=raphodo/argumentsparse.py:prog=rapid-photo-downloader:manual_title=General Commands Manual",
 ]
 
-[tool.hatch.build.hooks.gettext]
+[tool.hatch.build.targets.wheel.hooks.gettext]
 locale-directory = "raphodo/locale"
 identify-left-out = true
 regenerate-template = true
 show-report = false
 
-[tool.hatch.build.hooks.gettext.files]
+[tool.hatch.build.targets.wheel.hooks.gettext.files]
 "share/applications" = ["data/net.damonlynch.RapidPhotoDownloader.desktop.in"]
 "share/solid/actions" = ["data/kde/net.damonlynch.RapidPhotoDownloader.desktop.in"]
 "share/metainfo" = ["data/net.damonlynch.rapid_photo_downloader.metainfo.xml.in"]

@@ -38,7 +38,7 @@ Release Notes for Rapid Photo Downloader 0.9.37
    to generate thumbnails from HEIF / HEIC images.
 
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
-   [Windows Subsystem for Linux Preview](https://aka.ms/wslstorepage) from 
+   [Windows Subsystem for Linux](https://aka.ms/wslstorepage) from 
    the Microsoft Store is *strongly recommended*. Using the version of WSL that
    comes installed with Windows 11 can cause severe usability issues while 
    running programs like Rapid Photo Downloader. Read the documentation on Rapid
