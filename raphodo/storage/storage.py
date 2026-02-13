@@ -48,7 +48,10 @@ import gi
 
 gi.require_version("GUdev", "1.0")
 gi.require_version("UDisks", "2.0")
-gi.require_version("GExiv2", "0.10")
+try:
+    gi.require_version("GExiv2", "0.16")
+except ValueError:
+    gi.require_version("GExiv2", "0.10")
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib, GUdev, UDisks
 from PyQt5.QtCore import (
