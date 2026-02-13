@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2007-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 # ruff: noqa: E402
 
@@ -9,7 +9,10 @@ from typing import Any
 
 import gi
 
-gi.require_version("GExiv2", "0.10")
+try:
+    gi.require_version("GExiv2", "0.16")
+except ValueError:
+    gi.require_version("GExiv2", "0.10")
 from gi.repository import GExiv2
 from PyQt5.QtCore import QSize
 
@@ -33,7 +36,6 @@ VENDOR_SERIAL_CODES = (
 VENDOR_SHUTTER_COUNT = (
     "Exif.Nikon3.ShutterCount",
     "Exif.Canon.FileNumber",
-    "Exif.Canon.ImageNumber",
 )
 
 
@@ -311,10 +313,14 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
         See:
         https://bugs.launchpad.net/rapid/+bug/754531
+
+        (bug still open as at February 2026)
+        CR3 files may not have this value
         """
-        if "Exif.CanonFi.FileNumber" in self and self.full_file_name is not None:
+        if self.full_file_name is not None:
             assert self.et_process is not None
             return super().file_number(missing)
+        return missing
 
     def owner_name(self, missing=""):
         try:

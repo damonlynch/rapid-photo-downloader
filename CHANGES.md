@@ -17,6 +17,10 @@ Changelog for Rapid Photo Downloader
 
 - Updated RELEASE_NOTES.md
 
+- Fix bug [#300](https://github.com/damonlynch/rapid-photo-downloader/issues/300):
+  Support for GExiv2 0.16.
+
+- Fix bug retrieving Canon File Number metadata using ExifTool.
 
 0.9.37b1 (2026-02-11)
 ---------------------

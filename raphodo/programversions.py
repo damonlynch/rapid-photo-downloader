@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Detect versions of external programs.
@@ -11,7 +11,10 @@ import subprocess
 
 import gi
 
-gi.require_version("GExiv2", "0.10")
+try:
+    gi.require_version("GExiv2", "0.16")
+except ValueError:
+    gi.require_version("GExiv2", "0.10")
 from gi.repository import GExiv2  # noqa: E402
 
 
