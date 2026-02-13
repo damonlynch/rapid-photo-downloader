@@ -22,7 +22,12 @@ Changelog for Rapid Photo Downloader
 
 - Fix bug retrieving Canon File Number metadata using ExifTool.
 
-0.9.37b1 (2026-02-11)
+- Add support for Nikon N-RAW (.NEV), Blackmagic RAW (.BRAW), and Canon 
+  Cinema RAW Light (.CRM), using MediaInfo and ExifTool. Thumbnail 
+  generation for these formats is currently unsupported. Fixes bug 
+  [#88](https://github.com/damonlynch/rapid-photo-downloader/issues/88).
+
+- 0.9.37b1 (2026-02-11)
 ---------------------
 
 - Fix bug [#261](https://github.com/damonlynch/rapid-photo-downloader/issues/261):

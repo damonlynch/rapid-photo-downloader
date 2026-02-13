@@ -111,6 +111,9 @@ VIDEO_EXTENSIONS = [
     "mod",
     "tod",
     "mts",
+    "nev",
+    "braw",
+    "crm",
 ]
 VIDEO_EXTENSIONS.sort()
 
