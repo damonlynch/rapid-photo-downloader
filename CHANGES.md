@@ -2782,26 +2782,18 @@ desktop` to `net.damonlynch.RapidPhotoDownloader.desktop`
   are detected, the same sequence numbers and letters will be applied to both
   image names. Furthermore, sequences will be updated as if the images were
   one. For example, if 200 RAW images and 200 matching JPEG images are
-  downloaded, the value of Downloads today will be incremented by 200, and not
-    400. The same goes for the rest of the sequence values, including the Stored
-         number sequence number. Images are detected by comparing filename, as
-         well as
-         the exif value for the date and time the image was created (including
-         sub
-         seconds when the camera records this value). This option will take
-         effect
-         regardless of whether the RAW and JPEG images are stored on different
-         memory
-         cards or the same memory card. Furthermore, if they are stored on
-         separate
-         memory cards, you can download from them simultaneously or one after
-         the
-         other. The only requirement is to download the images in the same
-         session--in
-         other words, for the feature to work, use as many memory cards as you
-         need,
-         but do not exit the program between downloads of the matching sets of
-         images.
+  downloaded, the value of Downloads today will be incremented by 200, and 
+  not 400. The same goes for the rest of the sequence values, including the 
+  Stored number sequence number. Images are detected by comparing filename, 
+  as well as the exif value for the date and time the image was created 
+  (including sub seconds when the camera records this value). This option 
+  will take effect regardless of whether the RAW and JPEG images are stored 
+  on different memory cards or the same memory card. Furthermore, if they 
+  are stored on separate memory cards, you can download from them 
+  simultaneously or one after the other. The only requirement is to download 
+  the images in the same session--in other words, for the feature to work, 
+  use as many memory cards as you need, but do not exit the program between 
+  downloads of the matching sets of images.        
 
 - Increased maximum sequence number length to seven digits by user request.
 

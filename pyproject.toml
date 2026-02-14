@@ -64,7 +64,7 @@ dependencies = [
     "show-in-file-manager",
     "sortedcontainers",
     "tenacity",
-    "tornado",
+    "tornado"
 ]
 
 [project.optional-dependencies]
