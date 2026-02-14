@@ -1,10 +1,43 @@
-# Installing Rapid Photo Downloader from Source
+# Building Rapid Photo Downloader from Source
 
-Installation requires Python package dependencies that themselves depend on 
-non-python programs to function. For example, `python-gphoto2` requires  
-`libgphoto2`.
+## Building Rapid Photo Downloader
+
+Use [Hatch](https://hatch.pypa.io/latest/) to build Rapid Photo Downloader. 
+There are two build targets: `sdist` and `wheel`.
+
+### Building an sdist archive
+
+This produces an archive of the project's source code and data files. 
+
+```bash
+hatch build -t sdist
+```
+
+### Building a wheel
+
+This produces a wheel (zip archive) of the program's Python code, as well as 
+associated compiled files, i.e. manpage, `.mo` files used for 
+internationalization, and appstream and `.desktop` files.  
+
+```bash
+hatch build -t wheel
+```
+
+Running the build creates desktop integration files in the `share` folder, 
+and a manpage and the `man` folder (localization files should not be installed 
+system-wide).
+
+## Build dependencies
+
+ - [Hatch](https://github.com/pypa/hatch)
+ - [Hatch-gettext](https://github.com/damonlynch/hatch-gettext)
+ - [Hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
+ - `intltool`
 
 ## Runtime dependencies
+
+Python package dependencies themselves depend on non-python programs to 
+function. For example, `python-gphoto2` requires `libgphoto2`.
 
  - Python 3.10 or newer, and its development headers
  - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
@@ -43,28 +76,5 @@ non-python programs to function. For example, `python-gphoto2` requires
         
 Recommended, optional dependencies:
 
- - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when
-   running Rapid Photo Downloader from the terminal.
- - [pyheif](https://github.com/david-poirier-csn/pyheif): generate 
-   thumbnails for HEIF / HEIC files (currently broken with recent releases 
-   of [libheif](https://github.com/strukturag/libheif)).
- - [pillow](https://github.com/python-pillow/Pillow): work with HEIF / HEIC files
-
-## Build dependencies
-
- - [Hatch](https://github.com/pypa/hatch)
- - [Hatch-gettext](https://github.com/damonlynch/hatch-gettext)
- - [Hatch-argparse-manpage](https://github.com/damonlynch/hatch-argparse-manpage)
- - `intltool`
-
-## Building Rapid Photo Downloader
-
-### Building a sdist distribution
-
-```bash
-hatch build -t sdist
-```
-### Building a sdist distribution
-
-Running the build creates desktop integration files in the `share` folder 
-(localization files do not need to be installed system-wide).  
+ - [colorlog](https://github.com/borntyping/python-colorlog): generates 
+   coloured program output when running Rapid Photo Downloader from the terminal. 

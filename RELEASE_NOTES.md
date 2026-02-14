@@ -30,13 +30,6 @@ Release Notes for Rapid Photo Downloader 0.9.37
      copyright and licensing.
    - The Python package easygui has been purged, and is no longer a dependency.
 
- - The Python package used to generate thumbnails from HEIF / HEIC 
-   images, [pyheif](https://github.com/carsales/pyheif), requires updating 
-   to work with recent versions of 
-   [libheif](https://github.com/strukturag/libheif). This means `pyheif` 
-   currently does not work, and therefore Rapid Photo Downloader cannot use it
-   to generate thumbnails from HEIF / HEIC images.
-
  - To run Rapid Photo Downloader under WSLg on Windows 11, using the 
    [Windows Subsystem for Linux](https://aka.ms/wslstorepage) from 
    the Microsoft Store is *strongly recommended*. Using the version of WSL that
