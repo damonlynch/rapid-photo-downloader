@@ -1,21 +1,20 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.37b2 (2026-02-1x)
+0.9.37b2 (2026-02-15)
 ---------------------
 
-- Corrected build configuration error in tarball of 0.9.37b1 release, which 
-  resulted in incorrect file selection.
+- Corrected a build configuration error in tarball of 0.9.37b1 release.
 
 - Consequently, `hatch build -t sdist` now produces an archive of the project's 
-  source code, suitable for ingestion by Linux distro packagers.
+  source code.
 
 - Additionally, `hatch build -t wheel` now produces a wheel (zip archive) of 
   the program's Python code, as well as associated compiled files, i.e. 
   manpage, `.mo` files used for internationalization, and appstream and
   `.desktop` files.  
 
-- Updated RELEASE_NOTES.md
+- Updated RELEASE_NOTES.md and INSTALL.md.
 
 - Fix bug [#300](https://github.com/damonlynch/rapid-photo-downloader/issues/300):
   Support for GExiv2 0.16.
