@@ -229,6 +229,7 @@ from raphodo.thumbnaildisplay import (
     ThumbnailListModel,
     ThumbnailView,
 )
+from raphodo.tools.cosmicplatform import cosmic_prefer_dark
 from raphodo.tools.gnomeplatform import gnome_accent_color, gnome_prefer_dark
 from raphodo.tools.libraryversions import get_versions
 from raphodo.tools.utilities import (
@@ -6870,14 +6871,19 @@ def main():
     app.setWindowIcon(QIcon(data_file_path("rapid-photo-downloader.svg")))
 
     try:
-        is_kde = linux_desktop() == LinuxDesktop.kde
-    except KeyError:
-        is_kde = False
+        desktop = linux_desktop()
+    except Exception:
+        desktop = LinuxDesktop.unknown
+        is_cosmic = os.getenv("XDG_CURRENT_DESKTOP", "") == "COSMIC"
+    else:
+        is_cosmic = False  # TODO update once cosmic is supported
+
+    is_kde = desktop == LinuxDesktop.kde
 
     dark_mode_quirk = False
     if not (is_kde or args.force_system_theme):
         app.setStyle("Fusion")
-        if linux_desktop() in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
+        if desktop in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
             accent_color = gnome_accent_color()
             prefer_dark = gnome_prefer_dark()
             if prefer_dark:
@@ -6888,6 +6894,12 @@ def main():
             else:
                 palette = accentPalette(accent_color=accent_color)
             app.setPalette(palette)
+        elif is_cosmic:
+            prefer_dark = cosmic_prefer_dark()
+            if prefer_dark:
+                palette = darkPalette()
+                dark_mode_quirk = True
+                app.setPalette(palette)
 
     # Apply a proxy style that accounts for quirks when rendering the Fusion style
     # in dark mode.

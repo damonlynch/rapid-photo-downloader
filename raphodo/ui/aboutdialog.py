@@ -369,6 +369,7 @@ class AboutDialog(QDialog):
 
         version_style_sheet = """QLabel {
         padding-left: %(left_margin)dpx;
+        color: black;
         }""" % dict(left_margin=left_margin)
 
         version.setStyleSheet(version_style_sheet)

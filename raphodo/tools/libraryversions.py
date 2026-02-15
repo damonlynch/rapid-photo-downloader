@@ -19,7 +19,7 @@ from showinfm import linux_desktop, linux_desktop_humanize
 from raphodo import __about__ as __about__
 from raphodo.camera import gphoto2_version, python_gphoto2_version
 from raphodo.constants import ScalingAction, ScalingDetected
-from raphodo.heif import have_heif_module, libheif_version, pyheif_version
+from raphodo.heif import have_heif_module, libheif_version, pillow_heif_version
 from raphodo.metadata import fileformats as fileformats
 from raphodo.metadata.metadatavideo import pymedia_version_info
 from raphodo.programversions import EXIFTOOL_VERSION, exiv2_version, gexiv2_version
@@ -89,7 +89,7 @@ def get_versions(
         f"Can read HEIF/HEIC metadata: {'yes' if fileformats.heif_capable() else 'no'}"
     )
     if have_heif_module:
-        versions.append(f"Pyheif: {pyheif_version()}")
+        versions.append(f"Pillow-Heif: {pillow_heif_version()}")
         v = libheif_version()
         if v:
             versions.append(f"libheif: {v}")
