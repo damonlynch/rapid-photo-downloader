@@ -6870,14 +6870,16 @@ def main():
     app.setWindowIcon(QIcon(data_file_path("rapid-photo-downloader.svg")))
 
     try:
-        is_kde = linux_desktop() == LinuxDesktop.kde
-    except KeyError:
-        is_kde = False
+        desktop = linux_desktop()
+    except Exception:
+        desktop = LinuxDesktop.unknown
+
+    is_kde = desktop == LinuxDesktop.kde
 
     dark_mode_quirk = False
     if not (is_kde or args.force_system_theme):
         app.setStyle("Fusion")
-        if linux_desktop() in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
+        if desktop in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
             accent_color = gnome_accent_color()
             prefer_dark = gnome_prefer_dark()
             if prefer_dark:
