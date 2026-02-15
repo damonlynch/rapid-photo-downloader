@@ -229,6 +229,7 @@ from raphodo.thumbnaildisplay import (
     ThumbnailListModel,
     ThumbnailView,
 )
+from raphodo.tools.cosmicplatform import cosmic_prefer_dark
 from raphodo.tools.gnomeplatform import gnome_accent_color, gnome_prefer_dark
 from raphodo.tools.libraryversions import get_versions
 from raphodo.tools.utilities import (
@@ -6873,6 +6874,9 @@ def main():
         desktop = linux_desktop()
     except Exception:
         desktop = LinuxDesktop.unknown
+        is_cosmic = os.getenv("XDG_CURRENT_DESKTOP", "") == "COSMIC"
+    else:
+        is_cosmic = False  # TODO update once cosmic is supported
 
     is_kde = desktop == LinuxDesktop.kde
 
@@ -6890,6 +6894,12 @@ def main():
             else:
                 palette = accentPalette(accent_color=accent_color)
             app.setPalette(palette)
+        elif is_cosmic:
+            prefer_dark = cosmic_prefer_dark()
+            if prefer_dark:
+                palette = darkPalette()
+                dark_mode_quirk = True
+                app.setPalette(palette)
 
     # Apply a proxy style that accounts for quirks when rendering the Fusion style
     # in dark mode.
