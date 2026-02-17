@@ -1583,6 +1583,9 @@ class RapidWindow(QMainWindow):
         :return: True if any dialog window is currently being displayed from the main
         window
         """
+        if not hasattr(self, "tip"):
+            return self.prefs_dialog_active or self.prompting_for_user_action
+
         return (
             self.prefs_dialog_active
             or self.prompting_for_user_action
