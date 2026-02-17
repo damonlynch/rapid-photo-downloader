@@ -6879,7 +6879,8 @@ def main():
         desktop = LinuxDesktop.unknown
         is_cosmic = os.getenv("XDG_CURRENT_DESKTOP", "") == "COSMIC"
     else:
-        is_cosmic = False  # TODO update once cosmic is supported
+        # Show in File Manager versions prior to 1.1.6 do not support Cosmic
+        is_cosmic = hasattr(LinuxDesktop, "cosmic") and desktop == LinuxDesktop.cosmic
 
     is_kde = desktop == LinuxDesktop.kde
 
