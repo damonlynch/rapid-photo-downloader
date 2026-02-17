@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Worker process to get thumbnails from Thumbnail or FDO cache, or
@@ -279,8 +279,8 @@ def preprocess_thumbnail_from_disk(
                 else:
                     task = ExtractionTask.load_heif_and_exif_directly
                 processing.add(ExtractionProcessing.resize)
-                # For now, do not orient, as it seems pyheif or libheif does that
-                # automatically processing.add(ExtractionProcessing.orient)
+                # For now, do not orient, as it seems libheif does that automatically
+                # processing.add(ExtractionProcessing.orient)
             else:
                 # We have no way to convert the file
                 task = ExtractionTask.bypass
@@ -641,7 +641,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             self.processing.add(ExtractionProcessing.resize)
             self.full_file_name_to_work_on = self.rpd_file.cache_full_file_name
 
-            # For now, do not orient, as pyheif or libheif do that automatically.
+            # For now, do not orient, as libheif does that automatically.
 
     def task_camera_extract_photo_fetch_thumbnail_jpeg(self) -> None:
         # gPhoto2 knows how to get jpeg thumbnails
