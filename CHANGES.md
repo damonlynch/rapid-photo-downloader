@@ -9,6 +9,7 @@
 - Fix bug [#300](https://github.com/damonlynch/rapid-photo-downloader/issues/300): Support for GExiv2 0.16.
 - Fix bug retrieving Canon File Number metadata using ExifTool.
 - Add support for Nikon N-RAW (.NEV), Blackmagic RAW (.BRAW), and Canon Cinema RAW Light (.CRM), using MediaInfo and ExifTool. Thumbnail generation for these formats is currently unsupported. Fixes bug [#88](https://github.com/damonlynch/rapid-photo-downloader/issues/88).
+- Bump minimum required Python version to 3.11.
 
 ## 0.9.37b1 (2026-02-11)
 
