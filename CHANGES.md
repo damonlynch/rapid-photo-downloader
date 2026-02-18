@@ -1,6 +1,6 @@
 # Changelog for Rapid Photo Downloader
 
-## 0.9.37b2 (2026-02-15)
+## 0.9.37 (2026-02-18)
 
 - Corrected a build configuration error in tarball of 0.9.37b1 release.
 - Consequently, `hatch build -t sdist` now produces an archive of the project's source code.

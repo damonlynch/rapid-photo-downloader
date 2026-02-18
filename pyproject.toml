@@ -39,7 +39,6 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -86,7 +85,7 @@ packages = ["raphodo", "man", "share", "/*.md"]
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo", "data", "po", "/*.md"]
-exclude = [".github"]
+exclude = [".github", ".gitignore"]
 
 [tool.hatch.build.targets.wheel.hooks.argparse-manpage]
 include-url = false
