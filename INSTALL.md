@@ -7,7 +7,6 @@ Use [Hatch](https://hatch.pypa.io/latest/) to build Rapid Photo Downloader. Ther
 ### Building an sdist archive
 
 This produces an archive of the project's source code and data files.
-
 ```bash
 hatch build -t sdist
 ```
@@ -15,11 +14,9 @@ hatch build -t sdist
 ### Building a wheel
 
 This produces a wheel (zip archive) of the program's Python code, as well as associated compiled files, i.e. manpage, `.mo` files used for internationalization, and appstream and `.desktop` files.
-
 ```bash
 hatch build -t wheel
 ```
-
 This build creates desktop integration files in the wheel's `share` folder, and a manpage and the `man` folder (localization files should not be installed system-wide).
 
 ## Build dependencies
@@ -32,7 +29,6 @@ This build creates desktop integration files in the wheel's `share` folder, and 
 ## Runtime dependencies
 
 Python package dependencies themselves depend on non-python programs to function. For example, `python-gphoto2` requires `libgphoto2`.
-
 - Python 3.10 or newer, and its development headers
 - [PyQt 5](https://riverbankcomputing.com/software/pyqt/intro)
 - [Qt 5](https://www.qt.io/)
@@ -69,5 +65,4 @@ Python package dependencies themselves depend on non-python programs to function
   - Notify 0.7
 
 Recommended, optional dependencies:
-
 - [colorlog](https://github.com/borntyping/python-colorlog): generates coloured program output when running Rapid Photo Downloader from the terminal.
