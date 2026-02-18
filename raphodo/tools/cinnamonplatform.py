@@ -5,20 +5,19 @@
 from raphodo.tools.platformtools import get_gnome_setting, get_gnome_setting_subprocess
 
 
-def gnome_prefer_dark() -> bool:
+def cinnamon_prefer_dark() -> bool:
     """Return true if Gnome is set to run in dark mode"""
     try:
-        return get_gnome_setting(setting="color-scheme") == "prefer-dark"
+        return "dark" in get_gnome_setting(setting="gtk-theme").lower()
     except Exception:
         return False
 
 
-def gnome_accent_color() -> str:
-    """Return Gnome accent color or gtk-theme"""
-    return get_gnome_setting_subprocess("accent-color") or get_gnome_setting_subprocess(
-        "gtk-theme"
-    )
+def cinnamon_accent_color() -> str:
+    """Return Cinnamon accent color from gtk-theme"""
+    return get_gnome_setting_subprocess("gtk-theme")
 
 
 if __name__ == "__main__":
-    print(gnome_accent_color())
+    print(cinnamon_prefer_dark())
+    print(cinnamon_accent_color())
