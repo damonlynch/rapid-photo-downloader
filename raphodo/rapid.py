@@ -229,6 +229,7 @@ from raphodo.thumbnaildisplay import (
     ThumbnailListModel,
     ThumbnailView,
 )
+from raphodo.tools.cinnamonplatform import cinnamon_accent_color, cinnamon_prefer_dark
 from raphodo.tools.cosmicplatform import cosmic_prefer_dark
 from raphodo.tools.gnomeplatform import gnome_accent_color, gnome_prefer_dark
 from raphodo.tools.libraryversions import get_versions
@@ -6896,6 +6897,7 @@ def main():
             elif get_distro() == Distro.fedora:
                 palette = standardPalette(accent_color=accent_color)
             else:
+                # Change only the accent palette, not the entire palette
                 palette = accentPalette(accent_color=accent_color)
             app.setPalette(palette)
         elif is_cosmic:
@@ -6904,6 +6906,16 @@ def main():
                 palette = darkPalette()
                 dark_mode_quirk = True
                 app.setPalette(palette)
+        elif desktop == LinuxDesktop.cinnamon:
+            accent_color = cinnamon_accent_color()
+            prefer_dark = cinnamon_prefer_dark()
+            if prefer_dark:
+                palette = darkPalette(accent_color=accent_color)
+                dark_mode_quirk = True
+            else:
+                # Change only the accent palette, not the entire palette
+                palette = accentPalette(accent_color=accent_color)
+            app.setPalette(palette)
 
     # Apply a proxy style that accounts for quirks when rendering the Fusion style
     # in dark mode.
