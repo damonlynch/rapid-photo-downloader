@@ -1,0 +1,42 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="15">
+            <item index="0" class="java.lang.String" itemvalue="tornado" />
+            <item index="1" class="java.lang.String" itemvalue="colorlog" />
+            <item index="2" class="java.lang.String" itemvalue="Babel" />
+            <item index="3" class="java.lang.String" itemvalue="gphoto2" />
+            <item index="4" class="java.lang.String" itemvalue="pymediainfo" />
+            <item index="5" class="java.lang.String" itemvalue="requests" />
+            <item index="6" class="java.lang.String" itemvalue="psutil" />
+            <item index="7" class="java.lang.String" itemvalue="sortedcontainers" />
+            <item index="8" class="java.lang.String" itemvalue="pyxdg" />
+            <item index="9" class="java.lang.String" itemvalue="easygui" />
+            <item index="10" class="java.lang.String" itemvalue="colour" />
+            <item index="11" class="java.lang.String" itemvalue="pyzmq" />
+            <item index="12" class="java.lang.String" itemvalue="tenacity" />
+            <item index="13" class="java.lang.String" itemvalue="pillow" />
+            <item index="14" class="java.lang.String" itemvalue="PyPrind" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N802" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyStubPackagesAdvertiser" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="PyQt5-stubs==5.13.1.4" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
