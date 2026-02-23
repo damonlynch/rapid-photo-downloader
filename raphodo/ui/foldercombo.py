@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Combobox widget to easily choose file locations
@@ -302,7 +302,10 @@ class FolderCombo(QComboBox):
             except AttributeError:
                 chosen_path = os.path.expanduser("~")
             path = QFileDialog.getExistingDirectory(
-                self, self.file_chooser_title, chosen_path, QFileDialog.ShowDirsOnly
+                self,
+                self.file_chooser_title,
+                chosen_path,
+                QFileDialog.Option.ShowDirsOnly,
             )
             if path:
                 self.setPath(path)

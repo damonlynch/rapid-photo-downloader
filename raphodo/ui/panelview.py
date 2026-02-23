@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Widget containing header, which can have an optional widget
@@ -45,10 +45,12 @@ class QPanelView(QWidget):
             else:
                 headerColor = QColor(HeaderBackgroundName)
         palette = self.header.palette()
-        palette.setColor(QPalette.Window, headerColor)
+        palette.setColor(QPalette.ColorRole.Window, headerColor)
         self.header.setAutoFillBackground(True)
         self.header.setPalette(palette)
-        self.header.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.header.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
+        )
 
         self.headerLayout = QHBoxLayout()
         self.headerLayout.setContentsMargins(5, 2, 5, 2)
@@ -57,7 +59,7 @@ class QPanelView(QWidget):
         if headerFontColor is None:
             headerFontColor = QColor(Qt.white)
         palette = self.label.palette()
-        palette.setColor(QPalette.WindowText, headerFontColor)
+        palette.setColor(QPalette.ColorRole.WindowText, headerFontColor)
         self.label.setPalette(palette)
 
         self.header.setLayout(self.headerLayout)

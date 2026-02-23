@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display, edit and apply Job Codes.
@@ -151,11 +151,15 @@ class JobCodeDialog(QDialog):
 
         if self.prefs.job_code_sort_key == 0:
             if self.prefs.job_code_sort_order == 0:
-                self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAtTop)
+                self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertPolicy.InsertAtTop)
             else:
-                self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAtBottom)
+                self.jobCodeComboBox.setInsertPolicy(
+                    QComboBox.InsertPolicy.InsertAtBottom
+                )
         else:
-            self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAlphabetically)
+            self.jobCodeComboBox.setInsertPolicy(
+                QComboBox.InsertPolicy.InsertAlphabetically
+            )
 
         icon = QIcon(data_file_path("rapid-photo-downloader.svg")).pixmap(
             standardIconSize()
@@ -163,7 +167,7 @@ class JobCodeDialog(QDialog):
         iconLabel = QLabel()
         iconLabel.setPixmap(icon)
         iconLabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        iconLabel.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        iconLabel.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
         jobCodeLabel = QLabel(_("&Job Code:"))
         jobCodeLabel.setBuddy(self.jobCodeComboBox)
@@ -172,7 +176,9 @@ class JobCodeDialog(QDialog):
             self.rememberCheckBox = QCheckBox(_("&Remember this Job Code"))
             self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
         translateDialogBoxButtons(buttonBox)
 
         grid = QGridLayout()
@@ -216,7 +222,7 @@ class JobCodeOptionsWidget(FlexiFrame):
         self.rapidApp = rapidApp
         self.prefs = prefs
 
-        self.setBackgroundRole(QPalette.Base)
+        self.setBackgroundRole(QPalette.ColorRole.Base)
         self.setAutoFillBackground(True)
 
         self.file_selected = False
@@ -227,32 +233,27 @@ class JobCodeOptionsWidget(FlexiFrame):
         layout.addLayout(jobCodeLayout)
         self.setLayout(layout)
 
-        self.messageWidget = MessageWidget(
-            (
-                _(
-                    "Select photos and videos to be able to apply a new or existing "
-                    "Job Code to them."
-                ),
-                _(
-                    "The new Job Code will be applied to all selected photos and/or "
-                    "videos."
-                ),
-                _(
-                    "Click the Apply button to apply the current Job Code to all "
-                    "selected photos and/or videos. You can also simply double click "
-                    "the Job Code."
-                ),
-                _(
-                    "Removing a Job Code removes it only from the list of saved Job "
-                    "Codes, not from any photos or videos that it may have been "
-                    "applied to."
-                ),
-                _(
-                    "If you want to use Job Codes, configure file renaming or "
-                    "destination subfolder names to use them."
-                ),
-            )
-        )
+        self.messageWidget = MessageWidget((
+            _(
+                "Select photos and videos to be able to apply a new or existing "
+                "Job Code to them."
+            ),
+            _("The new Job Code will be applied to all selected photos and/or videos."),
+            _(
+                "Click the Apply button to apply the current Job Code to all "
+                "selected photos and/or videos. You can also simply double click "
+                "the Job Code."
+            ),
+            _(
+                "Removing a Job Code removes it only from the list of saved Job "
+                "Codes, not from any photos or videos that it may have been "
+                "applied to."
+            ),
+            _(
+                "If you want to use Job Codes, configure file renaming or "
+                "destination subfolder names to use them."
+            ),
+        ))
 
         self.setDefaultMessage()
 
@@ -296,9 +297,11 @@ class JobCodeOptionsWidget(FlexiFrame):
         self.jobCodesWidget = QNarrowListWidget()
         self.jobCodesWidget.currentRowChanged.connect(self.rowChanged)
         self.jobCodesWidget.itemDoubleClicked.connect(self.rowDoubleClicked)
-        self.jobCodesWidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.jobCodesWidget.setSelectionMode(
+            QAbstractItemView.SelectionMode.SingleSelection
+        )
         self.jobCodesWidget.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )
 
         if self.prefs.list_not_empty("job_codes"):
@@ -318,7 +321,9 @@ class JobCodeOptionsWidget(FlexiFrame):
         jobCodeLayout.addWidget(self.removeButton, 4, 0, 1, 1)
         jobCodeLayout.addWidget(self.removeAllButton, 4, 1, 1, 1)
 
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
+        self.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding
+        )
 
         self.setWidgetStates()
 
@@ -581,7 +586,7 @@ class JobCodePanel(ScrollAreaNoFrame):
         layout.addWidget(self.jobCodePanel)
         self.setWidget(widget)
         self.setWidgetResizable(True)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
 
         self.rapidApp.thumbnailView.selectionModel().selectionChanged.connect(
             self.jobCodeOptions.setWidgetStates

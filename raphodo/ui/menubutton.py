@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QColor, QIcon
@@ -17,9 +17,9 @@ class MenuButton(QToolButton):
     def __init__(self, path: str, menu: QMenu) -> None:
         super().__init__()
 
-        self.setPopupMode(QToolButton.InstantPopup)
+        self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
-        hover_color = menuHoverColor().name(QColor.HexRgb)
+        hover_color = menuHoverColor().name(QColor.NameFormat.HexRgb)
 
         try:
             scaling = self.devicePixelRatioF()

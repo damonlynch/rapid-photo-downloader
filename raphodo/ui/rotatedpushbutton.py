@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 from enum import IntEnum
 
@@ -25,10 +25,7 @@ class VerticalRotation(IntEnum):
 
 class FlatButton:
     _padding = (
-        "padding-left: 7px; "
-        "padding-right: 7px; "
-        "padding-top: 6px; "
-        "padding-bottom: 6px; "
+        "padding-left: 7px; padding-right: 7px; padding-top: 6px; padding-bottom: 6px; "
     )
 
     def setFlatStyle(
@@ -55,27 +52,31 @@ class FlatButton:
         """
 
         if color is None:
-            color = QPalette().color(QPalette.Window)
-        default_color = color.name(QColor.HexRgb)
+            color = QPalette().color(QPalette.ColorRole.Window)
+        default_color = color.name(QColor.NameFormat.HexRgb)
 
         if darker_if_checked:
             if is_dark_mode():
-                checked_color = QPalette().color(QPalette.Light).name(QColor.HexRgb)
+                checked_color = (
+                    QPalette()
+                    .color(QPalette.ColorRole.Light)
+                    .name(QColor.NameFormat.HexRgb)
+                )
             else:
-                checked_color = color.darker(125).name(QColor.HexRgb)
+                checked_color = color.darker(125).name(QColor.NameFormat.HexRgb)
         else:
             checked_color = default_color
 
         if checkedHoverColor is None:
-            hover_color = menuHoverColor().name(QColor.HexRgb)
+            hover_color = menuHoverColor().name(QColor.NameFormat.HexRgb)
         else:
-            hover_color = checkedHoverColor.name(QColor.HexRgb)
+            hover_color = checkedHoverColor.name(QColor.NameFormat.HexRgb)
 
         if not padding:
             padding = self._padding
 
         if text_color is not None:
-            text = f"color: {text_color.name(QColor.HexRgb)};"
+            text = f"color: {text_color.name(QColor.NameFormat.HexRgb)};"
         else:
             text = ""
 
@@ -139,7 +140,9 @@ class RotatedButton(QPushButton, FlatButton):
         # http://stackoverflow.com/questions/34654545/qt-flat-qpushbutton-background-color-doesnt-work
         self.setFlatStyle(self)
         self.setCheckable(True)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding
+        )
 
     def paintEvent(self, event):
         painter = QStylePainter(self)
@@ -171,13 +174,13 @@ class RotatedButton(QPushButton, FlatButton):
             # Allow for bug in PyQt 5.4
             options.features = getattr(QStyleOptionButton, "None")
         if self.isFlat():
-            options.features |= QStyleOptionButton.Flat
+            options.features |= QStyleOptionButton.ButtonFeature.Flat
         if self.menu():
-            options.features |= QStyleOptionButton.HasMenu
+            options.features |= QStyleOptionButton.ButtonFeature.HasMenu
         if self.autoDefault() or self.isDefault():
-            options.features |= QStyleOptionButton.AutoDefaultButton
+            options.features |= QStyleOptionButton.ButtonFeature.AutoDefaultButton
         if self.isDefault():
-            options.features |= QStyleOptionButton.DefaultButton
+            options.features |= QStyleOptionButton.ButtonFeature.DefaultButton
         if self.isDown() or (self.menu() and self.menu().isVisible()):
             options.state |= QStyle.State_Sunken
         if self.isChecked():

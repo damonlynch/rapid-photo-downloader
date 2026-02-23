@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
+# SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
 # SPDX-FileCopyrightText: 2012-2014 Alexander Turkin
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -466,7 +466,7 @@ class DeviceView(ListViewFlexiFrame):
         super().__init__(frame_enabled=frame_enabled, parent=parent)
         self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
-        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.view_width = DeviceComponent().sample_width()
         # Assume view is always going to be placed into a container that can be scrolled
         # or a splitter
@@ -549,7 +549,7 @@ class EmulatedHeaderRow(QWidget):
         self.setMinimumSize(1, device_header_row_height())
         self.select_text = select_text
         palette = QPalette()
-        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        palette.setColor(QPalette.ColorRole.Window, palette.color(palette.Base))
         self.setAutoFillBackground(True)
         self.setPalette(palette)
 
@@ -699,7 +699,7 @@ class DeviceDisplay(QObject):
         self.deviceNameHighlightColor = device_name_highlight_color()
         self.storageBorderColor = QColor("#bcbcbc")
         if is_dark_mode():
-            self.menuHighlightColor = QPalette().color(QPalette.Highlight)
+            self.menuHighlightColor = QPalette().color(QPalette.ColorRole.Highlight)
         else:
             self.menuHighlightColor = self.deviceNameHighlightColor.darker(115)
 
@@ -733,7 +733,7 @@ class DeviceDisplay(QObject):
         If needed, draw a pixmap for a drop-down menu.
         """
 
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
 
         deviceNameRect = QRectF(x, y, width, self.dc.device_name_strip_height)
         painter.fillRect(deviceNameRect, self.deviceNameHighlightColor)
@@ -786,7 +786,7 @@ class DeviceDisplay(QObject):
         width = width - self.dc.padding * 2
         d = details
 
-        painter.setRenderHint(QPainter.Antialiasing, False)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
         painter.setFont(self.dc.deviceFont)
 

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Rapid Photo Downloader deals with three types of cache:
@@ -207,7 +207,7 @@ class Cache:
 
         md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
         if generation_failed:
-            thumbnail = QImage(QSize(1, 1), QImage.Format_Indexed8)
+            thumbnail = QImage(QSize(1, 1), QImage.Format.Format_Indexed8)
             save_dir = self.failure_dir
         else:
             save_dir = self.cache_dir
@@ -218,7 +218,7 @@ class Cache:
         thumbnail.setText("Thumb::Size", str(size))
 
         if free_desktop_org and not generation_failed and thumbnail.depth() != 8:
-            thumbnail = thumbnail.convertToFormat(QImage.Format_Indexed8)
+            thumbnail = thumbnail.convertToFormat(QImage.Format.Format_Indexed8)
 
         temp_path = os.path.join(save_dir, self.random_filename.name(extension="png"))
         if thumbnail.save(temp_path):

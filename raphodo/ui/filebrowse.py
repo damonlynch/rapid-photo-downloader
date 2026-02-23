@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display file system folders and allow the user to select one
@@ -65,7 +65,7 @@ class FileSystemModel(QFileSystemModel):
         super().__init__(parent)
 
         # More filtering done in the FileSystemFilter
-        self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
+        self.setFilter(QDir.Filter.AllDirs | QDir.Filter.NoDotAndDotDot)
 
         s = standard_font_size()
         size = QSize(s, s)
@@ -143,9 +143,11 @@ class FileSystemView(QTreeView):
         self.rapidApp = rapidApp
         self.fileSystemModel = model
         self.setHeaderHidden(True)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
+        )
         self.setMinimumWidth(minPanelWidth())
         self.setMinimumHeight(minFileSystemViewHeight())
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -191,10 +193,12 @@ class FileSystemView(QTreeView):
         self.setExpanded(index, True)
         selection = self.selectionModel()
         selection.select(
-            index, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+            index,
+            QItemSelectionModel.SelectionFlag.ClearAndSelect
+            | QItemSelectionModel.SelectionFlag.Rows,
         )
         if scrollTo:
-            self.scrollTo(index, QAbstractItemView.PositionAtTop)
+            self.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtTop)
 
     def expandPreviewFolders(self, path: str) -> bool:
         """

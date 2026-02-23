@@ -772,14 +772,14 @@ def create_bugreport_tar(
 
     if not log_path:
         log_path = os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.GenericCacheLocation),
+            QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericCacheLocation),
             "rapid-photo-downloader",
             "log",
         )
 
     if not full_config_file:
         config_dir = os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.GenericConfigLocation),
+            QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericConfigLocation),
             "Rapid Photo Downloader",
         )
         config_file = "Rapid Photo Downloader.conf"
@@ -1095,7 +1095,7 @@ def getQtSystemTranslation(locale_name: str) -> QTranslator | None:
     :return: translator if loaded, else None
     """
 
-    # These locales are found in the path QLibraryInfo.TranslationsPath
+    # These locales are found in the path QLibraryInfo.LibraryPath.TranslationsPath
     convert_locale = dict(
         cs_CZ="cs",
         da_DK="da",
@@ -1113,7 +1113,7 @@ def getQtSystemTranslation(locale_name: str) -> QTranslator | None:
     )
 
     qtTranslator = QTranslator()
-    location = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+    location = QLibraryInfo.location(QLibraryInfo.LibraryPath.TranslationsPath)
     qm_file = f"qtbase_{convert_locale.get(locale_name, locale_name)}.qm"
     qm_file = os.path.join(location, qm_file)
     if os.path.isfile(qm_file):

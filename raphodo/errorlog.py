@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Error log window for Rapid Photo Downloader
@@ -72,7 +72,7 @@ class QFindLineEdit(QLineEdit):
             self.find_text = find_text
 
         self.noTextPalette = QPalette()
-        self.noTextPalette.setColor(QPalette.Text, Qt.gray)
+        self.noTextPalette.setColor(QPalette.ColorRole.Text, Qt.gray)
 
         self.setEmptyState()
 
@@ -157,10 +157,13 @@ class ErrorReport(QDialog):
         self.textHighlightColor = QColor(Qt.white)
 
         self.noFindPalette = QPalette()
-        self.noFindPalette.setColor(QPalette.WindowText, QPalette().color(QPalette.Mid))
+        self.noFindPalette.setColor(
+            QPalette.ColorRole.WindowText, QPalette().color(QPalette.ColorRole.Mid)
+        )
         self.foundPalette = QPalette()
         self.foundPalette.setColor(
-            QPalette.WindowText, QPalette().color(QPalette.WindowText)
+            QPalette.ColorRole.WindowText,
+            QPalette().color(QPalette.ColorRole.WindowText),
         )
 
         self.find_cursors = []
@@ -236,10 +239,10 @@ class ErrorReport(QDialog):
         findLayout.addSpacing(spacing)
         findLayout.addWidget(self.findResults)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         translateDialogBoxButtons(buttons)
         self.clear: QPushButton = buttons.addButton(
-            _("Clear"), QDialogButtonBox.ActionRole
+            _("Clear"), QDialogButtonBox.ButtonRole.ActionRole
         )
         buttons.rejected.connect(self.reject)
         self.clear.clicked.connect(self.clearClicked)
@@ -267,11 +270,11 @@ class ErrorReport(QDialog):
     def _makeFind(self, back: bool = False) -> QTextDocument.FindFlags:
         flags = QTextDocument.FindFlags()
         if self.matchCase.isChecked():
-            flags |= QTextDocument.FindCaseSensitively
+            flags |= QTextDocument.FindFlag.FindCaseSensitively
         if self.wholeWords.isChecked():
-            flags |= QTextDocument.FindWholeWords
+            flags |= QTextDocument.FindFlag.FindWholeWords
         if back:
-            flags |= QTextDocument.FindBackward
+            flags |= QTextDocument.FindFlag.FindBackward
         return flags
 
     def _clearSearch(self) -> None:
@@ -307,7 +310,7 @@ class ErrorReport(QDialog):
 
         initial_position: int = cursor.selectionStart()
 
-        self.log.moveCursor(QTextCursor.Start)
+        self.log.moveCursor(QTextCursor.MoveOperation.Start)
 
         flags = self._makeFind()
         extraSelections = deque()
@@ -449,7 +452,7 @@ class ErrorReport(QDialog):
                 extra_text = text[end + 4 :]
             new_text = (
                 f'{new_text}<a href="file:///{len(self.uris)}">'
-                f"{text[href_end + 2: end]}</a>{extra_text}"
+                f"{text[href_end + 2 : end]}</a>{extra_text}"
             )
             self.uris.append(href)
             start = next_start
@@ -508,7 +511,7 @@ class ErrorReport(QDialog):
             QTimer.singleShot(1000, self._doFind)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        if event.matches(QKeySequence.Find):
+        if event.matches(QKeySequence.StandardKey.Find):
             self.find.setFocus()
         else:
             super().keyPressEvent(event)
@@ -544,7 +547,7 @@ class SpeechBubble(QLabel):
         self.rapidApp = parent
         self.image = QIcon(data_file_path("speech-bubble.svg"))
         self._count = 0
-        self.fillColor = QPalette().color(QPalette.Window)
+        self.fillColor = QPalette().color(QPalette.ColorRole.Window)
         self.counterFont = QFont()
         self.counterFont.setPointSize(QFont().pointSize() - 1)
         self.custom_height = max(

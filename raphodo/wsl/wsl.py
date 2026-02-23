@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2021-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2021-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import enum
 import logging
@@ -404,7 +404,7 @@ def do_mount_drives_op(
             standardButtons=QMessageBox.Ok,
             parent=parent,
             rich_text=True,
-            iconType=QMessageBox.Warning,
+            iconType=QMessageBox.Icon.Warning,
         )
         msgBox.setDetailedText(failure_messages)
         msgBox.exec()
@@ -481,7 +481,9 @@ class PendingOpsBox(QTextBrowser):
         super().__init__(parent=parent)
         self.setReadOnly(True)
         self.setMinimumHeight(self.fontMetrics().height() * 4)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding
+        )
         sheet = """
         tt {
             font-weight: bold;
@@ -578,22 +580,20 @@ class WslMountDriveDialog(QDialog):
         autoMountLayout.setContentsMargins(0, 0, 0, 8)
 
         self.driveTable = QTableWidget(len(drives), 6, self)
-        self.driveTable.setHorizontalHeaderLabels(
-            [
-                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-                _("User Mounted"),
-                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-                _("System Mounted"),
-                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-                _("Drive"),
-                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-                _("Mount Point"),
-                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-                _("Automatic Mount"),
-                # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-                _("Automatic Unmount at Exit"),
-            ]
-        )
+        self.driveTable.setHorizontalHeaderLabels([
+            # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+            _("User Mounted"),
+            # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+            _("System Mounted"),
+            # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+            _("Drive"),
+            # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+            _("Mount Point"),
+            # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+            _("Automatic Mount"),
+            # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
+            _("Automatic Unmount at Exit"),
+        ])
         self.userMountCol = 0
         self.systemMountCol = 1
         self.mountPointCol = 3
@@ -611,7 +611,9 @@ class WslMountDriveDialog(QDialog):
         ):
             self.driveTable.setItemDelegateForColumn(col, delegate)
 
-        self.driveTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.driveTable.setSizeAdjustPolicy(
+            QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents
+        )
         for row, drive in enumerate(drives):
             self.addDriveAtRow(row, drive)
 
@@ -627,14 +629,20 @@ class WslMountDriveDialog(QDialog):
         self.pendingOpsBox = PendingOpsBox(self)
 
         buttonBox = QDialogButtonBox(
-            QDialogButtonBox.Apply | QDialogButtonBox.Close | QDialogButtonBox.Help
+            QDialogButtonBox.StandardButton.Apply
+            | QDialogButtonBox.StandardButton.Close
+            | QDialogButtonBox.StandardButton.Help
         )
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
-        self.helpButton: QPushButton = buttonBox.button(QDialogButtonBox.Help)
+        self.helpButton: QPushButton = buttonBox.button(
+            QDialogButtonBox.StandardButton.Help
+        )
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.applyButton: QPushButton = buttonBox.button(QDialogButtonBox.Apply)
+        self.applyButton: QPushButton = buttonBox.button(
+            QDialogButtonBox.StandardButton.Apply
+        )
         self.applyButton.clicked.connect(self.applyButtonClicked)
         # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.applyButton.setText(_("&Apply Pending Operations"))
@@ -1565,9 +1573,10 @@ class WslWindowsRemovableDriveMonitor(QObject):
         if timer_active:
             self.timer.stop()
         try:
-            current_drives = wsl_windows_drives(
-                (WindowsDriveType.removable_disk, WindowsDriveType.local_disk)
-            )
+            current_drives = wsl_windows_drives((
+                WindowsDriveType.removable_disk,
+                WindowsDriveType.local_disk,
+            ))
         except Exception:
             if timer_active:
                 self.stopMonitor()

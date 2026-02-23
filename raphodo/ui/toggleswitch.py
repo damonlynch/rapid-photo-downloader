@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Toggle Switch reminiscent of Android On/off switches:
@@ -141,7 +141,7 @@ class QToggleSwitch(QSlider):
 
     @pyqtSlot(int)
     def onActionTriggered(self, action: int) -> None:
-        if action == QAbstractSlider.SliderMove:
+        if action == QAbstractSlider.SliderAction.SliderMove:
             self.dragged = True
         else:
             if action % 2:

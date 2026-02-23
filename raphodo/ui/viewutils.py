@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import functools
 import sys
@@ -364,7 +364,7 @@ class FramedScrollBar(QScrollBar):
                 color = self.palette().base().color()
             else:
                 color = self.palette().button().color().lighter(102)
-            palette.setColor(QPalette.Button, color)
+            palette.setColor(QPalette.ColorRole.Button, color)
             option.palette = palette
         self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
 
@@ -553,7 +553,7 @@ class BlankWidget(FlexiFrame):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         palette = QPalette()
-        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        palette.setColor(QPalette.ColorRole.Window, palette.color(palette.Base))
         self.setAutoFillBackground(True)
         self.setPalette(palette)
 
@@ -596,7 +596,7 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
 
 @functools.cache
 def is_dark_mode() -> bool:
-    text_hsv_value = QApplication.palette().color(QPalette.WindowText).value()
+    text_hsv_value = QApplication.palette().color(QPalette.ColorRole.WindowText).value()
     bg_hsv_value = QApplication.palette().color(QPalette.Background).value()
     return text_hsv_value > bg_hsv_value
 
@@ -658,14 +658,14 @@ def translateDialogBoxButtons(buttonBox: QDialogButtonBox) -> None:
         return
 
     buttons = (
-        (QDialogButtonBox.Ok, _("&OK")),
-        (QDialogButtonBox.Close, _("&Close")),
-        (QDialogButtonBox.Cancel, _("&Cancel")),
-        (QDialogButtonBox.Save, _("&Save")),
-        (QDialogButtonBox.Help, _("&Help")),
-        (QDialogButtonBox.RestoreDefaults, _("Restore Defaults")),
-        (QDialogButtonBox.Yes, _("&Yes")),
-        (QDialogButtonBox.No, _("&No")),
+        (QDialogButtonBox.StandardButton.Ok, _("&OK")),
+        (QDialogButtonBox.StandardButton.Close, _("&Close")),
+        (QDialogButtonBox.StandardButton.Cancel, _("&Cancel")),
+        (QDialogButtonBox.StandardButton.Save, _("&Save")),
+        (QDialogButtonBox.StandardButton.Help, _("&Help")),
+        (QDialogButtonBox.StandardButton.RestoreDefaults, _("Restore Defaults")),
+        (QDialogButtonBox.StandardButton.Yes, _("&Yes")),
+        (QDialogButtonBox.StandardButton.No, _("&No")),
     )
     for role, text in buttons:
         button = buttonBox.button(role)
@@ -713,7 +713,7 @@ def standardMessageBox(
     :param title: optional title for message box, else defaults to
      localized 'Rapid Photo Downloader'
     :param iconType: type of QMessageBox.Icon to display. If standardButtons
-     are equal to QMessageBox.Yes | QMessageBox.No, then QMessageBox.Question
+     are equal to QMessageBox.Yes | QMessageBox.No, then QMessageBox.Icon.Question
      will be assigned to iconType
     :param iconPixmap: icon to display, in QPixmap format. Used only if
     iconType is None
@@ -736,7 +736,7 @@ def standardMessageBox(
     translateMessageBoxButtons(messageBox=msgBox)
 
     if iconType is None and standardButtons == QMessageBox.Yes | QMessageBox.No:
-        iconType = QMessageBox.Question
+        iconType = QMessageBox.Icon.Question
 
     if iconType:
         msgBox.setIcon(iconType)
@@ -871,7 +871,7 @@ def coloredPixmap(
         assert pixmap is not None
 
     painter = QPainter(pixmap)
-    painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+    painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
     painter.fillRect(pixmap.rect(), color)
     painter.end()
     return pixmap
@@ -927,7 +927,7 @@ def darkModeIcon(
 
 def menuHoverColor() -> QColor:
     if is_dark_mode():
-        return QGuiApplication.palette().color(QPalette.Highlight)
+        return QGuiApplication.palette().color(QPalette.ColorRole.Highlight)
     else:
         return QGuiApplication.palette().color(QPalette.Background).darker(110)
 
@@ -1039,8 +1039,10 @@ class CheckBoxDelegate(QItemDelegate):
         else:
             checkboxStyleOption.state &= ~QStyle.State_Enabled
             checkboxStyleOption.state |= QStyle.State_ReadOnly
-            color = checkboxStyleOption.palette.color(QPalette.Window).darker(130)
-            checkboxStyleOption.palette.setColor(QPalette.Text, color)
+            color = checkboxStyleOption.palette.color(QPalette.ColorRole.Window).darker(
+                130
+            )
+            checkboxStyleOption.palette.setColor(QPalette.ColorRole.Text, color)
 
         checkboxStyleOption.rect = option.rect
         checkboxStyleOption.rect.setX(

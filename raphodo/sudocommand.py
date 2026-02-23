@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2021-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2021-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 import shlex
@@ -55,7 +55,7 @@ class SudoCommand(QDialog):
             pixmap = i.pixmap(QSize(size, size))
             titleIcon = QLabel()
             titleIcon.setPixmap(pixmap)
-            titleIcon.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            titleIcon.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             if len(title) > word_wrap_width:
                 # DO NOT set wordwrap on the richtext QLabel, or else the Qt layout
                 # management is truly screwed!!
@@ -68,7 +68,9 @@ class SudoCommand(QDialog):
             titleLabel = QLabel(f"<b>{title}</b>")
             titleLabel.setTextFormat(Qt.RichText)
             titleLabel.setAlignment(Qt.AlignTop)
-            titleLabel.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+            titleLabel.setSizePolicy(
+                QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
+            )
             titleHLayout.addWidget(titleIcon, alignment=Qt.AlignTop)
             titleHLayout.addWidget(titleLabel, alignment=Qt.AlignTop)
             titleLayout = QVBoxLayout()
@@ -89,7 +91,7 @@ class SudoCommand(QDialog):
         if len(msgLabel.text()) > 50:
             msgLabel.setWordWrap(True)
             msgLabel.setSizePolicy(
-                QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+                QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
             )
 
         if hint:
@@ -97,25 +99,28 @@ class SudoCommand(QDialog):
             if len(hint) > 50:
                 hintLabel.setWordWrap(True)
                 hintLabel.setSizePolicy(
-                    QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+                    QSizePolicy.Policy.MinimumExpanding,
+                    QSizePolicy.Policy.MinimumExpanding,
                 )
 
         self.passwordEdit = PasswordEdit()
         self.passwordEdit.setMinimumWidth(220)
         self.passwordEdit.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        buttonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok
+        )
         if help_url:
             self.help_url = help_url
-            self.helpButton = buttonBox.addButton(QDialogButtonBox.Help)
+            self.helpButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Help)
             self.helpButton.clicked.connect(self.helpButtonClicked)
 
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
         buttonBox.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )
 
         layout = QVBoxLayout()
