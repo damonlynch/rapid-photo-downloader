@@ -588,4 +588,4 @@ if __name__ == "__main__":
 
     dialog = DidYouKnowDialog(prefs=prefs)
     dialog.show()
-    app.exec_()
+    app.exec()

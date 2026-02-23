@@ -613,4 +613,4 @@ if __name__ == "__main__":
 
     log = ErrorReport(None)
     log.show()
-    app.exec_()
+    app.exec()

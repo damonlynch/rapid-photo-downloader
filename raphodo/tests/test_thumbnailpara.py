@@ -108,5 +108,5 @@ if __name__ == '__main__':
                            camera_port)
         tt.show()
         app.setActiveWindow(tt)
-        code = app.exec_()
+        code = app.exec()
     sys.exit(code)

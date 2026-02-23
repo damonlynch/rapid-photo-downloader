@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-# SPDX-FileCopyrightText: 2015 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 
 import sys
@@ -125,4 +125,4 @@ from cache import ThumbnailCacheSql
 #     tt.show()
 #
 #     app.setActiveWindow(tt)
-#     sys.exit(app.exec_())
+#     sys.exit(app.exec())

@@ -1752,4 +1752,4 @@ if __name__ == "__main__":
     #     NameGenerationType.video_subfolder, prefs, max_entries=10
     # )
     prefDialog.show()
-    app.exec_()
+    app.exec()

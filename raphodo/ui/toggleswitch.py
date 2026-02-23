@@ -180,4 +180,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     b = QToggleSwitch(size=10)
     b.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

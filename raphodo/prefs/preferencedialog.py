@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Dialog window to show and manipulate selected user preferences
@@ -196,7 +196,9 @@ class PreferencesDialog(QDialog):
 
         self.chooser.currentRowChanged.connect(self.rowChanged)
         self.chooser.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.chooser.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.MinimumExpanding)
+        self.chooser.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.MinimumExpanding
+        )
 
         self.devices = QWidget()
 
@@ -473,7 +475,9 @@ class PreferencesDialog(QDialog):
         self.coresLabel = QLabel(_("CPU cores:"))
         self.coresLabel.setToolTip(tip)
         self.maxCores.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-        self.maxCores.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.maxCores.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+        )
         self.maxCores.setToolTip(tip)
 
         self.setPerformanceValues()
@@ -572,7 +576,9 @@ class PreferencesDialog(QDialog):
         )
         self.timeZoneOffsetResolution = QComboBox()
         self.timeZoneOffsetResolution.setEditable(False)
-        self.timeZoneOffsetResolution.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.timeZoneOffsetResolution.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToContents
+        )
         self.timeZoneOffsetResolution.setSizePolicy(
             QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
         )
@@ -1050,10 +1056,14 @@ class PreferencesDialog(QDialog):
             QDialogButtonBox.StandardButton.RestoreDefaults
         )
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
-        self.helpButton: QPushButton = buttons.button(QDialogButtonBox.StandardButton.Help)
+        self.helpButton: QPushButton = buttons.button(
+            QDialogButtonBox.StandardButton.Help
+        )
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.closeButton: QPushButton = buttons.button(QDialogButtonBox.StandardButton.Close)
+        self.closeButton: QPushButton = buttons.button(
+            QDialogButtonBox.StandardButton.Close
+        )
         self.closeButton.clicked.connect(self.close)
 
         controlsLayout = QHBoxLayout()
@@ -1566,7 +1576,7 @@ class PreferencesDialog(QDialog):
             rich_text=False,
         )
 
-        if msgBox.exec_() == QMessageBox.Yes:
+        if msgBox.exec() == QMessageBox.Yes:
             self.prefs.purge_thumbnails = True
             self.prefs.optimize_thumbnail_db = False
         else:
@@ -1585,7 +1595,7 @@ class PreferencesDialog(QDialog):
             standardButtons=QMessageBox.Yes | QMessageBox.No,
             rich_text=False,
         )
-        if msgBox.exec_() == QMessageBox.Yes:
+        if msgBox.exec() == QMessageBox.Yes:
             self.prefs.purge_thumbnails = False
             self.prefs.optimize_thumbnail_db = True
         else:
@@ -1876,7 +1886,9 @@ class PreferenceAddDialog(QDialog):
         formLayout = QFormLayout()
         formLayout.addRow(label, self.valueEdit)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok
+        )
         translateDialogBoxButtons(buttons)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self.accept)
@@ -2019,4 +2031,4 @@ if __name__ == "__main__":
 
     prefDialog = PreferencesDialog(prefs)
     prefDialog.show()
-    app.exec_()
+    app.exec()

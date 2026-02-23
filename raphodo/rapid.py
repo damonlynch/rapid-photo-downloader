@@ -1085,7 +1085,7 @@ class RapidWindow(QMainWindow):
                 title=_("Problem with ExifTool"),
             )
 
-            warning.exec_()
+            warning.exec()
             if warning.remember:
                 self.prefs.warn_broken_or_missing_libraries = False
 
@@ -1106,7 +1106,7 @@ class RapidWindow(QMainWindow):
                 title=_("Problem with libmediainfo"),
             )
 
-            warning.exec_()
+            warning.exec()
             if warning.remember:
                 self.prefs.warn_broken_or_missing_libraries = False
 
@@ -1558,7 +1558,9 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         self.errorsPending = SpeechBubble(self)
-        self.errorsPending.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.errorsPending.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+        )
         status.addPermanentWidget(self.errorsPending)
         status.addPermanentWidget(self.downloadProgressBar, 1)
 
@@ -1623,7 +1625,9 @@ difference to the program's future.</p>"""
             messagebox.setInformativeText(_("Do you want to take the survey?"))
 
             # Use custom buttons, thereby avoiding button icons
-            later = messagebox.addButton(_("Ask me later"), QMessageBox.ButtonRole.RejectRole)
+            later = messagebox.addButton(
+                _("Ask me later"), QMessageBox.ButtonRole.RejectRole
+            )
             yes = messagebox.addButton(_("Yes"), QMessageBox.ButtonRole.AcceptRole)
             alreadyDid = messagebox.addButton(
                 # Translators: "I already took it" means "I already took the survey"
@@ -2748,7 +2752,7 @@ difference to the program's future.</p>"""
             standardButtons=QMessageBox.Save | QMessageBox.Cancel,
             defaultButton=QMessageBox.Save,
         )
-        if errorbox.exec_() == QMessageBox.Save:
+        if errorbox.exec() == QMessageBox.Save:
             excepthook.save_bug_report_tar(
                 config_file=self.prefs.settings_path(),
                 full_log_file_path=iplogging.full_log_file_path(),
@@ -3108,7 +3112,7 @@ Do you want to proceed with the download?"""
                         parent=self,
                     )
 
-                    start_download = warning.exec_()
+                    start_download = warning.exec()
                     if warning.remember:
                         self.prefs.warn_downloading_all = False
 
@@ -4684,7 +4688,7 @@ Do you want to proceed with the download?"""
         msgBox.addButton(_("&Try Again"), QMessageBox.ButtonRole.AcceptRole)
         msgBox.addButton(_("&Ignore This Device"), QMessageBox.ButtonRole.RejectRole)
         self.prompting_for_user_action[device] = msgBox
-        role = msgBox.exec_()
+        role = msgBox.exec()
         if role == QMessageBox.ButtonRole.AcceptRole:
             self.sendResumeToThread(self.scan_controller, worker_id=scan_id)
         else:
@@ -5373,7 +5377,7 @@ Do you want to proceed with the download?"""
                     QMessageBox.Icon.Warning, title, message, QMessageBox.Ok
                 )
                 msgBox.setIconPixmap(camera.get_pixmap())
-                msgBox.exec_()
+                msgBox.exec()
         else:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
             if scan_id:
@@ -5542,7 +5546,7 @@ Do you want to proceed with the download?"""
                     parent=self,
                 )
 
-                clear = questionDialog.exec_()
+                clear = questionDialog.exec()
                 if clear:
                     self.thumbnailModel.clearCompletedDownloads()
 
@@ -6518,7 +6522,7 @@ def critical_startup_error(message: str) -> None:
     msg.setInformativeText(_("Program aborting."))
     msg.setStandardButtons(QMessageBox.Ok)
     msg.show()
-    errorapp.exec_()
+    errorapp.exec()
 
 
 def main():
@@ -7029,7 +7033,7 @@ def main():
     )
 
     app.setActivationWindow(rw)
-    code = app.exec_()
+    code = app.exec()
     logging.debug("Exiting")
     sys.exit(code)
 

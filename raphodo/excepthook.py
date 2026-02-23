@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import io
 import logging
@@ -94,7 +94,7 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             title=tar_created_title,
             standardButtons=QMessageBox.Ok,
         )
-        messagebox.exec_()
+        messagebox.exec()
     else:
         # There was some kind of problem generating the tar file, e.g. no free space
         log_uri = get_uri(log_path)
@@ -114,7 +114,7 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             title=tar_error_title,
             standardButtons=QMessageBox.Ok,
         )
-        messageBox.exec_()
+        messageBox.exec()
 
 
 def excepthook(exception_type, exception_value, traceback_object) -> None:
@@ -175,7 +175,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                 defaultButton=QMessageBox.Save,
             )
             errorbox.setDetailedText(traceback_info)
-            if errorbox.exec_() == QMessageBox.Save:
+            if errorbox.exec() == QMessageBox.Save:
                 save_bug_report_tar(
                     config_file=prefs.settings_path(),
                     full_log_file_path=full_log_file_path(),
