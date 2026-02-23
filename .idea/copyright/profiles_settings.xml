@@ -1,0 +1,14 @@
+<component name="CopyrightManager">
+  <settings>
+    <module2copyright>
+      <element module="Damon Lynch exclusive GPL3 code" copyright="Copyright Damon Lynch GPL 3" />
+    </module2copyright>
+    <LanguageOptions name="Python">
+      <option name="fileTypeOverride" value="3" />
+      <option name="block" value="false" />
+    </LanguageOptions>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="block" value="false" />
+    </LanguageOptions>
+  </settings>
+</component>

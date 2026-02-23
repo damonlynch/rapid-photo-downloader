@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Damon Lynch exclusive GPL3 code" pattern="file:*.py&amp;&amp;!file:raphodo/internationalisation/__init__.py&amp;&amp;!file:raphodo/__init__.py&amp;&amp;!file:raphodo/metadata/__init__.py&amp;&amp;!file:raphodo/metadata/exiftool.py&amp;&amp;!file:raphodo/prefs/__init__.py&amp;&amp;!file:raphodo/tools/xsettings.py&amp;&amp;!file:raphodo/ui/__init__.py&amp;&amp;!file:raphodo/ui/password.py&amp;&amp;!file:raphodo/camera.py&amp;&amp;!file:raphodo/ui/devicedisplay.py&amp;&amp;!file:raphodo/storage/storage.py&amp;&amp;!file:raphodo/storage/__init__.py" />
+</component>
