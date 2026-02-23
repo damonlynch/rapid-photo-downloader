@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Combo box with a chevron selector
@@ -48,5 +48,5 @@ class ChevronCombo(QComboBox):
         """
         label = QLabel(text)
         label.setAlignment(Qt.AlignBottom)
-        label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+        label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
         return label

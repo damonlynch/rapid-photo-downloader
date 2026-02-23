@@ -100,7 +100,7 @@ class AboutDialog(QDialog):
 
         details.setStyleSheet(details_style_sheet)
         details.setOpenExternalLinks(True)
-        details.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        details.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         font: QFont = self.font()
         font_size = font.pointSize() - 2
         font.setPointSize(font_size)
@@ -339,18 +339,18 @@ class AboutDialog(QDialog):
         self.stack.addWidget(about)
         self.stack.addWidget(credits)
         self.stack.addWidget(translators)
-        self.stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.stack.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         buttonBox = QDialogButtonBox()
-        closeButton: QPushButton = buttonBox.addButton(QDialogButtonBox.Close)
+        closeButton: QPushButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Close)
         translateDialogBoxButtons(buttonBox)
         self.creditsButton: QPushButton = buttonBox.addButton(
-            _("Credits"), QDialogButtonBox.HelpRole
+            _("Credits"), QDialogButtonBox.ButtonRole.HelpRole
         )
         self.creditsButton.setDefault(False)
         self.creditsButton.setCheckable(True)
         self.translatorsButton: QPushButton = buttonBox.addButton(
-            _("Translators"), QDialogButtonBox.ResetRole
+            _("Translators"), QDialogButtonBox.ButtonRole.ResetRole
         )
         self.translatorsButton.setDefault(False)
         self.translatorsButton.setCheckable(True)

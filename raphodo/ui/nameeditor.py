@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Dialog for editing download subfolder structure and file renaming
@@ -154,7 +154,7 @@ class PrefEditor(QTextEdit):
             if pref_pos != PrefPosition.not_here:
                 cursor = self.textCursor()
                 cursor.setPosition(start)
-                cursor.setPosition(end + 1, QTextCursor.KeepAnchor)
+                cursor.setPosition(end + 1, QTextCursor.MoveMode.KeepAnchor)
                 self.setTextCursor(cursor)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -196,28 +196,28 @@ class PrefEditor(QTextEdit):
             # move the cursor as if it would be moved
             if key == Qt.Key_Right and not cursor.atEnd():
                 if ctrl_key:
-                    cursor.movePosition(QTextCursor.WordRight)
+                    cursor.movePosition(QTextCursor.MoveOperation.WordRight)
                 else:
-                    cursor.movePosition(QTextCursor.Right)
+                    cursor.movePosition(QTextCursor.MoveOperation.Right)
             elif key == Qt.Key_Left and not cursor.atStart():
                 if ctrl_key:
-                    cursor.movePosition(QTextCursor.WordLeft)
+                    cursor.movePosition(QTextCursor.MoveOperation.WordLeft)
                 else:
-                    cursor.movePosition(QTextCursor.Left)
+                    cursor.movePosition(QTextCursor.MoveOperation.Left)
             elif key == Qt.Key_Up:
-                cursor.movePosition(QTextCursor.Up)
+                cursor.movePosition(QTextCursor.MoveOperation.Up)
             elif key == Qt.Key_Down:
-                cursor.movePosition(QTextCursor.Down)
+                cursor.movePosition(QTextCursor.MoveOperation.Down)
             elif key in (Qt.Key_Home, Qt.Key_PageUp):
                 if ctrl_key or key == Qt.Key_PageUp:
-                    cursor.movePosition(QTextCursor.StartOfBlock)
+                    cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock)
                 else:
-                    cursor.movePosition(QTextCursor.StartOfLine)
+                    cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
             elif key in (Qt.Key_End, Qt.Key_PageDown):
                 if ctrl_key or key == Qt.Key_PageDown:
-                    cursor.movePosition(QTextCursor.EndOfBlock)
+                    cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock)
                 else:
-                    cursor.movePosition(QTextCursor.EndOfLine)
+                    cursor.movePosition(QTextCursor.MoveOperation.EndOfLine)
 
             # Get position of where the cursor would move to
             position = cursor.position()
@@ -242,7 +242,7 @@ class PrefEditor(QTextEdit):
 
             if selection_end >= 0 and selection_start >= 0:
                 cursor.setPosition(selection_start)
-                cursor.setPosition(selection_end, QTextCursor.KeepAnchor)
+                cursor.setPosition(selection_end, QTextCursor.MoveMode.KeepAnchor)
                 self.setTextCursor(cursor)
                 return
 
@@ -793,8 +793,10 @@ class CreatePreset(QDialog):
         flayout.addRow(_("Preset Name:"), self.name)
 
         buttonBox = QDialogButtonBox()
-        buttonBox.addButton(QDialogButtonBox.Cancel)
-        self.saveButton: QPushButton = buttonBox.addButton(QDialogButtonBox.Save)
+        buttonBox.addButton(QDialogButtonBox.StandardButton.Cancel)
+        self.saveButton: QPushButton = buttonBox.addButton(
+            QDialogButtonBox.StandardButton.Save
+        )
         self.saveButton.setEnabled(False)
         translateDialogBoxButtons(buttonBox)
         buttonBox.rejected.connect(self.reject)
@@ -1023,7 +1025,9 @@ class PrefDialog(QDialog):
         self.messageWidget = MessageWidget(messages=messages)
 
         self.editor = PrefEditor(subfolder=self.is_subfolder)
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
         sizePolicy.setVerticalStretch(1)
         self.editor.setSizePolicy(sizePolicy)
 
@@ -1062,13 +1066,17 @@ class PrefDialog(QDialog):
         layout.addWidget(self.messageWidget)
 
         self.area = QScrollArea()
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy = QSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding
+        )
         sizePolicy.setVerticalStretch(10)
         self.area.setSizePolicy(sizePolicy)
         self.area.setFrameShape(QFrame.NoFrame)
         layout.addWidget(self.area)
 
-        gbSizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        gbSizePolicy = QSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
 
         areaWidget = QWidget()
         areaLayout = QVBoxLayout()
@@ -1080,7 +1088,9 @@ class PrefDialog(QDialog):
 
         areaLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.pushButtonSizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.pushButtonSizePolicy = QSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
 
         self.mapper = QSignalMapper(self)
         self.widget_mapper: dict[str, QComboBox | QLabel] = dict()
@@ -1175,9 +1185,13 @@ class PrefDialog(QDialog):
         self.mapper.mapped[str].connect(self.choiceMade)
 
         buttonBox = QDialogButtonBox(
-            QDialogButtonBox.Cancel | QDialogButtonBox.Ok | QDialogButtonBox.Help
+            QDialogButtonBox.StandardButton.Cancel
+            | QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Help
         )
-        self.helpButton: QPushButton = buttonBox.button(QDialogButtonBox.Help)
+        self.helpButton: QPushButton = buttonBox.button(
+            QDialogButtonBox.StandardButton.Help
+        )
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
         translateDialogBoxButtons(buttonBox)
@@ -1650,7 +1664,7 @@ class PrefDialog(QDialog):
                 assert self.preset.preset_edited
                 msgBox = QMessageBox()
                 msgBox.setTextFormat(Qt.RichText)
-                msgBox.setIcon(QMessageBox.Question)
+                msgBox.setIcon(QMessageBox.Icon.Question)
                 msgBox.setWindowTitle(title)
                 message = _(
                     "<b>Do you want to save the changes in a custom preset?</b><br><br>"
@@ -1664,10 +1678,10 @@ class PrefDialog(QDialog):
                 translateMessageBoxButtons(msgBox)
                 updateButton = msgBox.addButton(
                     _('Update Custom Preset "%s"') % self.current_custom_name,
-                    QMessageBox.YesRole,
+                    QMessageBox.ButtonRole.YesRole,
                 )
                 newButton = msgBox.addButton(
-                    _("Save New Custom Preset"), QMessageBox.YesRole
+                    _("Save New Custom Preset"), QMessageBox.ButtonRole.YesRole
                 )
 
             choice = msgBox.exec()

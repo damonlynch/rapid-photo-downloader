@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Yes/No dialog that displays a statement along with a "Remember this choice"
@@ -76,10 +76,10 @@ class RememberThisDialog(QDialog):
         buttonBox = QDialogButtonBox()
 
         if buttons == RememberThisButtons.yes_no:
-            yesButton = buttonBox.addButton(QDialogButtonBox.Yes)
-            noButton = buttonBox.addButton(QDialogButtonBox.No)
+            yesButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Yes)
+            noButton = buttonBox.addButton(QDialogButtonBox.StandardButton.No)
         else:
-            okayButton = buttonBox.addButton(QDialogButtonBox.Ok)
+            okayButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Ok)
 
         translateDialogBoxButtons(buttonBox)
 

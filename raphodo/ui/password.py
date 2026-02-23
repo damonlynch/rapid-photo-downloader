@@ -4,6 +4,7 @@
 # Source:
 # https://github.com/pythonguis/python-qtwidgets/blob/master/qtwidgets/passwordedit/password.py
 
+# Edited Damon Lynch 2026 to update enum scopes
 # Edited Damon Lynch 2024 to remove resource import
 # Edited Damon Lynch 2024 to optimize imports
 
@@ -25,12 +26,12 @@ class PasswordEdit(QtWidgets.QLineEdit):
         self.visibleIcon = QtGui.QIcon(data_file_path("icons/eye.svg"))
         self.hiddenIcon = QtGui.QIcon(data_file_path("icons/hidden.svg"))
 
-        self.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 
         if show_visibility:
             # Add the password hide/shown toggle at the end of the edit box.
             self.togglepasswordAction = self.addAction(
-                self.visibleIcon, QtWidgets.QLineEdit.TrailingPosition
+                self.visibleIcon, QtWidgets.QLineEdit.ActionPosition.TrailingPosition
             )
             self.togglepasswordAction.triggered.connect(self.on_toggle_password_Action)
 
@@ -38,10 +39,10 @@ class PasswordEdit(QtWidgets.QLineEdit):
 
     def on_toggle_password_Action(self):
         if not self.password_shown:
-            self.setEchoMode(QtWidgets.QLineEdit.Normal)
+            self.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
             self.password_shown = True
             self.togglepasswordAction.setIcon(self.hiddenIcon)
         else:
-            self.setEchoMode(QtWidgets.QLineEdit.Password)
+            self.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
             self.password_shown = False
             self.togglepasswordAction.setIcon(self.visibleIcon)

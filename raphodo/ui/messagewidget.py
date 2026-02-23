@@ -54,7 +54,7 @@ class MessageWidget(QStackedWidget):
             label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
             self.addWidget(label)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
 
 
 class MessageButton(QPushButton):

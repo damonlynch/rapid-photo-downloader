@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display photo and video sources -- Devices and This Computer, as well as the Timeline
@@ -98,10 +98,10 @@ class SourcePanel(ScrollAreaNoFrame):
         self.temporalProximity = self.rapidApp.temporalProximity
 
         self.deviceToggleView.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
         )
         self.temporalProximity.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding
         )
 
         layout: QVBoxLayout = self.sourcePanelWidget.layout()
@@ -160,8 +160,7 @@ class SourcePanel(ScrollAreaNoFrame):
                 splitterSetting
             ):
                 logging.debug(
-                    "Did not restore left splitter sizing because it is no "
-                    "longer valid"
+                    "Did not restore left splitter sizing because it is no longer valid"
                 )
 
         self.setThisComputerToggleViewSizePolicy()
@@ -170,20 +169,20 @@ class SourcePanel(ScrollAreaNoFrame):
         if self.thisComputerToggleView.on():
             if self.temporalProximityIsChecked():
                 self.thisComputerToggleView.setSizePolicy(
-                    QSizePolicy.Preferred, QSizePolicy.Preferred
+                    QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred
                 )
             else:
                 self.thisComputerToggleView.setSizePolicy(
-                    QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+                    QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding
                 )
         else:
             if self.temporalProximityIsChecked():
                 self.thisComputerToggleView.setSizePolicy(
-                    QSizePolicy.Preferred, QSizePolicy.Fixed
+                    QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
                 )
             else:
                 self.thisComputerToggleView.setSizePolicy(
-                    QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+                    QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding
                 )
 
     def setSourcesVisible(self, visible: bool) -> None:

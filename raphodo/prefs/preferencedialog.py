@@ -186,8 +186,8 @@ class PreferencesDialog(QDialog):
             selected.fill(selectedColour)
             selected.setMask(pixmap.createMaskFromColor(Qt.transparent))
             pixmap = darkModePixmap(pixmap=pixmap)
-            icon.addPixmap(pixmap, QIcon.Normal)
-            icon.addPixmap(selected, QIcon.Selected)
+            icon.addPixmap(pixmap, QIcon.Mode.Normal)
+            icon.addPixmap(selected, QIcon.Mode.Selected)
 
             item = QListWidgetItem(icon, label, self.chooser)
             item.setFont(QFont())
@@ -195,8 +195,8 @@ class PreferencesDialog(QDialog):
             item.setSizeHint(QSize(width, icon_height * 2))
 
         self.chooser.currentRowChanged.connect(self.rowChanged)
-        self.chooser.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.chooser.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.MinimumExpanding)
+        self.chooser.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.chooser.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.MinimumExpanding)
 
         self.devices = QWidget()
 
@@ -368,8 +368,8 @@ class PreferencesDialog(QDialog):
         self.languages = QComboBox()
         self.languages.setEditable(False)
         self.languagesLabel = QLabel(_("Language: "))
-        self.languages.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        # self.languages.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.languages.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        # self.languages.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
         self.setLanguageWidgetValues()
 
@@ -472,8 +472,8 @@ class PreferencesDialog(QDialog):
         tip = _("Number of CPU cores used to generate thumbnails.")
         self.coresLabel = QLabel(_("CPU cores:"))
         self.coresLabel.setToolTip(tip)
-        self.maxCores.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.maxCores.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.maxCores.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.maxCores.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.maxCores.setToolTip(tip)
 
         self.setPerformanceValues()
@@ -539,10 +539,10 @@ class PreferencesDialog(QDialog):
 
         cacheButtons = QDialogButtonBox()
         self.purgeCache = cacheButtons.addButton(
-            _("Purge Cache..."), QDialogButtonBox.ResetRole
+            _("Purge Cache..."), QDialogButtonBox.ButtonRole.ResetRole
         )
         self.optimizeCache = cacheButtons.addButton(
-            _("Optimize Cache..."), QDialogButtonBox.ResetRole
+            _("Optimize Cache..."), QDialogButtonBox.ButtonRole.ResetRole
         )
         self.purgeCache.clicked.connect(self.purgeCacheClicked)
         self.optimizeCache.clicked.connect(self.optimizeCacheClicked)
@@ -572,9 +572,9 @@ class PreferencesDialog(QDialog):
         )
         self.timeZoneOffsetResolution = QComboBox()
         self.timeZoneOffsetResolution.setEditable(False)
-        self.timeZoneOffsetResolution.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.timeZoneOffsetResolution.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self.timeZoneOffsetResolution.setSizePolicy(
-            QSizePolicy.Minimum, QSizePolicy.Minimum
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
         )
         self.timeZoneOffsetResolution.addItems(("60", "30", "15"))
         # Translators: for an explanation of what an offset resolution is, see https://damonlynch.net/rapid/documentation/#timezoneoffsetresolution
@@ -872,7 +872,7 @@ class PreferencesDialog(QDialog):
         self.noconsolidationLabel = QLabel(explanation)
         self.noconsolidationLabel.setWordWrap(True)
         self.noconsolidationLabel.setSizePolicy(
-            QSizePolicy.Ignored, QSizePolicy.Minimum
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
         )
         # Unless this next call is made, for some reason the widget is far too high! :-(
         self.noconsolidationLabel.setContentsMargins(0, 0, 1, 0)
@@ -1041,19 +1041,19 @@ class PreferencesDialog(QDialog):
         layout.setContentsMargins(18, 18, 18, 18)
 
         buttons = QDialogButtonBox(
-            QDialogButtonBox.RestoreDefaults
-            | QDialogButtonBox.Close
-            | QDialogButtonBox.Help
+            QDialogButtonBox.StandardButton.RestoreDefaults
+            | QDialogButtonBox.StandardButton.Close
+            | QDialogButtonBox.StandardButton.Help
         )
         translateDialogBoxButtons(buttons)
         self.restoreButton: QPushButton = buttons.button(
-            QDialogButtonBox.RestoreDefaults
+            QDialogButtonBox.StandardButton.RestoreDefaults
         )
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
-        self.helpButton: QPushButton = buttons.button(QDialogButtonBox.Help)
+        self.helpButton: QPushButton = buttons.button(QDialogButtonBox.StandardButton.Help)
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.closeButton: QPushButton = buttons.button(QDialogButtonBox.Close)
+        self.closeButton: QPushButton = buttons.button(QDialogButtonBox.StandardButton.Close)
         self.closeButton.clicked.connect(self.close)
 
         controlsLayout = QHBoxLayout()
@@ -1876,7 +1876,7 @@ class PreferenceAddDialog(QDialog):
         formLayout = QFormLayout()
         formLayout.addRow(label, self.valueEdit)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         translateDialogBoxButtons(buttons)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self.accept)
@@ -1982,7 +1982,7 @@ class ExceptFileExtDialog(PreferenceAddDialog):
                     message=message,
                     rich_text=True,
                     standardButtons=QMessageBox.Ok,
-                    iconType=QMessageBox.Information,
+                    iconType=QMessageBox.Icon.Information,
                 )
                 msgBox.setDetailedText(details)
                 msgBox.exec()

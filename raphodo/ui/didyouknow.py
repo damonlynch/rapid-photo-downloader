@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Show 'Did you know?' dialog at start-up
@@ -478,10 +478,10 @@ class DidYouKnowDialog(QDialog):
         self.nextButton = QPushButton(_("&Next"))
         self.previousButton = QPushButton(_("&Previous"))
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         translateDialogBoxButtons(buttons)
-        buttons.addButton(self.previousButton, QDialogButtonBox.ActionRole)
-        buttons.addButton(self.nextButton, QDialogButtonBox.ActionRole)
+        buttons.addButton(self.previousButton, QDialogButtonBox.ButtonRole.ActionRole)
+        buttons.addButton(self.nextButton, QDialogButtonBox.ButtonRole.ActionRole)
         self.previousButton.clicked.connect(self.previousButtonClicked)
         self.nextButton.clicked.connect(self.nextButtonClicked)
         buttons.rejected.connect(self.close)
@@ -522,7 +522,7 @@ class DidYouKnowDialog(QDialog):
     def showTip(self) -> None:
         self.text.clear()
         self.text.append(self.tips[self.prefs.did_you_know_index])
-        self.text.moveCursor(QTextCursor.Start)
+        self.text.moveCursor(QTextCursor.MoveOperation.Start)
 
     def showEvent(self, event: QShowEvent) -> None:
         self.nextButton.setDefault(True)

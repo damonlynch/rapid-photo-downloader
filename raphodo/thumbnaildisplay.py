@@ -423,7 +423,7 @@ class ThumbnailListModel(QAbstractListModel):
             for first, last in runs(rows):
                 new_selection.select(self.index(first, 0), self.index(last, 0))
 
-            selection.select(new_selection, QItemSelectionModel.Select)
+            selection.select(new_selection, QItemSelectionModel.SelectionFlag.Select)
 
             for first, last in runs(rows):
                 self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
@@ -1446,11 +1446,11 @@ class ThumbnailListModel(QAbstractListModel):
             for first, last in runs(rows):
                 new_selection.select(self.index(first, 0), self.index(last, 0))
             # print('merging select')
-            new_selection.merge(selected, QItemSelectionModel.Select)
+            new_selection.merge(selected, QItemSelectionModel.SelectionFlag.Select)
             # print('resetting')
             selection.reset()
             # print('doing select')
-            selection.select(new_selection, QItemSelectionModel.Select)
+            selection.select(new_selection, QItemSelectionModel.SelectionFlag.Select)
         else:
             # print("gathering unique ids from existing selection")
             if file_type == FileType.photo:
@@ -1475,7 +1475,7 @@ class ThumbnailListModel(QAbstractListModel):
             selection.reset()
             self.selectionReset.emit()
             # print('doing select')
-            selection.select(new_selection, QItemSelectionModel.Select)
+            selection.select(new_selection, QItemSelectionModel.SelectionFlag.Select)
 
         # print('doing data changed')
         for first, last in runs(rows):
@@ -1718,7 +1718,7 @@ class ThumbnailListModel(QAbstractListModel):
             ]
             self._generateHighlightingRows(rows=highlighting)
             self.most_recent_highlighted_device = scan_id
-        self.highlightingTimeline.setDirection(QTimeLine.Forward)
+        self.highlightingTimeline.setDirection(QTimeLine.Direction.Forward)
         self.highlightingTimeline.start()
 
     def highlightTemporalProximityThumbs(self, row: int, uids: list[bytes]) -> None:
@@ -1738,7 +1738,7 @@ class ThumbnailListModel(QAbstractListModel):
             self._generateHighlightingRows(rows=highlighting)
             self.most_recent_highlighted_row = row
             self.current_highlight_uids = uids
-        self.highlightingTimeline.setDirection(QTimeLine.Forward)
+        self.highlightingTimeline.setDirection(QTimeLine.Direction.Forward)
         self.highlightingTimeline.start()
 
     def _generateHighlightingRows(self, rows: list[int]) -> None:
@@ -1935,11 +1935,11 @@ class ThumbnailView(QListView):
         super().__init__(parent)
         self.rapidApp = parent
         self.setObjectName("thumbnailView")
-        self.setViewMode(QListView.IconMode)
-        self.setResizeMode(QListView.Adjust)
+        self.setViewMode(QListView.ViewMode.IconMode)
+        self.setResizeMode(QListView.ResizeMode.Adjust)
         self.setUniformItemSizes(True)
         self.setSpacing(8)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setFrameShadow(QFrame.Plain)
         palette = self.palette()
         color = QColor()
@@ -1947,7 +1947,7 @@ class ThumbnailView(QListView):
             color.setNamedColor(DarkModeThumbnailBackgroundName)
         else:
             color.setNamedColor(ThumbnailBackgroundName)
-        palette.setColor(QPalette.Base, color)
+        palette.setColor(QPalette.ColorRole.Base, color)
         self.setPalette(palette)
         self.possiblyPreserveSelectionPostClick = False
 
@@ -2004,9 +2004,9 @@ class ThumbnailView(QListView):
             current = self.currentIndex()
             if not (len(selected.indexes()) == 1 and selected.indexes()[0] == current):
                 deselected.merge(
-                    self.selectionModel().selection(), QItemSelectionModel.Select
+                    self.selectionModel().selection(), QItemSelectionModel.SelectionFlag.Select
                 )
-                self.selectionModel().select(deselected, QItemSelectionModel.Select)
+                self.selectionModel().select(deselected, QItemSelectionModel.SelectionFlag.Select)
 
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -2129,7 +2129,7 @@ class ThumbnailView(QListView):
             logging.debug("Ignoring scroll request to unknown thumbnail")
         else:
             index = model.index(row, 0)
-            self.scrollTo(index, QAbstractItemView.PositionAtTop)
+            self.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtTop)
 
 
 class ThumbnailDelegate(QStyledItemDelegate):
@@ -2377,11 +2377,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
             x + self.shadow_size, y + self.shadow_size, self.width, self.height
         )
 
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setPen(self.darkGray)
         painter.fillRect(shadowRect, self.darkGray)
         painter.drawRect(shadowRect)
-        painter.setRenderHint(QPainter.Antialiasing, False)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         if highlight != 0:
             painter.fillRect(boxRect, self.colorGradient[highlight - 1])
         else:
@@ -2401,7 +2401,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         # If on high DPI screen, scale the thumbnail using a smooth transform
         if self.device_pixel_ratio > 1.0:
-            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+            painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
 
         if (
             previously_downloaded
@@ -2724,12 +2724,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 # The user has clicked on a checkbox that for a
                 # thumbnail that is outside their previous selection
                 selection.clear()
-                selection.select(index, QItemSelectionModel.Select)
+                selection.select(index, QItemSelectionModel.SelectionFlag.Select)
                 model.setData(index, newValue, Qt.CheckStateRole)
         else:
             # The user has previously selected nothing, so mark this
             # thumbnail as selected
-            selection.select(index, QItemSelectionModel.Select)
+            selection.select(index, QItemSelectionModel.SelectionFlag.Select)
             model.setData(index, newValue, Qt.CheckStateRole)
         thumbnailModel.updateDisplayPostDataChange()
 

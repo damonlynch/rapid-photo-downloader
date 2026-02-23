@@ -505,7 +505,7 @@ def platform_photos_directory(home_on_failure: bool = True) -> str | None:
         path = wsl_home()
         if path.is_dir():
             return str(path / "Pictures")
-    return _platform_special_dir(QStandardPaths.PicturesLocation, home_on_failure)
+    return _platform_special_dir(QStandardPaths.StandardLocation.PicturesLocation, home_on_failure)
 
 
 def platform_videos_directory(home_on_failure: bool = True) -> str:
@@ -526,7 +526,7 @@ def platform_videos_directory(home_on_failure: bool = True) -> str:
         path = wsl_home()
         if path.is_dir():
             return str(path / "Videos")
-    return _platform_special_dir(QStandardPaths.MoviesLocation, home_on_failure)
+    return _platform_special_dir(QStandardPaths.StandardLocation.MoviesLocation, home_on_failure)
 
 
 def platform_desktop_directory(home_on_failure: bool = True) -> str:
@@ -538,7 +538,7 @@ def platform_desktop_directory(home_on_failure: bool = True) -> str:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _platform_special_dir(QStandardPaths.DesktopLocation, home_on_failure)
+    return _platform_special_dir(QStandardPaths.StandardLocation.DesktopLocation, home_on_failure)
 
 
 def platform_photos_identifier() -> str:
@@ -548,7 +548,7 @@ def platform_photos_identifier() -> str:
     'Pictures'
     """
 
-    path = _platform_special_dir(QStandardPaths.PicturesLocation, home_on_failure=False)
+    path = _platform_special_dir(QStandardPaths.StandardLocation.PicturesLocation, home_on_failure=False)
     if path is None:
         # translators: the name of the Pictures folder
         return _("Pictures")
@@ -562,7 +562,7 @@ def platform_videos_identifier() -> str:
     'Pictures'
     """
 
-    path = _platform_special_dir(QStandardPaths.MoviesLocation, home_on_failure=False)
+    path = _platform_special_dir(QStandardPaths.StandardLocation.MoviesLocation, home_on_failure=False)
     if path is None:
         # translators: the name of the Videos folder
         return _("Videos")
@@ -598,7 +598,7 @@ def get_program_cache_directory(create_if_not_exist: bool = False) -> str | None
 
     # Must use GenericCacheLocation, never CacheLocation
     cache_directory = _platform_special_dir(
-        QStandardPaths.GenericCacheLocation, home_on_failure=False
+        QStandardPaths.StandardLocation.GenericCacheLocation, home_on_failure=False
     )
     if cache_directory is None:
         logging.error("The platform's cache directory could not be determined")
@@ -652,7 +652,7 @@ def get_program_data_directory(create_if_not_exist=False) -> str | None:
     """
 
     data_directory = _platform_special_dir(
-        QStandardPaths.GenericDataLocation, home_on_failure=False
+        QStandardPaths.StandardLocation.GenericDataLocation, home_on_failure=False
     )
     if data_directory is None:
         logging.error("The program's data directory could not be determined")
@@ -674,7 +674,7 @@ def get_fdo_cache_thumb_base_directory() -> str:
         return str(Path.home() / ".thumbnails")
 
     cache = _platform_special_dir(
-        QStandardPaths.GenericCacheLocation, home_on_failure=False
+        QStandardPaths.StandardLocation.GenericCacheLocation, home_on_failure=False
     )
     try:
         return str(Path(cache) / "thumbnails")

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display download destination details
@@ -288,7 +288,9 @@ class DestinationDisplay(QWidget):
         self.files_to_display: DisplayingFilesOfType | None = None
         self.marked = FileTypeCounter()
         self.display_type: DestinationDisplayType | None = None
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
+        )
 
         self.sample_rpd_file: Photo | Video | None = None
 
@@ -580,7 +582,7 @@ class DestinationDisplay(QWidget):
     def invalidStatusHeight() -> int:
         return QFontMetrics(QFont()).height() + DeviceDisplayPadding * 2
 
-    def setStatus(self, status: DestinationDisplayStatus)-> None:
+    def setStatus(self, status: DestinationDisplayStatus) -> None:
         self.status = status
         self.update()
 

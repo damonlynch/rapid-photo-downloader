@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Combines a deviceview and a file system view into one widget
@@ -47,11 +47,13 @@ class ComputerWidget(TightFlexiFrame):
         self.setLayout(layout)
 
         self.view = view
-        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        self.view.setSizePolicy(
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
+        )
         self.fileSystemView = fileSystemView
         self.emulatedHeader = EmulatedHeaderRow(select_text)
         self.emulatedHeader.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.Maximum
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Maximum
         )
 
         layout.addWidget(self.emulatedHeader)

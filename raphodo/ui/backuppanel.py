@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display backup preferences
@@ -442,7 +442,7 @@ class BackupOptionsWidget(FlexiFrame):
         self.prefs = prefs
         self.media_dir = get_media_dir()
 
-        self.setBackgroundRole(QPalette.Base)
+        self.setBackgroundRole(QPalette.ColorRole.Base)
         self.setAutoFillBackground(True)
 
         backupLayout = QGridLayout()
@@ -458,7 +458,9 @@ class BackupOptionsWidget(FlexiFrame):
             )
         )
         self.backupExplanation.setWordWrap(True)
-        self.backupExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
+        self.backupExplanation.setSizePolicy(
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
+        )
 
         self.backup = QCheckBox(_("Back up photos and videos when downloading"))
         self.backup.setChecked(self.prefs.backup_files)
@@ -483,7 +485,9 @@ class BackupOptionsWidget(FlexiFrame):
             )
         )
         self.folderExplanation.setWordWrap(True)
-        self.folderExplanation.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
+        self.folderExplanation.setSizePolicy(
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
+        )
         # Unless this next call is made, for some reason the widget is too high! :-(
         self.folderExplanation.setContentsMargins(0, 0, 1, 0)
 
@@ -512,7 +516,7 @@ class BackupOptionsWidget(FlexiFrame):
         )
         self.manualLocationExplanation.setWordWrap(True)
         self.manualLocationExplanation.setSizePolicy(
-            QSizePolicy.Ignored, QSizePolicy.Minimum
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
         )
         # Translators: the word 'location' is optional in your translation. The left
         # side of the folder chooser combo box will always line up with the left side of
@@ -578,7 +582,7 @@ class BackupOptionsWidget(FlexiFrame):
 
         layout.addStretch()
 
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setBackupButtonHighlight()
 
         # Group controls to enable / disable sets of them
@@ -749,10 +753,10 @@ class BackupPanel(ScrollAreaNoFrame):
             BackupDeviceDelegate(rapidApp=self.rapidApp)
         )
         self.backupDevicesView.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.Fixed
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
         )
         self.backupOptionsPanel.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding
         )
 
         self.backupOptions = BackupOptionsWidget(
@@ -780,7 +784,7 @@ class BackupPanel(ScrollAreaNoFrame):
         layout.addWidget(self.backupOptionsPanel)
         self.setWidget(widget)
         self.setWidgetResizable(True)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
 
     def updateExample(self) -> None:
         """

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 from collections import Counter, defaultdict, deque, namedtuple
@@ -338,7 +338,7 @@ def monthFont() -> FontKerning:
     font = QFont()
     kerning = 1.2
     font.setPointSize(font.pointSize() - 2)
-    font.setLetterSpacing(QFont.PercentageSpacing, kerning * 100)
+    font.setLetterSpacing(QFont.SpacingType.PercentageSpacing, kerning * 100)
     font.setStretch(QFont.SemiExpanded)
     return FontKerning(font, kerning)
 
@@ -576,9 +576,10 @@ class ProximityDisplayValues:
                 skip_c2_end_of_day = False
                 if c2_span:
                     final_day_in_c2_span = row + c1_span - 2 + c2_span
-                    c1_span_in_c2_span_final_day = spans_dict.get(
-                        (final_day_in_c2_span, 1)
-                    )
+                    c1_span_in_c2_span_final_day = spans_dict.get((
+                        final_day_in_c2_span,
+                        1,
+                    ))
                     skip_c2_end_of_day = c1_span_in_c2_span_final_day is not None
 
                 if not skip_c2_end_of_day:
@@ -1546,7 +1547,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 if new_file and self.dv.col2_new_file_dot:
                     # Draw a small circle beside the date (currently unused)
                     painter.setPen(self.newFileColor)
-                    painter.setRenderHint(QPainter.Antialiasing)
+                    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
                     painter.setBrush(self.newFileColor)
                     rect = QRectF(
                         optionRectF.x(),
@@ -1657,7 +1658,7 @@ class TemporalProximityView(QTableView):
         self.setMinimumWidth(200)
         self.horizontalHeader().setStretchLastSection(True)
         self.setWordWrap(True)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # The vertical scrollbar the user sees belongs to the left panel scroll area
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -1699,7 +1700,7 @@ class TemporalProximityView(QTableView):
 
             if do_selection:
                 self.selectionModel().select(
-                    model.index(start_row, 2), QItemSelectionModel.Select
+                    model.index(start_row, 2), QItemSelectionModel.SelectionFlag.Select
                 )
                 model.dataChanged.emit(
                     model.index(start_row, 2), model.index(start_row, 2)
@@ -1716,7 +1717,9 @@ class TemporalProximityView(QTableView):
         """
 
         for r in range(row, row + self.rowSpan(row, 0)):
-            self.selectionModel().select(model.index(r, 1), QItemSelectionModel.Select)
+            self.selectionModel().select(
+                model.index(r, 1), QItemSelectionModel.SelectionFlag.Select
+            )
         model.dataChanged.emit(model.index(row, 1), model.index(r, 1))
 
     def _updateSelectionRowParent(
@@ -1747,7 +1750,9 @@ class TemporalProximityView(QTableView):
                     break
             if all_selected:
                 i = model.index(start_row, parent_column)
-                self.selectionModel().select(i, QItemSelectionModel.Select)
+                self.selectionModel().select(
+                    i, QItemSelectionModel.SelectionFlag.Select
+                )
                 model.dataChanged.emit(i, i)
             examined.add((start_row, parent_column))
 
@@ -1757,7 +1762,7 @@ class TemporalProximityView(QTableView):
 
         When the user is selecting table cells, need to mimic the
         behavior of
-        setSelectionBehavior(QAbstractItemView.SelectRows)
+        setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         However in our case we need to select multiple rows, depending
         on the row spans in columns 0, 1 and 2. Column 2 is a special
         case.
@@ -1918,7 +1923,7 @@ class TemporalValuePicker(QWidget):
     def __init__(self, minutes: int, parent=None) -> None:
         super().__init__(parent)
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.slider.setToolTip(
             _(
                 "The time elapsed between consecutive photos and videos that is used "
@@ -2006,9 +2011,9 @@ class ResizableStackedWidget(QStackedWidget):
     def onCurrentChanged(self, index: int) -> None:
         for i in range(self.count()):
             if i == index:
-                verticalPolicy = QSizePolicy.MinimumExpanding
+                verticalPolicy = QSizePolicy.Policy.MinimumExpanding
             else:
-                verticalPolicy = QSizePolicy.Ignored
+                verticalPolicy = QSizePolicy.Policy.Ignored
             widget = self.widget(i)
             widget.setSizePolicy(widget.sizePolicy().horizontalPolicy(), verticalPolicy)
             widget.adjustSize()
@@ -2123,7 +2128,7 @@ class TemporalProximity(QWidget):
         )
 
         self.temporalProximityView.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.Expanding
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding
         )
 
         description = _(
@@ -2156,7 +2161,7 @@ class TemporalProximity(QWidget):
         ctime_vs_mtime = f"<i>{ctime_vs_mtime}</i>"
 
         palette = QPalette()
-        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        palette.setColor(QPalette.ColorRole.Window, palette.color(palette.Base))
 
         self.description = QLabel(description)
         self.adjust = QLabel(adjust)
@@ -2185,8 +2190,12 @@ class TemporalProximity(QWidget):
             self.ctime_vs_mtime,
         ):
             label.setAlignment(Qt.AlignTop)
-            label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
-        self.adjust.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+            label.setSizePolicy(
+                QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding
+            )
+        self.adjust.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -2240,7 +2249,7 @@ class TemporalProximity(QWidget):
         self.layout().addWidget(self.stackedWidget)
         self.stackedWidget.setCurrentIndex(0)
         self.stackedWidget.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding
         )
 
     @pyqtSlot(QItemSelection, QItemSelection)
@@ -2541,18 +2550,20 @@ class SyncIcon(QIcon):
 
         if on_hover:
             if is_dark_mode():
-                color = QGuiApplication.palette().color(QPalette.HighlightedText)
+                color = QGuiApplication.palette().color(
+                    QPalette.ColorRole.HighlightedText
+                )
             else:
-                color = QGuiApplication.palette().color(QPalette.Base)
+                color = QGuiApplication.palette().color(QPalette.ColorRole.Base)
         else:
             if is_dark_mode():
-                color = QGuiApplication.palette().color(QPalette.Light)
+                color = QGuiApplication.palette().color(QPalette.ColorRole.Light)
             else:
-                color = QGuiApplication.palette().color(QPalette.Dark)
+                color = QGuiApplication.palette().color(QPalette.ColorRole.Dark)
         off = coloredPixmap(path=path, color=color, size=size)
 
-        self.addPixmap(on, QIcon.Normal, QIcon.On)
-        self.addPixmap(off, QIcon.Normal, QIcon.Off)
+        self.addPixmap(on, QIcon.Mode.Normal, QIcon.State.On)
+        self.addPixmap(off, QIcon.Mode.Normal, QIcon.State.Off)
 
 
 class SyncButton(QPushButton):
@@ -2601,10 +2612,14 @@ class SyncButton(QPushButton):
             _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
         )
         if is_dark_mode():
-            hoverColor = QPalette().color(QPalette.Highlight).name(QColor.HexRgb)
+            hoverColor = (
+                QPalette()
+                .color(QPalette.ColorRole.Highlight)
+                .name(QColor.NameFormat.HexRgb)
+            )
         else:
             color = QPalette().color(QPalette.Background)
-            hoverColor = color.darker(110).name(QColor.HexRgb)
+            hoverColor = color.darker(110).name(QColor.NameFormat.HexRgb)
 
         style = """
             QPushButton {
@@ -2655,7 +2670,7 @@ class TemporalProximityControls(QWidget):
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
         self.temporalValuePicker.setSizePolicy(
-            QSizePolicy.Preferred, QSizePolicy.Minimum
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
         )
 
         self.autoScrollButton = SyncButton(parent=self)

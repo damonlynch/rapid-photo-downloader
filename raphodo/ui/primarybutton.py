@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import math
 
@@ -33,7 +33,7 @@ class TopPushButton(QPushButton, FlatButton):
         super().__init__(text, parent)
         self.rapidApp = parent
         self.setCheckable(True)
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
 
         font: QFont = self.font()
         top_row_font_size = font.pointSize() + 8
@@ -120,7 +120,7 @@ class DownloadButton(QPushButton):
         super().__init__(text, parent)
 
         self.rapidApp = parent
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
 
         height, padding = DownloadButtonHeight()
         radius = height // 2

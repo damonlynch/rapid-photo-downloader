@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
@@ -56,7 +56,7 @@ class RenameWidget(FlexiFrame):
         parent,
     ) -> None:
         super().__init__(parent=parent)
-        self.setBackgroundRole(QPalette.Base)
+        self.setBackgroundRole(QPalette.ColorRole.Base)
         self.setAutoFillBackground(True)
         self.exiftool_process = exiftool_process
         self.prefs = prefs
@@ -127,7 +127,7 @@ class RenameWidget(FlexiFrame):
         layout.addRow(_("Extension:"), self.extensionCombo)
         layout.addRow(_("Example:"), self.example)
 
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
     def setRenameComboIndex(self) -> None:
         """
@@ -301,7 +301,7 @@ class RenameOptionsWidget(FlexiFrame):
         self.photoRenameWidget = photoRenameWidget
         self.videoRenameWidget = videoRenameWidget
 
-        self.setBackgroundRole(QPalette.Base)
+        self.setBackgroundRole(QPalette.ColorRole.Base)
         self.setAutoFillBackground(True)
 
         compatibilityLayout = QVBoxLayout()
@@ -397,7 +397,7 @@ class RenameOptionsWidget(FlexiFrame):
         layout.addStretch()
         layout.setSpacing(18)
 
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
     @property
     def stored_sequence_no(self) -> int:
@@ -532,7 +532,7 @@ class RenamePanel(ScrollAreaNoFrame):
 
         self.setWidget(widget)
         self.setWidgetResizable(True)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
 
     def updateSequences(
         self, downloads_today: list[str], stored_sequence_no: int

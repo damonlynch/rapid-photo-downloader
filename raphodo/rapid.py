@@ -1342,7 +1342,7 @@ class RapidWindow(QMainWindow):
                 message=message,
                 rich_text=True,
                 standardButtons=QMessageBox.Ok,
-                iconType=QMessageBox.Warning,
+                iconType=QMessageBox.Icon.Warning,
                 parent=self,
             )
             msgbox.exec()
@@ -1558,7 +1558,7 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         self.errorsPending = SpeechBubble(self)
-        self.errorsPending.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.errorsPending.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         status.addPermanentWidget(self.errorsPending)
         status.addPermanentWidget(self.downloadProgressBar, 1)
 
@@ -1623,18 +1623,18 @@ difference to the program's future.</p>"""
             messagebox.setInformativeText(_("Do you want to take the survey?"))
 
             # Use custom buttons, thereby avoiding button icons
-            later = messagebox.addButton(_("Ask me later"), QMessageBox.RejectRole)
-            yes = messagebox.addButton(_("Yes"), QMessageBox.AcceptRole)
+            later = messagebox.addButton(_("Ask me later"), QMessageBox.ButtonRole.RejectRole)
+            yes = messagebox.addButton(_("Yes"), QMessageBox.ButtonRole.AcceptRole)
             alreadyDid = messagebox.addButton(
                 # Translators: "I already took it" means "I already took the survey"
                 _("I already took it"),
-                QMessageBox.NoRole,
+                QMessageBox.ButtonRole.NoRole,
             )
             never = messagebox.addButton(
                 # Translators: "Never ask me about any survey" refers to now and in
                 # the future
                 _("Never ask me about any survey"),
-                QMessageBox.DestructiveRole,
+                QMessageBox.ButtonRole.DestructiveRole,
             )
             messagebox.setDefaultButton(yes)
             messagebox.exec()
@@ -2219,7 +2219,7 @@ difference to the program's future.</p>"""
         self.deviceToggleView.addWidget(self.deviceView)
         self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
         self.deviceToggleView.setSizePolicy(
-            QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding
+            QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding
         )
 
         # This Computer Header and View
@@ -2920,7 +2920,7 @@ difference to the program's future.</p>"""
             message=message,
             rich_text=True,
             standardButtons=QMessageBox.Ok,
-            iconType=QMessageBox.Warning,
+            iconType=QMessageBox.Icon.Warning,
             parent=self,
         )
         msgBox.exec()
@@ -2993,7 +2993,7 @@ difference to the program's future.</p>"""
                 message=message,
                 rich_text=False,
                 standardButtons=QMessageBox.Ok,
-                iconType=QMessageBox.Warning,
+                iconType=QMessageBox.Icon.Warning,
             )
             msgbox.exec()
 
@@ -3263,7 +3263,7 @@ Do you want to proceed with the download?"""
             else:
                 msg = _("This download folder is invalid:\n%s") % invalid_dirs[0]
             msgBox = QMessageBox(self)
-            msgBox.setIcon(QMessageBox.Critical)
+            msgBox.setIcon(QMessageBox.Icon.Critical)
             msgBox.setWindowTitle(_("Download Failure"))
             msgBox.setText(_("The download cannot proceed."))
             msgBox.setInformativeText(msg)
@@ -4522,7 +4522,7 @@ Do you want to proceed with the download?"""
             message=message,
             rich_text=True,
             standardButtons=QMessageBox.Ok,
-            iconType=QMessageBox.Warning,
+            iconType=QMessageBox.Icon.Warning,
         )
         msgBox.exec()
 
@@ -4678,14 +4678,14 @@ Do you want to proceed with the download?"""
             message = "Unknown error"
 
         msgBox = QMessageBox(
-            QMessageBox.Warning, title, message, QMessageBox.NoButton, self
+            QMessageBox.Icon.Warning, title, message, QMessageBox.NoButton, self
         )
         msgBox.setIconPixmap(self.devices[scan_id].get_pixmap())
-        msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
-        msgBox.addButton(_("&Ignore This Device"), QMessageBox.RejectRole)
+        msgBox.addButton(_("&Try Again"), QMessageBox.ButtonRole.AcceptRole)
+        msgBox.addButton(_("&Ignore This Device"), QMessageBox.ButtonRole.RejectRole)
         self.prompting_for_user_action[device] = msgBox
         role = msgBox.exec_()
-        if role == QMessageBox.AcceptRole:
+        if role == QMessageBox.ButtonRole.AcceptRole:
             self.sendResumeToThread(self.scan_controller, worker_id=scan_id)
         else:
             self.removeDevice(scan_id=scan_id, show_warning=False)
@@ -5370,7 +5370,7 @@ Do you want to proceed with the download?"""
                     "in again, and choose which files you want to download from it."
                 ) % dict(camera=display_name)
                 msgBox = QMessageBox(
-                    QMessageBox.Warning, title, message, QMessageBox.Ok
+                    QMessageBox.Icon.Warning, title, message, QMessageBox.Ok
                 )
                 msgBox.setIconPixmap(camera.get_pixmap())
                 msgBox.exec_()
@@ -5991,7 +5991,7 @@ Do you want to proceed with the download?"""
 
         msgbox = QMessageBox()
         msgbox.setWindowTitle(_("Rapid Photo Downloader"))
-        msgbox.setIcon(QMessageBox.Question)
+        msgbox.setIcon(QMessageBox.Icon.Question)
         msgbox.setText(text)
         msgbox.setTextFormat(Qt.RichText)
         msgbox.setInformativeText(info_text)
@@ -6513,7 +6513,7 @@ def critical_startup_error(message: str) -> None:
     errorapp = QApplication(sys.argv)
     msg = QMessageBox()
     msg.setWindowTitle(_("Rapid Photo Downloader"))
-    msg.setIcon(QMessageBox.Critical)
+    msg.setIcon(QMessageBox.Icon.Critical)
     msg.setText(f"<b>{message}</b>")
     msg.setInformativeText(_("Program aborting."))
     msg.setStandardButtons(QMessageBox.Ok)
