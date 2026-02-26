@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Handle interprocess communication using 0MQ
@@ -19,8 +19,8 @@ from typing import Any
 import psutil
 import zmq
 import zmq.log.handlers
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QImage, QPixmap
 
 if zmq.pyzmq_version_info()[0] < 17:
     from zmq.eventloop import ioloop

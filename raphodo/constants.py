@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2007-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 from enum import Enum, Flag, IntEnum, auto
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QFont, QFontMetrics
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor, QFont, QFontMetrics
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = "rapid-photo-downloader.log"
@@ -238,8 +238,13 @@ class ApplicationState(Flag):
     timeline_generating = auto()
     timeline_generated = auto()
 
-CORE_APPLICATION_STATE_MASK = ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
-TIMELINE_APPLICATION_STATE_MASK = ApplicationState.timeline_generating | ApplicationState.timeline_generated
+
+CORE_APPLICATION_STATE_MASK = (
+    ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
+)
+TIMELINE_APPLICATION_STATE_MASK = (
+    ApplicationState.timeline_generating | ApplicationState.timeline_generated
+)
 
 
 class PostCameraUnmountAction(Enum):
@@ -268,35 +273,35 @@ class JobCodeSort(IntEnum):
 
 
 Checked_Status = {
-    Qt.Checked: "checked",
-    Qt.Unchecked: "unchecked",
-    Qt.PartiallyChecked: "partially checked",
+    Qt.CheckState.Checked: "checked",
+    Qt.CheckState.Unchecked: "unchecked",
+    Qt.CheckState.PartiallyChecked: "partially checked",
 }
 
 
 class Roles(IntEnum):
-    previously_downloaded = Qt.UserRole
-    extension = Qt.UserRole + 1
-    download_status = Qt.UserRole + 2
-    has_audio = Qt.UserRole + 3
-    secondary_attribute = Qt.UserRole + 4
-    path = Qt.UserRole + 5
-    uri = Qt.UserRole + 6
-    camera_memory_card = Qt.UserRole + 7
-    scan_id = Qt.UserRole + 8
-    device_details = Qt.UserRole + 9
-    storage = Qt.UserRole + 10
-    mtp = Qt.UserRole + 11
-    is_camera = Qt.UserRole + 12
-    sort_extension = Qt.UserRole + 13
-    filename = Qt.UserRole + 14
-    highlight = Qt.UserRole + 16
-    folder_preview = Qt.UserRole + 17
-    download_subfolder = Qt.UserRole + 18
-    device_type = Qt.UserRole + 19
-    download_statuses = Qt.UserRole + 20
-    job_code = Qt.UserRole + 21
-    uids = Qt.UserRole + 22
+    previously_downloaded = Qt.ItemDataRole.UserRole
+    extension = Qt.ItemDataRole.UserRole + 1
+    download_status = Qt.ItemDataRole.UserRole + 2
+    has_audio = Qt.ItemDataRole.UserRole + 3
+    secondary_attribute = Qt.ItemDataRole.UserRole + 4
+    path = Qt.ItemDataRole.UserRole + 5
+    uri = Qt.ItemDataRole.UserRole + 6
+    camera_memory_card = Qt.ItemDataRole.UserRole + 7
+    scan_id = Qt.ItemDataRole.UserRole + 8
+    device_details = Qt.ItemDataRole.UserRole + 9
+    storage = Qt.ItemDataRole.UserRole + 10
+    mtp = Qt.ItemDataRole.UserRole + 11
+    is_camera = Qt.ItemDataRole.UserRole + 12
+    sort_extension = Qt.ItemDataRole.UserRole + 13
+    filename = Qt.ItemDataRole.UserRole + 14
+    highlight = Qt.ItemDataRole.UserRole + 16
+    folder_preview = Qt.ItemDataRole.UserRole + 17
+    download_subfolder = Qt.ItemDataRole.UserRole + 18
+    device_type = Qt.ItemDataRole.UserRole + 19
+    download_statuses = Qt.ItemDataRole.UserRole + 20
+    job_code = Qt.ItemDataRole.UserRole + 21
+    uids = Qt.ItemDataRole.UserRole + 22
 
 
 class ExtractionTask(Enum):
@@ -749,19 +754,6 @@ class Plural(Enum):
     zero = 1
     two_form_single = 2
     two_form_plural = 3
-
-
-class ScalingAction(Enum):
-    turned_on = 1
-    not_set = 2
-    already_set = 3
-
-
-class ScalingDetected(Enum):
-    Qt = 1
-    Xsetting = 2
-    Qt_and_Xsetting = 3
-    undetected = 4
 
 
 # Use the character . to for download_name and path to indicate the user manually

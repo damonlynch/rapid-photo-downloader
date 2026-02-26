@@ -1,12 +1,12 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 import pickle
 
 import zmq
-from PyQt5.QtCore import QObject, QThread, QTimer, pyqtBoundSignal, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt6.QtCore import QObject, QThread, QTimer, pyqtBoundSignal, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QImage, QPixmap
 
 from raphodo.interprocess import (
     GenerateThumbnailsArguments,

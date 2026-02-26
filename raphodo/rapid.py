@@ -50,8 +50,7 @@ except (ImportError, ValueError, gi.repository.GLib.GError):
     have_unity = False
 
 import zmq
-from PyQt5 import QtCore
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QByteArray,
     QLocale,
     QModelIndex,
@@ -66,7 +65,8 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
+    QAction,
     QCloseEvent,
     QDesktopServices,
     QFont,
@@ -77,10 +77,8 @@ from PyQt5.QtGui import (
     QScreen,
     QShowEvent,
 )
-from PyQt5.QtWidgets import (
-    QAction,
+from PyQt6.QtWidgets import (
     QApplication,
-    QCheckBox,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -135,8 +133,6 @@ from raphodo.constants import (
     RememberThisMessage,
     RenameAndMoveStatus,
     RightSideButton,
-    ScalingAction,
-    ScalingDetected,
     Show,
     Sort,
     TemporalProximityState,
@@ -270,6 +266,7 @@ from raphodo.ui.gnomepalette import (
 from raphodo.ui.jobcodepanel import JobCodePanel
 from raphodo.ui.menubutton import MenuButton
 from raphodo.ui.primarybutton import DownloadButton, TopPushButton
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.rememberthisdialog import RememberThisDialog
 from raphodo.ui.renamepanel import RenamePanel
 from raphodo.ui.rotatedpushbutton import RotatedButton
@@ -278,8 +275,6 @@ from raphodo.ui.splashscreen import SplashScreen
 from raphodo.ui.toggleview import QToggleView
 from raphodo.ui.viewutils import (
     MainWindowSplitter,
-    any_screen_scaled,
-    qt5_screen_scale_environment_variable,
     scaledIcon,
     standardMessageBox,
     validateWindowPosition,
@@ -294,7 +289,7 @@ from raphodo.wsl.wsl import (
 install_gettext()
 
 # Avoid segfaults at exit:
-# http://pyqt.sourceforge.net/Docs/PyQt5/gotchas.html#crashes-on-exit
+# http://pyqt.sourceforge.net/Docs/PyQt6/gotchas.html#crashes-on-exit
 app: QtSingleApplication | None = None
 
 faulthandler.enable()
@@ -329,11 +324,6 @@ class RapidWindow(QMainWindow):
     def __init__(
         self,
         splash: "SplashScreen",
-        fractional_scaling: str,
-        scaling_set: str,
-        scaling_action: ScalingAction,
-        scaling_detected: ScalingDetected,
-        xsetting_running: bool,
         force_wayland: bool,
         display_height: int,
         platform_selected: str | None,
@@ -367,9 +357,6 @@ class RapidWindow(QMainWindow):
         else:
             self.screen = None
 
-        self.fractional_scaling_message = fractional_scaling
-        self.scaling_set_message = scaling_set
-
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
 
@@ -378,7 +365,7 @@ class RapidWindow(QMainWindow):
         self.window_move_triggered_count = 0
         self.windowPositionDelta = QPoint(0, 0)
 
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         self.ignore_other_photo_types = ignore_other_photo_types
         self.prompting_for_user_action: dict[Device, QMessageBox] = {}
@@ -404,9 +391,6 @@ class RapidWindow(QMainWindow):
 
         for version in get_versions(
             file_manager=self.file_manager,
-            scaling_action=scaling_action,
-            scaling_detected=scaling_detected,
-            xsetting_running=xsetting_running,
             force_wayland=force_wayland,
             app_style=QApplication.style().objectName(),
             platform_selected=platform_selected,
@@ -1280,7 +1264,7 @@ class RapidWindow(QMainWindow):
         logging.debug("Starting monitor of valid mount count")
         self.mountMonitorTimer = QTimer(self)
         self.mountMonitorTimer.timeout.connect(self.manuallyMonitorNewMounts)
-        self.mountMonitorTimer.setTimerType(Qt.CoarseTimer)
+        self.mountMonitorTimer.setTimerType(Qt.TimerType.CoarseTimer)
         self.mountMonitorTimer.setInterval(2000)
 
     def mountMonitorActive(self) -> bool:
@@ -1341,7 +1325,7 @@ class RapidWindow(QMainWindow):
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Ok,
+                standardButtons=QMessageBox.StandardButton.Ok,
                 iconType=QMessageBox.Icon.Warning,
                 parent=self,
             )
@@ -1420,15 +1404,6 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        try:
-            scaling = self.devicePixelRatioF()
-        except AttributeError:
-            scaling = self.devicePixelRatio()
-
-        logging.info("%s", self.scaling_set_message)
-        logging.info("Desktop scaling set to %s", scaling)
-        logging.debug("%s", self.fractional_scaling_message)
-
         maximized = settings.value("maximized", False, type=bool)
         logging.debug("Window maximized when last run: %s", maximized)
 
@@ -1466,7 +1441,7 @@ class RapidWindow(QMainWindow):
 
         if maximized:
             logging.debug("Setting window to maximized state")
-            self.setWindowState(Qt.WindowMaximized)
+            self.setWindowState(Qt.WindowState.WindowMaximized)
 
     def readWindowSettings(self, app: "QtSingleApplication"):
         self.deferred_resize_and_move_until_after_show = False
@@ -1491,7 +1466,7 @@ class RapidWindow(QMainWindow):
         # Alternative to position and size:
         # settings.setValue("geometry", self.saveGeometry())
         state = self.windowState()
-        maximized = bool(state & Qt.WindowMaximized)
+        maximized = bool(state & Qt.WindowState.WindowMaximized)
         settings.setValue("maximized", maximized)
         settings.setValue("centerSplitterSizes", self.centerSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
@@ -1618,10 +1593,10 @@ difference to the program's future.</p>"""
             messagebox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Ok,
+                standardButtons=QMessageBox.StandardButton.Ok,
                 parent=self,
             )
-            messagebox.removeButton(messagebox.button(QMessageBox.Ok))
+            messagebox.removeButton(messagebox.button(QMessageBox.StandardButton.Ok))
             messagebox.setInformativeText(_("Do you want to take the survey?"))
 
             # Use custom buttons, thereby avoiding button icons
@@ -1822,14 +1797,14 @@ difference to the program's future.</p>"""
     def sortOrderChanged(self, index: int) -> None:
         self.sortComboChanged(index=-1)
 
-    @pyqtSlot(int)
-    def selectAllPhotosCheckboxChanged(self, state: int) -> None:
-        select_all = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def selectAllPhotosCheckboxStateChanged(self, state: Qt.CheckState) -> None:
+        select_all = state == Qt.CheckState.Checked
         self.thumbnailModel.selectAll(select_all=select_all, file_type=FileType.photo)
 
-    @pyqtSlot(int)
-    def selectAllVideosCheckboxChanged(self, state: int) -> None:
-        select_all = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def selectAllVideosCheckboxStateChanged(self, state: Qt.CheckState) -> None:
+        select_all = state == Qt.CheckState.Checked
         self.thumbnailModel.selectAll(select_all=select_all, file_type=FileType.video)
 
     @pyqtSlot()
@@ -2340,8 +2315,8 @@ difference to the program's future.</p>"""
         self.sortLabel = self.sortCombo.makeLabel(_("Sort:"))
 
         self.sortOrder = ChevronCombo()
-        self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
-        self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
+        self.sortOrder.addItem(_("Ascending"), Qt.SortOrder.AscendingOrder)
+        self.sortOrder.addItem(_("Descending"), Qt.SortOrder.DescendingOrder)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
 
         for widget in (
@@ -2362,8 +2337,8 @@ difference to the program's future.</p>"""
             outline: none;
             spacing: {self.standard_spacing // 2};
         }}"""
-        self.selectAllPhotosCheckbox = QCheckBox(_("Photos") + " ")
-        self.selectAllVideosCheckbox = QCheckBox(_("Videos"))
+        self.selectAllPhotosCheckbox = CompatCheckBox(_("Photos") + " ")
+        self.selectAllVideosCheckbox = CompatCheckBox(_("Videos"))
         self.selectAllPhotosCheckbox.setStyleSheet(style)
         self.selectAllVideosCheckbox.setStyleSheet(style)
 
@@ -2374,11 +2349,11 @@ difference to the program's future.</p>"""
         ):
             widget.setFont(font)
 
-        self.selectAllPhotosCheckbox.stateChanged.connect(
-            self.selectAllPhotosCheckboxChanged
+        self.selectAllPhotosCheckbox.checkStateChanged.connect(
+            self.selectAllPhotosCheckboxStateChanged
         )
-        self.selectAllVideosCheckbox.stateChanged.connect(
-            self.selectAllVideosCheckboxChanged
+        self.selectAllVideosCheckbox.checkStateChanged.connect(
+            self.selectAllVideosCheckboxStateChanged
         )
 
         layout.addWidget(self.showLabel)
@@ -2437,9 +2412,10 @@ difference to the program's future.</p>"""
         available: QRect = self.screen.availableGeometry()
         available_width = available.width()
 
-        frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        frame_width = self.style().pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
         scroll_bar_width = (
-            self.style().pixelMetric(QStyle.PM_ScrollBarExtent) + frame_width
+            self.style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
+            + frame_width
         )
         spacing = self.layout().spacing()
         deviceComponent: DeviceComponent = (
@@ -2749,10 +2725,11 @@ difference to the program's future.</p>"""
             message=message,
             rich_text=True,
             title=title,
-            standardButtons=QMessageBox.Save | QMessageBox.Cancel,
-            defaultButton=QMessageBox.Save,
+            standardButtons=QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Cancel,
+            defaultButton=QMessageBox.StandardButton.Save,
         )
-        if errorbox.exec() == QMessageBox.Save:
+        if errorbox.exec() == QMessageBox.StandardButton.Save:
             excepthook.save_bug_report_tar(
                 config_file=self.prefs.settings_path(),
                 full_log_file_path=iplogging.full_log_file_path(),
@@ -2873,9 +2850,10 @@ difference to the program's future.</p>"""
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Yes | QMessageBox.No,
+                standardButtons=QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
             )
-            if msgbox.exec() == QMessageBox.No:
+            if msgbox.exec() == QMessageBox.StandardButton.No:
                 self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
                 return
 
@@ -2923,7 +2901,7 @@ difference to the program's future.</p>"""
         msgBox = standardMessageBox(
             message=message,
             rich_text=True,
-            standardButtons=QMessageBox.Ok,
+            standardButtons=QMessageBox.StandardButton.Ok,
             iconType=QMessageBox.Icon.Warning,
             parent=self,
         )
@@ -2996,7 +2974,7 @@ difference to the program's future.</p>"""
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=False,
-                standardButtons=QMessageBox.Ok,
+                standardButtons=QMessageBox.StandardButton.Ok,
                 iconType=QMessageBox.Icon.Warning,
             )
             msgbox.exec()
@@ -3012,9 +2990,10 @@ difference to the program's future.</p>"""
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Yes | QMessageBox.No,
+                standardButtons=QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
             )
-            problematic = msgbox.exec() == QMessageBox.No
+            problematic = msgbox.exec() == QMessageBox.StandardButton.No
 
         if problematic:
             if file_type == FileType.photo and self.prefs.photo_download_folder:
@@ -4525,7 +4504,7 @@ Do you want to proceed with the download?"""
         msgBox = standardMessageBox(
             message=message,
             rich_text=True,
-            standardButtons=QMessageBox.Ok,
+            standardButtons=QMessageBox.StandardButton.Ok,
             iconType=QMessageBox.Icon.Warning,
         )
         msgBox.exec()
@@ -4682,7 +4661,11 @@ Do you want to proceed with the download?"""
             message = "Unknown error"
 
         msgBox = QMessageBox(
-            QMessageBox.Icon.Warning, title, message, QMessageBox.NoButton, self
+            QMessageBox.Icon.Warning,
+            title,
+            message,
+            QMessageBox.StandardButton.NoButton,
+            self,
         )
         msgBox.setIconPixmap(self.devices[scan_id].get_pixmap())
         msgBox.addButton(_("&Try Again"), QMessageBox.ButtonRole.AcceptRole)
@@ -5344,7 +5327,7 @@ Do you want to proceed with the download?"""
                 msgBox = standardMessageBox(
                     message=message,
                     rich_text=True,
-                    standardButtons=QMessageBox.Ok,
+                    standardButtons=QMessageBox.StandardButton.Ok,
                     iconPixmap=camera.get_pixmap(),
                 )
                 msgBox.exec()
@@ -5374,7 +5357,10 @@ Do you want to proceed with the download?"""
                     "in again, and choose which files you want to download from it."
                 ) % dict(camera=display_name)
                 msgBox = QMessageBox(
-                    QMessageBox.Icon.Warning, title, message, QMessageBox.Ok
+                    QMessageBox.Icon.Warning,
+                    title,
+                    message,
+                    QMessageBox.StandardButton.Ok,
                 )
                 msgBox.setIconPixmap(camera.get_pixmap())
                 msgBox.exec()
@@ -5997,10 +5983,12 @@ Do you want to proceed with the download?"""
         msgbox.setWindowTitle(_("Rapid Photo Downloader"))
         msgbox.setIcon(QMessageBox.Icon.Question)
         msgbox.setText(text)
-        msgbox.setTextFormat(Qt.RichText)
+        msgbox.setTextFormat(Qt.TextFormat.RichText)
         msgbox.setInformativeText(info_text)
-        msgbox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        if msgbox.exec() == QMessageBox.Yes:
+        msgbox.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if msgbox.exec() == QMessageBox.StandardButton.Yes:
             if device.device_type in (DeviceType.camera, DeviceType.camera_fuse):
                 self.prefs.add_list_value(
                     key="camera_blacklist", value=device.udev_name
@@ -6420,10 +6408,11 @@ Do you want to proceed with the download?"""
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Yes | QMessageBox.No,
+                standardButtons=QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
                 parent=self,
             )
-            return msgbox.exec() == QMessageBox.Yes
+            return msgbox.exec() == QMessageBox.StandardButton.Yes
         return True
 
     def scanEvenIfNoFoldersLikeDCIM(self) -> bool:
@@ -6520,7 +6509,7 @@ def critical_startup_error(message: str) -> None:
     msg.setIcon(QMessageBox.Icon.Critical)
     msg.setText(f"<b>{message}</b>")
     msg.setInformativeText(_("Program aborting."))
-    msg.setStandardButtons(QMessageBox.Ok)
+    msg.setStandardButtons(QMessageBox.StandardButton.Ok)
     msg.show()
     errorapp.exec()
 
@@ -6562,56 +6551,6 @@ def main():
         # Modify sys.argv in place
         sys.argv[:] = qt_app_args
 
-    scaling_action = ScalingAction.not_set
-
-    scaling_detected, xsetting_running = any_screen_scaled()
-
-    if scaling_detected == ScalingDetected.undetected:
-        scaling_set = "High DPI scaling disabled because no scaled screen was detected"
-        fractional_scaling = "Fractional scaling not set"
-    else:
-        # Set Qt 5 screen scaling if it is not already set in an environment variable
-        qt5_variable = qt5_screen_scale_environment_variable()
-        scaling_variables = {qt5_variable, "QT_SCALE_FACTOR", "QT_SCREEN_SCALE_FACTORS"}
-        if not scaling_variables & set(os.environ):
-            scaling_set = (
-                "High DPI scaling automatically set to ON because one of the "
-                "following environment variables not already "
-                "set: {}".format(", ".join(scaling_variables))
-            )
-            scaling_action = ScalingAction.turned_on
-            if parse(QtCore.QT_VERSION_STR) >= parse("5.6.0"):
-                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-            else:
-                os.environ[qt5_variable] = "1"
-        else:
-            scaling_set = (
-                "High DPI scaling not automatically set to ON because environment "
-                "variable(s) already "
-                "set: {}".format(", ".join(scaling_variables & set(os.environ)))
-            )
-            scaling_action = ScalingAction.already_set
-
-        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
-        try:
-            # Enable fractional scaling support on Qt 5.14 or above
-            # Doesn't seem to be working on Gnome X11, however :-/
-            # Works on KDE Neon
-            if parse(QtCore.QT_VERSION_STR) >= parse("5.14.0"):
-                QApplication.setHighDpiScaleFactorRoundingPolicy(
-                    Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-                )
-                fractional_scaling = "Fractional scaling set to pass through"
-            else:
-                fractional_scaling = (
-                    "Fractional scaling unable to be set because Qt version is "
-                    "older than 5.14"
-                )
-        except Exception:
-            fractional_scaling = "Error setting fractional scaling"
-            logging.warning(fractional_scaling)
-
     if sys.platform.startswith("linux") and os.getuid() == 0:
         sys.stderr.write("Never run this program as the sudo / root user.\n")
         critical_startup_error(_("Never run this program as the sudo / root user."))
@@ -6647,9 +6586,6 @@ def main():
             "\n".join(
                 get_versions(
                     file_manager=file_manager,
-                    scaling_action=scaling_action,
-                    scaling_detected=scaling_detected,
-                    xsetting_running=xsetting_running,
                     force_wayland=force_wayland,
                     app_style=None,
                     platform_selected=args.platform,
@@ -6993,7 +6929,7 @@ def main():
     size = QSize(600, 400)
     pixmap = scaledIcon(data_file_path("splashscreen.png"), size).pixmap(size)
 
-    splash = SplashScreen(pixmap, Qt.WindowStaysOnTopHint)
+    splash = SplashScreen(pixmap, Qt.WindowType.WindowStaysOnTopHint)
     splash.show()
     try:
         display_height = splash.screen().availableGeometry().height()
@@ -7022,11 +6958,6 @@ def main():
         auto_download_insertion=auto_download_insertion,
         log_gphoto2=args.log_gphoto2,
         splash=splash,
-        fractional_scaling=fractional_scaling,
-        scaling_set=scaling_set,
-        scaling_action=scaling_action,
-        scaling_detected=scaling_detected,
-        xsetting_running=xsetting_running,
         force_wayland=force_wayland,
         platform_selected=args.platform,
         display_height=display_height,

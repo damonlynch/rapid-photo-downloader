@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
-from PyQt5.QtCore import Qt, QTextStream, pyqtSignal
-from PyQt5.QtNetwork import QLocalServer, QLocalSocket
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtCore import QStringConverter, Qt, QTextStream, pyqtSignal
+from PyQt6.QtNetwork import QLocalServer, QLocalSocket
+from PyQt6.QtWidgets import QApplication, QMainWindow
 
 
 class QtSingleApplication(QApplication):
     """
-    Taken from
+    Adapted from
     http://stackoverflow.com/questions/12712360/qtsingleapplication-for-pyside-or-pyqt
     """
 
@@ -33,12 +33,12 @@ class QtSingleApplication(QApplication):
         if self._isRunning:
             # Yes, there is.
             self._outStream = QTextStream(self._outSocket)
-            self._outStream.setCodec("UTF-8")
+            self._outStream.setEncoding(QStringConverter.Encoding.Utf8)
         else:
             # No, there isn't, at least not properly.
             # Cleanup any past, crashed server.
             error = self._outSocket.error()
-            if error == QLocalSocket.ConnectionRefusedError:
+            if error == QLocalSocket.LocalSocketError.ConnectionRefusedError:
                 self.close()
                 QLocalServer.removeServer(self._id)
             self._outSocket = None
@@ -73,7 +73,7 @@ class QtSingleApplication(QApplication):
         if not self._activationWindow:
             return
         self._activationWindow.setWindowState(
-            self._activationWindow.windowState() & ~Qt.WindowMinimized
+            self._activationWindow.windowState() & ~Qt.WindowState.WindowMinimized
         )
         self._activationWindow.raise_()
         self._activationWindow.activateWindow()
@@ -92,7 +92,7 @@ class QtSingleApplication(QApplication):
         if not self._inSocket:
             return
         self._inStream = QTextStream(self._inSocket)
-        self._inStream.setCodec("UTF-8")
+        self._inStream.setEncoding(QStringConverter.Encoding.Utf8)
         self._inSocket.readyRead.connect(self._onReadyRead)
         if self._activateOnMessage:
             self.activateWindow()

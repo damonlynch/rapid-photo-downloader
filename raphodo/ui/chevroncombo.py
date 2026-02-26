@@ -5,9 +5,9 @@
 Combo box with a chevron selector
 """
 
-from PyQt5.QtCore import QPointF, QSize, Qt
-from PyQt5.QtGui import QFont, QFontMetrics, QPainter
-from PyQt5.QtWidgets import QComboBox, QLabel, QSizePolicy
+from PyQt6.QtCore import QPointF, QSize, Qt
+from PyQt6.QtGui import QFont, QFontMetrics, QPainter
+from PyQt6.QtWidgets import QComboBox, QLabel, QSizePolicy
 
 from raphodo.ui.viewutils import darkModePixmap
 
@@ -39,7 +39,9 @@ class ChevronCombo(QComboBox):
         # Draw text
         painter.setPen(self.palette().windowText().color())
         painter.drawText(
-            self.rect(), Qt.AlignVCenter | Qt.AlignLeft, self.currentText()
+            self.rect(),
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
+            self.currentText(),
         )
 
     def makeLabel(self, text: str) -> QLabel:
@@ -47,6 +49,6 @@ class ChevronCombo(QComboBox):
         Render a label to attach to this widget
         """
         label = QLabel(text)
-        label.setAlignment(Qt.AlignBottom)
+        label.setAlignment(Qt.AlignmentFlag.AlignBottom)
         label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
         return label

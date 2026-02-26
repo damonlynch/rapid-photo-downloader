@@ -9,9 +9,9 @@ Portions modeled on Canonical's QExpander, which is an 'Expander widget
 similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QColor, QFont, QFontMetrics, QPalette
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPalette
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from raphodo.constants import (
     DarkModeHeaderBackgroundName,
@@ -57,7 +57,7 @@ class QPanelView(QWidget):
 
         self.label = QLabel(label.upper())
         if headerFontColor is None:
-            headerFontColor = QColor(Qt.white)
+            headerFontColor = QColor(Qt.GlobalColor.white)
         palette = self.label.palette()
         palette.setColor(QPalette.ColorRole.WindowText, headerFontColor)
         self.label.setPalette(palette)

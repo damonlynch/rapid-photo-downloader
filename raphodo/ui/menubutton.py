@@ -1,9 +1,9 @@
 #  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import QMenu, QToolButton
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QColor, QIcon
+from PyQt6.QtWidgets import QMenu, QToolButton
 
 from raphodo.ui.primarybutton import DownloadButtonHeight
 from raphodo.ui.viewutils import darkModePixmap, menuHoverColor

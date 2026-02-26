@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Widget containing Header with Toggle Switch, and contains widget that appears or
@@ -9,9 +9,9 @@ Portions modeled on Canonical's QExpander, which is an 'Expander widget
 similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
-from PyQt5.QtCore import QSize, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QLayout, QWidget  # noqa: F401
+from PyQt6.QtCore import QSize, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QLayout, QWidget  # noqa: F401
 
 from raphodo.constants import DarkModeHeaderBackgroundName, HeaderBackgroundName
 from raphodo.ui.panelview import QPanelView

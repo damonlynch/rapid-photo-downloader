@@ -1,12 +1,12 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Overlays a filmstrip onto QImage, keeping the image's dimensions the
 same
 """
 
-from PyQt5.QtGui import QImage, QPainter
+from PyQt6.QtGui import QImage, QPainter
 
 xpm_data = [
     "12 10 27 1",

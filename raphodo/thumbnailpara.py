@@ -37,8 +37,8 @@ from typing import NamedTuple
 
 import psutil
 import zmq
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QImage
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QImage
 
 from raphodo.cache import FdoCacheLarge, ThumbnailCacheSql
 from raphodo.camera import Camera, CameraProblemEx, gphoto2_python_logging

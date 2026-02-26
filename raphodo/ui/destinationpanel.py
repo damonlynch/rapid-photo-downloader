@@ -1,12 +1,12 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display photo and video destinations
 """
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
 from raphodo.devices import DownloadingTo
 from raphodo.internationalisation.install import install_gettext
@@ -36,7 +36,7 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.splitter = QSplitter(parent=self)
 
         self.splitter.setObjectName("destinationPanelSplitter")
-        self.splitter.setOrientation(Qt.Vertical)
+        self.splitter.setOrientation(Qt.Orientation.Vertical)
 
         self.createDestinationViews()
         self.splitter.addWidget(self.photoDestinationContainer)

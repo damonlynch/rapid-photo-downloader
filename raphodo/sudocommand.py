@@ -10,9 +10,9 @@ from enum import IntEnum
 from getpass import getuser
 from typing import NamedTuple
 
-from PyQt5.QtCore import QSize, Qt, pyqtSlot
-from PyQt5.QtGui import QFont, QFontMetrics, QIcon
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QSize, Qt, pyqtSlot
+from PyQt6.QtGui import QFont, QFontMetrics, QIcon
+from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
@@ -66,13 +66,13 @@ class SudoCommand(QDialog):
                 # wrapped"
                 title = "<br>".join(textwrap.wrap(title, width=word_wrap_width))
             titleLabel = QLabel(f"<b>{title}</b>")
-            titleLabel.setTextFormat(Qt.RichText)
-            titleLabel.setAlignment(Qt.AlignTop)
+            titleLabel.setTextFormat(Qt.TextFormat.RichText)
+            titleLabel.setAlignment(Qt.AlignmentFlag.AlignTop)
             titleLabel.setSizePolicy(
                 QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
             )
-            titleHLayout.addWidget(titleIcon, alignment=Qt.AlignTop)
-            titleHLayout.addWidget(titleLabel, alignment=Qt.AlignTop)
+            titleHLayout.addWidget(titleIcon, alignment=Qt.AlignmentFlag.AlignTop)
+            titleHLayout.addWidget(titleLabel, alignment=Qt.AlignmentFlag.AlignTop)
             titleLayout = QVBoxLayout()
             titleLayout.addLayout(titleHLayout)
             titleLayout.addSpacing(8)
@@ -344,7 +344,7 @@ def run_commands_as_sudo(
 
 if __name__ == "__main__":
     # Test code
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     app = QApplication([])
 

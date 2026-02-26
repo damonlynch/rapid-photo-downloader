@@ -12,16 +12,15 @@ from collections import OrderedDict, defaultdict
 from pathlib import Path, PurePosixPath
 from typing import NamedTuple
 
-from PyQt5.QtCore import QObject, QSize, Qt, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import (
+from PyQt6.QtCore import QObject, QSize, Qt, QTimer, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import (
     QShowEvent,
     QTextDocument,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractButton,
     QAbstractScrollArea,
     QButtonGroup,
-    QCheckBox,
     QDialog,
     QDialogButtonBox,
     QGridLayout,
@@ -43,6 +42,7 @@ from raphodo.internationalisation.install import install_gettext
 from raphodo.internationalisation.utilities import make_internationalized_list
 from raphodo.prefs.preferences import Preferences, WSLWindowsDrivePrefs
 from raphodo.sudocommand import SudoException, SudoExceptionCode, run_commands_as_sudo
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     CheckBoxDelegate,
     standardMessageBox,
@@ -401,7 +401,7 @@ def do_mount_drives_op(
 
         msgBox = standardMessageBox(
             message=message,
-            standardButtons=QMessageBox.Ok,
+            standardButtons=QMessageBox.StandardButton.Ok,
             parent=parent,
             rich_text=True,
             iconType=QMessageBox.Icon.Warning,
@@ -550,7 +550,7 @@ class WslMountDriveDialog(QDialog):
         self.setWindowTitle(_("Windows Drives"))
 
         # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
-        self.autoMountCheckBox = QCheckBox(
+        self.autoMountCheckBox = CompatCheckBox(
             _("Enable automatic mounting of Windows drives")
         )
         # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
@@ -565,7 +565,7 @@ class WslMountDriveDialog(QDialog):
         self.autoMountGroup.addButton(self.autoMountAllButton)
         self.autoMountGroup.addButton(self.autoMountManualButton)
         self.setAutoMountWidgetValues()
-        self.autoMountCheckBox.stateChanged.connect(self.autoMountChanged)
+        self.autoMountCheckBox.checkStateChanged.connect(self.autoMountStateChanged)
         self.autoMountGroup.buttonToggled.connect(self.autoMountGroupToggled)
 
         autoMountLayout = QGridLayout()
@@ -573,7 +573,7 @@ class WslMountDriveDialog(QDialog):
         autoMountLayout.addWidget(self.autoMountAllButton, 1, 1, 1, 1)
         autoMountLayout.addWidget(self.autoMountManualButton, 2, 1, 1, 1)
         checkbox_width = self.autoMountCheckBox.style().pixelMetric(
-            QStyle.PM_IndicatorWidth
+            QStyle.PixelMetric.PM_IndicatorWidth
         )
         autoMountLayout.setColumnMinimumWidth(0, checkbox_width)
         autoMountLayout.setVerticalSpacing(8)
@@ -621,8 +621,12 @@ class WslMountDriveDialog(QDialog):
         self.driveTable.resizeColumnsToContents()
         self.driveTable.sortItems(self.mountPointCol)
         self.driveTable.itemChanged.connect(self.driveTableItemChanged)
-        self.driveTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.driveTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.driveTable.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.driveTable.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
 
         # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.pendingOpsLabel = QLabel(_("Pending Operations:"))
@@ -674,9 +678,13 @@ class WslMountDriveDialog(QDialog):
         height = screen_size.height()
         width = screen_size.width()
         if self.driveTable.height() > height * 0.66:
-            self.driveTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            self.driveTable.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+            )
         if self.driveTable.width() > width * 0.85:
-            self.driveTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            self.driveTable.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+            )
         self.adjustSize()
 
     @pyqtSlot()
@@ -694,7 +702,7 @@ class WslMountDriveDialog(QDialog):
 
         for row in range(self.driveTable.rowCount()):
             item = self.driveTable.item(row, self.userMountCol)
-            drive: WindowsDriveMount = item.data(Qt.UserRole)
+            drive: WindowsDriveMount = item.data(Qt.ItemDataRole.UserRole)
             if drive.drive_letter == drive_letter:
                 item.setCheckState(check_state)
                 break
@@ -707,9 +715,9 @@ class WslMountDriveDialog(QDialog):
 
         for row in range(self.driveTable.rowCount()):
             item = self.driveTable.item(row, self.userMountCol)
-            drive: WindowsDriveMount = item.data(Qt.UserRole)
+            drive: WindowsDriveMount = item.data(Qt.ItemDataRole.UserRole)
             if drive.drive_letter == new_drive.drive_letter:
-                item.setData(Qt.UserRole, new_drive)
+                item.setData(Qt.ItemDataRole.UserRole, new_drive)
                 break
 
     @pyqtSlot()
@@ -772,9 +780,11 @@ class WslMountDriveDialog(QDialog):
             self.updateDriveDataInTable(new_drive=new_drive)
 
         for drive in uncheck:
-            self.updateUserMountedCheckState(drive.drive_letter, Qt.Unchecked)
+            self.updateUserMountedCheckState(
+                drive.drive_letter, Qt.CheckState.Unchecked
+            )
         for drive in check:
-            self.updateUserMountedCheckState(drive.drive_letter, Qt.Checked)
+            self.updateUserMountedCheckState(drive.drive_letter, Qt.CheckState.Checked)
 
         # restore signal state
         self.driveTable.blockSignals(blocked)
@@ -801,8 +811,8 @@ class WslMountDriveDialog(QDialog):
 
         column = item.column()
         if column == self.userMountCol:
-            drive: WindowsDriveMount = item.data(Qt.UserRole)
-            do_mount = item.checkState() == Qt.Checked
+            drive: WindowsDriveMount = item.data(Qt.ItemDataRole.UserRole)
+            do_mount = item.checkState() == Qt.CheckState.Checked
             if do_mount:
                 assert drive.mount_point == ""
                 mount_point = wsl_standard_mount_point(
@@ -837,18 +847,18 @@ class WslMountDriveDialog(QDialog):
             row = item.row()
             drive: WindowsDriveMount = self.driveTable.item(
                 row, self.userMountCol
-            ).data(Qt.UserRole)
+            ).data(Qt.ItemDataRole.UserRole)
             if column == self.autoUnmountCol:
                 auto_mount = (
                     self.driveTable.item(row, self.autoMountCol).checkState()
-                    == Qt.Checked
+                    == Qt.CheckState.Checked
                 )
-                auto_unmount = item.checkState() == Qt.Checked
+                auto_unmount = item.checkState() == Qt.CheckState.Checked
             else:
-                auto_mount = item.checkState() == Qt.Checked
+                auto_mount = item.checkState() == Qt.CheckState.Checked
                 auto_unmount = (
                     self.driveTable.item(row, self.autoUnmountCol).checkState()
-                    == Qt.Checked
+                    == Qt.CheckState.Checked
                 )
                 if auto_mount:
                     self.prompt_to_mount_drives.append(drive)
@@ -882,8 +892,8 @@ class WslMountDriveDialog(QDialog):
         enabled = len(self.pending_mount_ops) > 0 or len(self.pending_unmount_ops) > 0
         self.applyButton.setEnabled(enabled)
 
-    @pyqtSlot(int)
-    def autoMountChanged(self, state: int) -> None:
+    @pyqtSlot(Qt.CheckState)
+    def autoMountStateChanged(self, state: Qt.CheckState) -> None:
         """
         Respond to the user checking or unchecking the automatically mount Windows
         drives option, adjusting the preferences and setting other control states
@@ -891,7 +901,7 @@ class WslMountDriveDialog(QDialog):
         :param state: Whether the new state is checked or unchecked
         """
 
-        auto_mount = state == Qt.Checked
+        auto_mount = state == Qt.CheckState.Checked
         self.prefs.wsl_automount_removable_drives = auto_mount
         self.setAutoMountGroupState()
 
@@ -970,7 +980,7 @@ class WslMountDriveDialog(QDialog):
         """
 
         drive: WindowsDriveMount = self.driveTable.item(row, self.userMountCol).data(
-            Qt.UserRole
+            Qt.ItemDataRole.UserRole
         )
 
         auto_mount = False
@@ -992,7 +1002,9 @@ class WslMountDriveDialog(QDialog):
                 (autoMountItem, auto_mount),
                 (autoUnmountItem, auto_unmount),
             ):
-                item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+                item.setCheckState(
+                    Qt.CheckState.Checked if value else Qt.CheckState.Unchecked
+                )
                 self.setItemState(
                     enabled=self.prefs.wsl_automount_removable_drives,
                     item=item,
@@ -1013,16 +1025,16 @@ class WslMountDriveDialog(QDialog):
         if enabled:
             item.setFlags(
                 item.flags()
-                | Qt.ItemIsEnabled
-                | Qt.ItemIsEditable
-                | Qt.ItemIsSelectable
+                | Qt.ItemFlag.ItemIsEnabled
+                | Qt.ItemFlag.ItemIsEditable
+                | Qt.ItemFlag.ItemIsSelectable
             )
         else:
             item.setFlags(
                 item.flags()
-                & ~Qt.ItemIsEditable
-                & ~Qt.ItemIsEnabled
-                & ~Qt.ItemIsSelectable
+                & ~Qt.ItemFlag.ItemIsEditable
+                & ~Qt.ItemFlag.ItemIsEnabled
+                & ~Qt.ItemFlag.ItemIsSelectable
             )
 
     def addDriveAtRow(self, row: int, drive: WindowsDriveMount):
@@ -1053,23 +1065,31 @@ class WslMountDriveDialog(QDialog):
         # User Mounted Column
         userMountedItem = QTableWidgetItem()
         checked = user_mounted and is_mounted
-        userMountedItem.setCheckState(Qt.Checked if checked else Qt.Unchecked)
+        userMountedItem.setCheckState(
+            Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked
+        )
         if system_mounted:
             self.setItemState(enabled=False, item=userMountedItem)
         # Store the drive data in the first column
-        userMountedItem.setData(Qt.UserRole, drive)
+        userMountedItem.setData(Qt.ItemDataRole.UserRole, drive)
 
         # System Mounted Columns
         systemMountItem = QTableWidgetItem()
-        systemMountItem.setCheckState(Qt.Checked if system_mounted else Qt.Unchecked)
+        systemMountItem.setCheckState(
+            Qt.CheckState.Checked if system_mounted else Qt.CheckState.Unchecked
+        )
         systemMountItem.setFlags(
-            systemMountItem.flags() & ~Qt.ItemIsEditable & ~Qt.ItemIsSelectable
+            systemMountItem.flags()
+            & ~Qt.ItemFlag.ItemIsEditable
+            & ~Qt.ItemFlag.ItemIsSelectable
         )
 
         # Mount Point Column
         mountPointItem = QTableWidgetItem(mount_point)
         mountPointItem.setFlags(
-            mountPointItem.flags() & ~Qt.ItemIsEditable & ~Qt.ItemIsSelectable
+            mountPointItem.flags()
+            & ~Qt.ItemFlag.ItemIsEditable
+            & ~Qt.ItemFlag.ItemIsSelectable
         )
 
         # Windows Drive Column
@@ -1077,24 +1097,26 @@ class WslMountDriveDialog(QDialog):
             f"{drive.label} ({drive.drive_letter.upper()}:)"
         )
         windowsDriveItem.setFlags(
-            windowsDriveItem.flags() & ~Qt.ItemIsEditable & ~Qt.ItemIsSelectable
+            windowsDriveItem.flags()
+            & ~Qt.ItemFlag.ItemIsEditable
+            & ~Qt.ItemFlag.ItemIsSelectable
         )
 
         # Automount and Auto Unmount at Exit Columns
         automountItem = QTableWidgetItem()
         autounmountItem = QTableWidgetItem()
         if system_mounted:
-            automountItem.setCheckState(Qt.Checked)
-            autounmountItem.setCheckState(Qt.Unchecked)
+            automountItem.setCheckState(Qt.CheckState.Checked)
+            autounmountItem.setCheckState(Qt.CheckState.Unchecked)
             self.setItemState(enabled=False, item=automountItem)
             self.setItemState(enabled=False, item=autounmountItem)
         elif auto_mount:
             if auto_mount_all:
-                automountItem.setCheckState(Qt.Checked)
-                autounmountItem.setCheckState(Qt.Checked)
+                automountItem.setCheckState(Qt.CheckState.Checked)
+                autounmountItem.setCheckState(Qt.CheckState.Checked)
         else:
-            automountItem.setCheckState(Qt.Unchecked)
-            autounmountItem.setCheckState(Qt.Unchecked)
+            automountItem.setCheckState(Qt.CheckState.Unchecked)
+            autounmountItem.setCheckState(Qt.CheckState.Unchecked)
             self.setItemState(enabled=False, item=automountItem)
             self.setItemState(enabled=False, item=autounmountItem)
 
@@ -1136,7 +1158,7 @@ class WslMountDriveDialog(QDialog):
         """
 
         for row in range(self.driveTable.rowCount()):
-            d = self.driveTable.item(row, 0).data(Qt.UserRole)
+            d = self.driveTable.item(row, 0).data(Qt.ItemDataRole.UserRole)
             if d == drive:
                 logging.debug(
                     "Removing drive %s: from Mount Windows Drive table",
@@ -1461,10 +1483,11 @@ class WslDrives(QObject):
                 msgBox = standardMessageBox(
                     message=message,
                     rich_text=False,
-                    standardButtons=QMessageBox.Yes | QMessageBox.No,
+                    standardButtons=QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
                     parent=self.rapidApp,
                 )
-                if msgBox.exec() == QMessageBox.Yes:
+                if msgBox.exec() == QMessageBox.StandardButton.Yes:
                     logging.debug("Will mount drives %s", drives_list_hr)
                     self.doMountDrives(drives=unmounted_drives)
                 else:
@@ -1557,7 +1580,7 @@ class WslWindowsRemovableDriveMonitor(QObject):
         logging.debug("Starting Wsl Removable Drive Monitor")
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.probeWindowsDrives)
-        self.timer.setTimerType(Qt.CoarseTimer)
+        self.timer.setTimerType(Qt.TimerType.CoarseTimer)
         self.timer.setInterval(1500)
         if self.probeWindowsDrives():
             self.timer.start()
@@ -1748,7 +1771,7 @@ def wsl_windows_drives(
 if __name__ == "__main__":
     # Application development test code:
 
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     from raphodo.prefs.preferences import Preferences
 

@@ -18,9 +18,9 @@ import sys
 from collections import Counter, defaultdict
 from typing import NamedTuple
 
-from PyQt5.QtCore import QSize, QStorageInfo
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QFileIconProvider
+from PyQt6.QtCore import QSize, QStorageInfo
+from PyQt6.QtGui import QAbstractFileIconProvider, QIcon, QPixmap
+from PyQt6.QtWidgets import QFileIconProvider
 
 import raphodo.metadata.exiftool as exiftool
 from raphodo.camera import (  # noqa: F401
@@ -336,7 +336,7 @@ class Device:
             self.display_name = path
         # the next value is almost certainly ("folder",), but I guess it's
         # better to generate it from code
-        self.icon_name = f"{QFileIconProvider().icon(QFileIconProvider.Folder).name()}"
+        self.icon_name = f"{QFileIconProvider().icon(QAbstractFileIconProvider.IconType.Folder).name()}"
         mount = QStorageInfo(path)
         self.storage_space.append(
             StorageSpace(

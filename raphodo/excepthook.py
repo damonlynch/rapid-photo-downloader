@@ -6,7 +6,7 @@ import logging
 import os
 import traceback
 
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtWidgets import QApplication, QMessageBox
 
 from raphodo.internationalisation.install import install_gettext
 from raphodo.iplogging import full_log_file_path
@@ -92,7 +92,7 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             message=body,
             rich_text=True,
             title=tar_created_title,
-            standardButtons=QMessageBox.Ok,
+            standardButtons=QMessageBox.StandardButton.Ok,
         )
         messagebox.exec()
     else:
@@ -112,7 +112,7 @@ def save_bug_report_tar(config_file: str, full_log_file_path: str) -> None:
             message=message,
             rich_text=True,
             title=tar_error_title,
-            standardButtons=QMessageBox.Ok,
+            standardButtons=QMessageBox.StandardButton.Ok,
         )
         messageBox.exec()
 
@@ -171,11 +171,12 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
                 message=message,
                 rich_text=True,
                 title=title,
-                standardButtons=QMessageBox.Save | QMessageBox.Cancel,
-                defaultButton=QMessageBox.Save,
+                standardButtons=QMessageBox.StandardButton.Save
+                | QMessageBox.StandardButton.Cancel,
+                defaultButton=QMessageBox.StandardButton.Save,
             )
             errorbox.setDetailedText(traceback_info)
-            if errorbox.exec() == QMessageBox.Save:
+            if errorbox.exec() == QMessageBox.StandardButton.Save:
                 save_bug_report_tar(
                     config_file=prefs.settings_path(),
                     full_log_file_path=full_log_file_path(),

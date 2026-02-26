@@ -10,7 +10,7 @@ import os
 from collections import defaultdict
 from typing import NamedTuple
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QAbstractListModel,
     QModelIndex,
     QSize,
@@ -19,9 +19,8 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import QIcon, QPainter, QPalette
-from PyQt5.QtWidgets import (
-    QCheckBox,
+from PyQt6.QtGui import QIcon, QPainter, QPalette
+from PyQt6.QtWidgets import (
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -57,6 +56,7 @@ from raphodo.ui.destinationdisplay import adjusted_download_size, make_body_deta
 from raphodo.ui.devicedisplay import DeviceDisplay, DeviceView, icon_size
 from raphodo.ui.foldercombo import FolderCombo
 from raphodo.ui.panelview import QPanelView
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     FlexiFrame,
     RowTracker,
@@ -255,7 +255,7 @@ class BackupDeviceModel(QAbstractListModel):
             videos_size_to_download = self.videos_size_to_download
         return photos_size_to_download, videos_size_to_download
 
-    def data(self, index: QModelIndex, role=Qt.DisplayRole):
+    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
 
@@ -263,7 +263,7 @@ class BackupDeviceModel(QAbstractListModel):
 
         # check for special case where no backup devices are active
         if len(self.rows) == 0:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 return ViewRowType.header
             elif role == Roles.device_details:
                 if not self.prefs.backup_files:
@@ -285,7 +285,7 @@ class BackupDeviceModel(QAbstractListModel):
         row_id = self.rows[row]
         path = self.row_id_to_path[row_id]
 
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             if row_id in self.headers:
                 return ViewRowType.header
             else:
@@ -294,7 +294,7 @@ class BackupDeviceModel(QAbstractListModel):
             device = self.backup_devices[path]
             mount = device.mount
 
-            if role == Qt.ToolTipRole:
+            if role == Qt.ItemDataRole.ToolTipRole:
                 return path
             elif role == Roles.device_details:
                 if self.prefs.backup_device_autodetection:
@@ -385,7 +385,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         y = option.rect.y()
         width = option.rect.width()
 
-        view_type: ViewRowType = index.data(Qt.DisplayRole)
+        view_type: ViewRowType = index.data(Qt.ItemDataRole.DisplayRole)
         if view_type == ViewRowType.header:
             display_name, icon = index.data(Roles.device_details)
 
@@ -417,7 +417,7 @@ class BackupDeviceDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        view_type: ViewRowType = index.data(Qt.DisplayRole)
+        view_type: ViewRowType = index.data(Qt.ItemDataRole.DisplayRole)
         if view_type == ViewRowType.header:
             height = self.deviceDisplay.dc.device_name_height
         else:
@@ -462,15 +462,17 @@ class BackupOptionsWidget(FlexiFrame):
             QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
         )
 
-        self.backup = QCheckBox(_("Back up photos and videos when downloading"))
+        self.backup = CompatCheckBox(_("Back up photos and videos when downloading"))
         self.backup.setChecked(self.prefs.backup_files)
-        self.backup.stateChanged.connect(self.backupChanged)
+        self.backup.checkStateChanged.connect(self.backupStateChanged)
 
-        checkbox_width = self.backup.style().pixelMetric(QStyle.PM_IndicatorWidth)
+        checkbox_width = self.backup.style().pixelMetric(
+            QStyle.PixelMetric.PM_IndicatorWidth
+        )
 
-        self.autoBackup = QCheckBox(_("Automatically detect backup devices"))
+        self.autoBackup = CompatCheckBox(_("Automatically detect backup devices"))
         self.autoBackup.setChecked(self.prefs.backup_device_autodetection)
-        self.autoBackup.stateChanged.connect(self.autoBackupChanged)
+        self.autoBackup.checkStateChanged.connect(self.autoBackupStateChanged)
 
         self.folderExplanation = QLabel(
             _(
@@ -568,7 +570,7 @@ class BackupOptionsWidget(FlexiFrame):
         backupLayout.addWidget(self.videoFolderName, 5, 3, 1, 1)
         backupLayout.addWidget(self.autoBackupExampleBox, 6, 2, 1, 2)
         backupLayout.addWidget(
-            self.manualLocationExplanation, 7, 1, 1, 3, Qt.AlignBottom
+            self.manualLocationExplanation, 7, 1, 1, 3, Qt.AlignmentFlag.AlignBottom
         )
         backupLayout.addWidget(self.photoLocationLabel, 8, 1, 1, 2)
         backupLayout.addWidget(self.photoLocation, 8, 3, 1, 1)
@@ -605,18 +607,18 @@ class BackupOptionsWidget(FlexiFrame):
         self.updateExample()
         self.enableControlsByBackupType()
 
-    @pyqtSlot(int)
-    def backupChanged(self, state: int) -> None:
-        backup = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def backupStateChanged(self, state: Qt.CheckState) -> None:
+        backup = state == Qt.CheckState.Checked
         logging.info("Setting backup while downloading to %s", backup)
         self.prefs.backup_files = backup
         self.setBackupButtonHighlight()
         self.enableControlsByBackupType()
         self.rapidApp.resetupBackupDevices()
 
-    @pyqtSlot(int)
-    def autoBackupChanged(self, state: int) -> None:
-        autoBackup = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def autoBackupStateChanged(self, state: Qt.CheckState) -> None:
+        autoBackup = state == Qt.CheckState.Checked
         logging.info("Setting automatically detect backup devices to %s", autoBackup)
         self.prefs.backup_device_autodetection = autoBackup
         self.setBackupButtonHighlight()

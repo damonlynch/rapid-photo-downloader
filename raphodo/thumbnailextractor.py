@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 # ruff: noqa: E402
 
@@ -15,8 +15,8 @@ import gi
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst
-from PyQt5.QtCore import QBuffer, QIODevice, QSize, Qt
-from PyQt5.QtGui import QImage, QTransform
+from PyQt6.QtCore import QBuffer, QIODevice, QSize, Qt
+from PyQt6.QtGui import QImage, QTransform
 
 import raphodo.metadata.exiftool as exiftool
 from raphodo.cache import FdoCacheLarge, FdoCacheNormal, ThumbnailCacheSql
@@ -126,7 +126,7 @@ def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
 
     buffer = QBuffer()
-    buffer.open(QIODevice.WriteOnly)
+    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
     # Quality 100 means uncompressed.
     image.save(buffer, "PNG", quality=100)
     return buffer
@@ -677,8 +677,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 # already been rotated
                                 thumbnail = thumbnail.scaled(
                                     self.maxStandardSize,
-                                    Qt.KeepAspectRatio,
-                                    Qt.SmoothTransformation,
+                                    Qt.AspectRatioMode.KeepAspectRatio,
+                                    Qt.TransformationMode.SmoothTransformation,
                                 )
                             else:
                                 if (
@@ -688,15 +688,15 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 ):
                                     thumbnail_256 = thumbnail.scaled(
                                         QSize(256, 256),
-                                        Qt.KeepAspectRatio,
-                                        Qt.SmoothTransformation,
+                                        Qt.AspectRatioMode.KeepAspectRatio,
+                                        Qt.TransformationMode.SmoothTransformation,
                                     )
                                     thumbnail = thumbnail_256
                                 if data.send_thumb_to_main:
                                     thumbnail = thumbnail.scaled(
                                         self.thumbnailSizeNeeded,
-                                        Qt.KeepAspectRatio,
-                                        Qt.SmoothTransformation,
+                                        Qt.AspectRatioMode.KeepAspectRatio,
+                                        Qt.TransformationMode.SmoothTransformation,
                                     )
                                 else:
                                     thumbnail = None
@@ -767,14 +767,14 @@ class ThumbnailExtractor(LoadBalancerWorker):
                             )
                             thumbnail_128 = thumbnail_256.scaled(
                                 QSize(128, 128),
-                                Qt.KeepAspectRatio,
-                                Qt.SmoothTransformation,
+                                Qt.AspectRatioMode.KeepAspectRatio,
+                                Qt.TransformationMode.SmoothTransformation,
                             )
                         else:
                             thumbnail_128 = thumbnail.scaled(
                                 QSize(128, 128),
-                                Qt.KeepAspectRatio,
-                                Qt.SmoothTransformation,
+                                Qt.AspectRatioMode.KeepAspectRatio,
+                                Qt.TransformationMode.SmoothTransformation,
                             )
                         rpd_file.fdo_thumbnail_128_name = (
                             self.fdo_cache_normal.save_thumbnail(
@@ -816,18 +816,16 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if not data.send_thumb_to_main:
                 png_data = None
             rpd_file.metadata = None
-            self.sender.send_multipart(
-                [
-                    b"0",
-                    b"data",
-                    pickle.dumps(
-                        GenerateThumbnailsResults(
-                            rpd_file=rpd_file, thumbnail_bytes=png_data
-                        ),
-                        pickle.HIGHEST_PROTOCOL,
+            self.sender.send_multipart([
+                b"0",
+                b"data",
+                pickle.dumps(
+                    GenerateThumbnailsResults(
+                        rpd_file=rpd_file, thumbnail_bytes=png_data
                     ),
-                ]
-            )
+                    pickle.HIGHEST_PROTOCOL,
+                ),
+            ])
             self.requester.send_multipart([b"", b"", b"OK"])
 
     def do_work(self):

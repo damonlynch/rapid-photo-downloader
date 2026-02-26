@@ -14,7 +14,7 @@ try:
 except ValueError:
     gi.require_version("GExiv2", "0.10")
 from gi.repository import GExiv2
-from PyQt5.QtCore import QSize
+from PyQt6.QtCore import QSize
 
 import raphodo.metadata.exiftool as exiftool
 import raphodo.metadata.metadataexiftool as metadataexiftool

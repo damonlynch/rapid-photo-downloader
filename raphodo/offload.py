@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import contextlib
 import locale
@@ -11,7 +11,7 @@ with contextlib.suppress(locale.Error):
     # Use the default locale as defined by the LANG variable
     locale.setlocale(locale.LC_ALL, "")
 
-from PyQt5.QtGui import QGuiApplication
+from PyQt6.QtGui import QGuiApplication
 
 from raphodo.interprocess import (
     DaemonProcess,

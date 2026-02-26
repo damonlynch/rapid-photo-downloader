@@ -9,9 +9,9 @@ import pickle
 import tempfile
 import argparse
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import (QApplication, QTextEdit)
-from PyQt5.QtGui import (QPixmap)
+from PyQt6.QtCore import QSize
+from PyQt6.QtWidgets import (QApplication, QTextEdit)
+from PyQt6.QtGui import (QPixmap)
 from xdg import BaseDirectory
 
 from raphodo.tools.utilities import CacheDirs

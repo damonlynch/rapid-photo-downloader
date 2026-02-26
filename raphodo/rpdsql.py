@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from contextlib import closing
 from typing import Any, NamedTuple
 
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 from tenacity import retry, stop_after_attempt
 
 from raphodo.constants import FileType, Show, Sort
@@ -55,7 +55,7 @@ class ThumbnailRowsSQL:
 
         self.db = ":memory:"
 
-        self.sort_order_map = {Qt.AscendingOrder: "ASC", Qt.DescendingOrder: "DESC"}
+        self.sort_order_map = {Qt.SortOrder.AscendingOrder: "ASC", Qt.SortOrder.DescendingOrder: "DESC"}
         self.sort_map = {
             Sort.checked_state: "marked",
             Sort.filename: "file_name",
@@ -1195,7 +1195,7 @@ if __name__ == "__main__":
     d.set_marked(uid, False)
     d.set_downloaded(uid, True)
 
-    print(d.get_view(sort_by=Sort.device, sort_order=Qt.DescendingOrder, show=Show.all))
+    print(d.get_view(sort_by=Sort.device, sort_order=Qt.SortOrder.DescendingOrder, show=Show.all))
 
     print(d.get_uids_for_device(0))
     print(d.get_uids_for_device(1))

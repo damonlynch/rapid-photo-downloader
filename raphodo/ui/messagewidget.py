@@ -1,13 +1,13 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Display messages to the user in stacked widget
 """
 
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QFocusEvent, QMouseEvent
-from PyQt5.QtWidgets import QLabel, QPushButton, QSizePolicy, QStackedWidget
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QFocusEvent, QMouseEvent
+from PyQt6.QtWidgets import QLabel, QPushButton, QSizePolicy, QStackedWidget
 
 from raphodo.internationalisation.install import install_gettext
 
@@ -37,7 +37,7 @@ class MessageWidget(QStackedWidget):
         # contain a space.
         blank = QLabel(" ")
         blank.setWordWrap(True)
-        blank.setTextFormat(Qt.RichText)
+        blank.setTextFormat(Qt.TextFormat.RichText)
         self.addWidget(blank)
 
         for message in messages:
@@ -50,8 +50,8 @@ class MessageWidget(QStackedWidget):
                     _("<i><b>Hint:</b> %(message)s</i>") % dict(message=message)
                 )
             label.setWordWrap(True)
-            label.setTextFormat(Qt.RichText)
-            label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+            label.setTextFormat(Qt.TextFormat.RichText)
+            label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
             self.addWidget(label)
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)

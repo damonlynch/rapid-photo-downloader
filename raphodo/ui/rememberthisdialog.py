@@ -6,13 +6,14 @@ Yes/No dialog that displays a statement along with a "Remember this choice"
 or "Don't ask me about this again" checkbox.
 """
 
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QLabel
+from PyQt6.QtCore import Qt, pyqtSlot
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, QLabel
 
 from raphodo.constants import RememberThisButtons, RememberThisMessage
 from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import standardIconSize, translateDialogBoxButtons
 
 install_gettext()
@@ -47,7 +48,7 @@ class RememberThisDialog(QDialog):
 
         if message_contains_link:
             messageLabel.setOpenExternalLinks(True)
-            messageLabel.setTextFormat(Qt.RichText)
+            messageLabel.setTextFormat(Qt.TextFormat.RichText)
 
         iconLabel = QLabel()
         if isinstance(icon, str):
@@ -70,7 +71,7 @@ class RememberThisDialog(QDialog):
                 "&Don't warn me again about missing or broken program libraries"
             )
 
-        self.rememberCheckBox = QCheckBox(question)
+        self.rememberCheckBox = CompatCheckBox(question)
 
         self.rememberCheckBox.setChecked(False)
         buttonBox = QDialogButtonBox()

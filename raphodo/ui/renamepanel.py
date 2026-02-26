@@ -3,10 +3,9 @@
 
 import logging
 
-from PyQt5.QtCore import Qt, QTime, pyqtSlot
-from PyQt5.QtGui import QPalette
-from PyQt5.QtWidgets import (
-    QCheckBox,
+from PyQt6.QtCore import Qt, QTime, pyqtSlot
+from PyQt6.QtGui import QPalette
+from PyQt6.QtWidgets import (
     QComboBox,
     QFormLayout,
     QGroupBox,
@@ -37,6 +36,7 @@ from raphodo.rpdfile import Photo, Video
 from raphodo.tools.utilities import platform_c_maxint
 from raphodo.ui.nameeditor import PrefDialog, PresetComboBox, make_sample_rpd_file
 from raphodo.ui.panelview import QPanelView
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
 
 install_gettext()
@@ -359,9 +359,9 @@ class RenameOptionsWidget(FlexiFrame):
         # 24 hour format, if wanted in a future release:
         # self.dayStart.setDisplayFormat('HH:mm:ss')
 
-        self.sync = QCheckBox(_("Synchronize RAW + JPEG"))
+        self.sync = CompatCheckBox(_("Synchronize RAW + JPEG"))
         self.sync.setChecked(self.prefs.synchronize_raw_jpg)
-        self.sync.stateChanged.connect(self.syncChanged)
+        self.sync.checkStateChanged.connect(self.syncStateChanged)
         tip = _(
             "Synchronize sequence numbers for matching RAW and JPEG pairs.\n\n"
             "See the online documentation for more details."
@@ -379,9 +379,9 @@ class RenameOptionsWidget(FlexiFrame):
 
         self.sequences.setLayout(sequencesLayout)
 
-        self.stripCharacters = QCheckBox(_("Strip incompatible characters"))
+        self.stripCharacters = CompatCheckBox(_("Strip incompatible characters"))
         self.stripCharacters.setChecked(self.prefs.strip_characters)
-        self.stripCharacters.stateChanged.connect(self.stripCharactersChanged)
+        self.stripCharacters.checkStateChanged.connect(self.stripCharactersStateChanged)
         self.stripCharacters.setToolTip(
             _(
                 "Whether photo, video and folder names should have any characters "
@@ -442,15 +442,15 @@ class RenameOptionsWidget(FlexiFrame):
         if self.prefs.video_rename_pref_uses_stored_sequence_no():
             self.videoRenameWidget.updateExampleFilename(stored_sequence_no=value - 1)
 
-    @pyqtSlot(int)
-    def syncChanged(self, state: int) -> None:
-        sync = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def syncStateChanged(self, state: Qt.CheckState) -> None:
+        sync = state == Qt.CheckState.Checked
         logging.debug("Setting synchronize RAW + JPEG sequence values to %s", sync)
         self.prefs.synchronize_raw_jpg = sync
 
-    @pyqtSlot(int)
-    def stripCharactersChanged(self, state: int) -> None:
-        strip = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def stripCharactersStateChanged(self, state: Qt.CheckState) -> None:
+        strip = state == Qt.CheckState.Checked
         logging.debug("Setting strip incompatible characers to %s", strip)
         self.prefs.strip_characters = strip
 

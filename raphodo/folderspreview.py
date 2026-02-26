@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Two tasks:
@@ -22,7 +22,7 @@ from collections import defaultdict, namedtuple
 from collections.abc import Sequence
 from pprint import pprint
 
-from PyQt5.QtWidgets import QFileSystemModel
+from PyQt6.QtGui import QFileSystemModel
 
 import raphodo.generatename as gn
 from raphodo.constants import FileType

@@ -25,7 +25,7 @@ import arrow
 import babel
 import psutil
 from packaging.version import parse
-from PyQt5.QtCore import QLibraryInfo, QSize, QStandardPaths, QTranslator
+from PyQt6.QtCore import QLibraryInfo, QSize, QStandardPaths, QTranslator
 
 import raphodo.__about__ as __about__
 from raphodo.internationalisation.install import i18n_domain, install_gettext, localedir

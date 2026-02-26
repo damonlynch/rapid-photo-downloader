@@ -8,7 +8,7 @@
 # Edited Damon Lynch 2024 to remove resource import
 # Edited Damon Lynch 2024 to optimize imports
 
-from PyQt5 import QtGui, QtWidgets
+from PyQt6 import QtGui, QtWidgets
 
 from raphodo.tools.utilities import data_file_path
 

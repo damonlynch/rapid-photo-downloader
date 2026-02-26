@@ -4,7 +4,7 @@
 import locale
 
 try:
-    from PyQt5.QtCore import QSettings
+    from PyQt6.QtCore import QSettings
 
     have_pyqt = True
 except ImportError:

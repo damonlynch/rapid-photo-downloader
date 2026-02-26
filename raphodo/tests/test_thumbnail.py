@@ -11,9 +11,9 @@ import pickle
 import tempfile
 import argparse
 
-from PyQt5.QtCore import (QThread, Qt, QTimer, pyqtSignal, QSize)
-from PyQt5.QtWidgets import (QApplication, QTextEdit)
-from PyQt5.QtGui import (QPixmap, QImage)
+from PyQt6.QtCore import (QThread, Qt, QTimer, pyqtSignal, QSize)
+from PyQt6.QtWidgets import (QApplication, QTextEdit)
+from PyQt6.QtGui import (QPixmap, QImage)
 import zmq
 from xdg import BaseDirectory
 

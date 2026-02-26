@@ -12,11 +12,11 @@ import arrow.arrow
 from arrow.arrow import Arrow
 
 try:
-    from PyQt5.Qt import QWIDGETSIZE_MAX
+    from PyQt6.Qt import QWIDGETSIZE_MAX
 except ImportError:
-    from PyQt5.QtWidgets import QWIDGETSIZE_MAX
+    from PyQt6.QtWidgets import QWIDGETSIZE_MAX
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QAbstractTableModel,
     QCoreApplication,
     QEvent,
@@ -34,7 +34,8 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
+    QAction,
     QColor,
     QFont,
     QFontMetricsF,
@@ -46,9 +47,8 @@ from PyQt5.QtGui import (
     QPixmap,
     QShowEvent,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractItemView,
-    QAction,
     QApplication,
     QFrame,
     QHBoxLayout,
@@ -339,7 +339,7 @@ def monthFont() -> FontKerning:
     kerning = 1.2
     font.setPointSize(font.pointSize() - 2)
     font.setLetterSpacing(QFont.SpacingType.PercentageSpacing, kerning * 100)
-    font.setStretch(QFont.SemiExpanded)
+    font.setStretch(QFont.Stretch.SemiExpanded)
     return FontKerning(font, kerning)
 
 
@@ -1268,7 +1268,7 @@ class TemporalProximityModel(QAbstractTableModel):
         tooltip = f"{date}<br>{html_image1} {center} {html_image2}<br>{file_types}"
         return tooltip
 
-    def data(self, index: QModelIndex, role=Qt.DisplayRole):
+    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
 
@@ -1282,7 +1282,7 @@ class TemporalProximityModel(QAbstractTableModel):
         proximity_row: ProximityRow = self.groups[row]
 
         match role:
-            case Qt.DisplayRole:
+            case Qt.ItemDataRole.DisplayRole:
                 invalid_row = self.show_debug and row in self.groups.invalid_rows
                 invalid_rows = (
                     self.show_debug
@@ -1307,7 +1307,7 @@ class TemporalProximityModel(QAbstractTableModel):
                 uids = self.groups.uids.uids(2)[prow]
                 return uids
 
-            case Qt.ToolTipRole:
+            case Qt.ItemDataRole.ToolTipRole:
                 return self.generateToolTip(row, column, proximity_row)
 
     def debugDumpState(
@@ -1414,8 +1414,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 # Month and year
                 painter.save()
 
-                if option.state & QStyle.State_Selected:
-                    if option.state & QStyle.State_MouseOver:
+                if option.state & QStyle.StateFlag.State_Selected:
+                    if option.state & QStyle.StateFlag.State_MouseOver:
                         color = self.highlightMouseover
                         barColor = self.darkerHighlightMouseover
                     else:
@@ -1423,7 +1423,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                         barColor = self.darkerHighlight
                     textColor = self.highlightText
                 else:
-                    if option.state & QStyle.State_MouseOver:
+                    if option.state & QStyle.StateFlag.State_MouseOver:
                         color = self.darkGrayMouseover
                         barColor = self.darkerGrayMouseover
                     else:
@@ -1453,7 +1453,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 painter.translate(-1 * optionRectF.height(), 0)
                 rect = QRectF(0, 0, optionRectF.height(), optionRectF.width())
 
-                painter.drawText(rect, Qt.AlignCenter, month)
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, month)
 
                 painter.setPen(barColor)
                 painter.drawLine(QLineF(1.0, 0.0, 1.0, (optionRectF.width())))
@@ -1464,8 +1464,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 # Day of the month
                 painter.save()
 
-                if option.state & QStyle.State_Selected:
-                    if option.state & QStyle.State_MouseOver:
+                if option.state & QStyle.StateFlag.State_Selected:
+                    if option.state & QStyle.StateFlag.State_MouseOver:
                         color = self.highlightMouseover
                         barColor = self.darkerHighlightMouseover
                     else:
@@ -1474,14 +1474,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     weekdayColor = self.highlightText
                     dayColor = self.highlightText
                 else:
-                    if option.state & QStyle.State_MouseOver:
+                    if option.state & QStyle.StateFlag.State_MouseOver:
                         color = self.darkGrayMouseover
                         barColor = self.darkerGrayMouseover
                     else:
                         color = self.darkGray
                         barColor = self.darkerGray
                     weekdayColor = QColor(221, 221, 221)
-                    dayColor = QColor(Qt.white)
+                    dayColor = QColor(Qt.GlobalColor.white)
 
                 painter.fillRect(optionRectF, color)
                 weekday, day = index.data()
@@ -1499,10 +1499,18 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
                 painter.setFont(self.dv.weekdayFont)
                 painter.setPen(weekdayColor)
-                painter.drawText(weekdayRect, Qt.AlignHCenter | Qt.AlignBottom, weekday)
+                painter.drawText(
+                    weekdayRect,
+                    Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+                    weekday,
+                )
                 painter.setFont(self.dv.dayFont)
                 painter.setPen(dayColor)
-                painter.drawText(dayRect, Qt.AlignHCenter | Qt.AlignTop, day)
+                painter.drawText(
+                    dayRect,
+                    Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+                    day,
+                )
 
                 if row in self.dv.c1_end_of_month:
                     painter.setPen(barColor)
@@ -1525,20 +1533,22 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
                 if invalid_row:
                     color = self.darkGray
-                    textColor = QColor(Qt.white)
-                elif option.state & QStyle.State_Selected:
-                    if option.state & QStyle.State_MouseOver:
+                    textColor = QColor(Qt.GlobalColor.white)
+                elif option.state & QStyle.StateFlag.State_Selected:
+                    if option.state & QStyle.StateFlag.State_MouseOver:
                         color = self.highlightMouseover
                     else:
                         color = self.highlight
                     # TODO take into account dark themes
                     textColor = self.highlightText if new_file else self.darkGray
                 else:
-                    if option.state & QStyle.State_MouseOver:
+                    if option.state & QStyle.StateFlag.State_MouseOver:
                         color = self.dv.tableColorMouseover
                     else:
                         color = self.dv.tableColor
-                    textColor = QColor(Qt.white) if new_file else self.darkGray
+                    textColor = (
+                        QColor(Qt.GlobalColor.white) if new_file else self.darkGray
+                    )
 
                 painter.fillRect(optionRectF, color)
 
@@ -1595,7 +1605,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     invalidRightRect.translate(-2, 1)
                     painter.setFont(self.dv.invalidRowFont)
                     painter.drawText(
-                        invalidRightRect, Qt.AlignRight | Qt.AlignTop, str(row)
+                        invalidRightRect,
+                        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop,
+                        str(row),
                     )
                     if (
                         align != Align.top
@@ -1604,29 +1616,43 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                         invalidLeftRect = QRectF(option.rect)
                         invalidLeftRect.translate(1, 1)
                         painter.drawText(
-                            invalidLeftRect, Qt.AlignLeft | Qt.AlignTop, "Debug mode"
+                            invalidLeftRect,
+                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                            "Debug mode",
                         )
 
                 painter.setFont(self.dv.proximityFont)
 
                 match align:
                     case None:
-                        painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, text)
+                        painter.drawText(
+                            rect,
+                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+                            text,
+                        )
                     case Align.bottom:
                         rect.setHeight(rect.height() - self.dv.col2_v_padding_half)
-                        painter.drawText(rect, Qt.AlignLeft | Qt.AlignBottom, text)
+                        painter.drawText(
+                            rect,
+                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                            text,
+                        )
                     case _:
                         rect.adjust(0, self.dv.col2_v_padding_half, 0, 0)
-                        painter.drawText(rect, Qt.AlignLeft | Qt.AlignTop, text)
+                        painter.drawText(
+                            rect,
+                            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                            text,
+                        )
 
                 if row in self.dv.c2_end_of_day:
-                    if option.state & QStyle.State_Selected:
-                        if option.state & QStyle.State_MouseOver:
+                    if option.state & QStyle.StateFlag.State_Selected:
+                        if option.state & QStyle.StateFlag.State_MouseOver:
                             painter.setPen(self.darkerHighlightMouseover)
                         else:
                             painter.setPen(self.darkerHighlight)
                     else:
-                        if option.state & QStyle.State_MouseOver:
+                        if option.state & QStyle.StateFlag.State_MouseOver:
                             painter.setPen(self.dv.tableColorMouseoverDarker)
                         else:
                             painter.setPen(self.dv.tableColorDarker)
@@ -1659,13 +1685,17 @@ class TemporalProximityView(QTableView):
         self.horizontalHeader().setStretchLastSection(True)
         self.setWordWrap(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # The vertical scrollbar the user sees belongs to the left panel scroll area
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setShowGrid(False)
-        self.setFrameShape(QFrame.NoFrame)
-        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-        self.viewport().setAttribute(Qt.WA_Hover)  # Enable mouse over tracking
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_width = QApplication.style().pixelMetric(
+            QStyle.PixelMetric.PM_DefaultFrameWidth
+        )
+        self.viewport().setAttribute(
+            Qt.WidgetAttribute.WA_Hover
+        )  # Enable mouse over tracking
 
     def contentHeight(self) -> int:
         return self.verticalHeader().length()
@@ -1823,7 +1853,7 @@ class TemporalProximityView(QTableView):
 
         do_selection = True
         do_selection_confirmed = False
-        index: QModelIndex = self.indexAt(event.pos())
+        index: QModelIndex = self.indexAt(event.position().toPoint())
         if index in self.selectedIndexes():
             clicked_column = index.column()
             clicked_row = index.row()
@@ -1922,7 +1952,7 @@ class TemporalValuePicker(QWidget):
 
     def __init__(self, minutes: int, parent=None) -> None:
         super().__init__(parent)
-        self.slider = QSlider(Qt.Horizontal)
+        self.slider = QSlider(Qt.Orientation.Horizontal)
         self.slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.slider.setToolTip(
             _(
@@ -1937,7 +1967,7 @@ class TemporalValuePicker(QWidget):
         font = QFont()
         font.setPointSize(font.pointSize() - 2)
         self.display.setFont(font)
-        self.display.setAlignment(Qt.AlignCenter)
+        self.display.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Determine the maximum width of display label
         width = 0
@@ -2161,7 +2191,9 @@ class TemporalProximity(QWidget):
         ctime_vs_mtime = f"<i>{ctime_vs_mtime}</i>"
 
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, palette.color(palette.Base))
+        palette.setColor(
+            QPalette.ColorRole.Window, palette.color(palette.ColorRole.Base)
+        )
 
         self.description = QLabel(description)
         self.adjust = QLabel(adjust)
@@ -2189,7 +2221,7 @@ class TemporalProximity(QWidget):
             self.generating,
             self.ctime_vs_mtime,
         ):
-            label.setAlignment(Qt.AlignTop)
+            label.setAlignment(Qt.AlignmentFlag.AlignTop)
             label.setSizePolicy(
                 QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding
             )
@@ -2410,7 +2442,9 @@ class TemporalProximity(QWidget):
         else:
             min_width = sum(proximity_groups.display_values.col_widths)
         # Width of each scrollbar
-        scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
+        scrollbar_width = self.style().pixelMetric(
+            QStyle.PixelMetric.PM_ScrollBarExtent
+        )
         # Width of frame - without it, the tableview will still be too small
         frame_width = QSplitter().lineWidth() * 2
         self.temporalProximityView.setMinimumWidth(
@@ -2618,7 +2652,7 @@ class SyncButton(QPushButton):
                 .name(QColor.NameFormat.HexRgb)
             )
         else:
-            color = QPalette().color(QPalette.Background)
+            color = QPalette().color(QPalette.ColorRole.Window)
             hoverColor = color.darker(110).name(QColor.NameFormat.HexRgb)
 
         style = """
@@ -2644,10 +2678,10 @@ class SyncButton(QPushButton):
 
         if not self.isChecked():
             match event.type():
-                case QEvent.Enter:
+                case QEvent.Type.Enter:
                     self.setIcon(self.regularIconHover)
                     return True
-                case QEvent.Leave:
+                case QEvent.Type.Leave:
                     self.setIcon(self.state_mapper[self.icon_state])
                     return True
         return super().eventFilter(source, event)
@@ -2740,7 +2774,7 @@ class TemporalProximityControls(QWidget):
         if not (checked or self.autoScrollButtonShortcutTriggered):
             # The mouse is hovering over the button
             # Change the icon color while hovered
-            QCoreApplication.postEvent(self.autoScrollButton, QEvent(QEvent.Enter))
+            QCoreApplication.postEvent(self.autoScrollButton, QEvent(QEvent.Type.Enter))
         self.autoScrollButtonShortcutTriggered = False
 
     @pyqtSlot(bool)

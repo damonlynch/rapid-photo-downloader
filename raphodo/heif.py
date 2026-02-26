@@ -3,14 +3,14 @@
 
 import logging
 
-from PyQt5.QtGui import QImage
+from PyQt6.QtGui import QImage
 
 try:
     import pillow_heif
     from PIL import Image, ImageQt
 
-    # pillow support for PyQt5 is not guaranteed
-    assert ["5", "PyQt5"] in ImageQt.qt_versions
+    # pillow support for PyQt6 is not guaranteed
+    assert ["5", "PyQt6"] in ImageQt.qt_versions
 
     pillow_heif.register_heif_opener(thumbnails=False)
 
@@ -127,8 +127,8 @@ if __name__ == "__main__":
 
         import os
 
-        from PyQt5.QtGui import QPixmap
-        from PyQt5.QtWidgets import QApplication, QLabel, QWidget
+        from PyQt6.QtGui import QPixmap
+        from PyQt6.QtWidgets import QApplication, QLabel, QWidget
 
         app = QApplication(sys.argv)
         image = None

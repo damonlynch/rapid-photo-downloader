@@ -54,7 +54,7 @@ except ValueError:
     gi.require_version("GExiv2", "0.10")
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib, GUdev, UDisks
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QFileSystemWatcher,
     QObject,
     QStandardPaths,

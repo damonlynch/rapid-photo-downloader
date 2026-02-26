@@ -14,8 +14,8 @@ from collections import OrderedDict
 from collections.abc import Sequence
 from enum import IntEnum, auto
 
-from PyQt5.QtCore import QSignalMapper, QSize, Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import (
+from PyQt6.QtCore import QSignalMapper, QSize, Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import (
     QBrush,
     QColor,
     QFont,
@@ -30,7 +30,7 @@ from PyQt5.QtGui import (
     QTextDocument,
     QWheelEvent,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
@@ -144,7 +144,7 @@ class PrefEditor(QTextEdit):
         """
 
         super().mousePressEvent(event)
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             position = self.textCursor().position()
             pref_pos, start, end, left_start, left_end = self.locatePrefValue(position)
 
@@ -167,54 +167,54 @@ class PrefEditor(QTextEdit):
         """
 
         key = event.key()
-        if key in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Tab):
+        if key in (Qt.Key.Key_Enter, Qt.Key.Key_Return, Qt.Key.Key_Tab):
             return
 
         cursor: QTextCursor = self.textCursor()
 
-        if cursor.hasSelection() and key in (Qt.Key_Left, Qt.Key_Right):
+        if cursor.hasSelection() and key in (Qt.Key.Key_Left, Qt.Key.Key_Right):
             # Pass the key press on and let the selection deselect
             pass
         elif key in (
-            Qt.Key_Left,
-            Qt.Key_Right,
-            Qt.Key_Home,
-            Qt.Key_End,
-            Qt.Key_PageUp,
-            Qt.Key_PageDown,
-            Qt.Key_Up,
-            Qt.Key_Down,
+            Qt.Key.Key_Left,
+            Qt.Key.Key_Right,
+            Qt.Key.Key_Home,
+            Qt.Key.Key_End,
+            Qt.Key.Key_PageUp,
+            Qt.Key.Key_PageDown,
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
         ):
             # Navigation key was pressed
 
             # Was ctrl key pressed too?
-            ctrl_key = event.modifiers() & Qt.ControlModifier
+            ctrl_key = event.modifiers() & Qt.KeyboardModifier.ControlModifier
 
             selection_start = selection_end = -1
 
             # This event is called before the cursor is moved, so
             # move the cursor as if it would be moved
-            if key == Qt.Key_Right and not cursor.atEnd():
+            if key == Qt.Key.Key_Right and not cursor.atEnd():
                 if ctrl_key:
                     cursor.movePosition(QTextCursor.MoveOperation.WordRight)
                 else:
                     cursor.movePosition(QTextCursor.MoveOperation.Right)
-            elif key == Qt.Key_Left and not cursor.atStart():
+            elif key == Qt.Key.Key_Left and not cursor.atStart():
                 if ctrl_key:
                     cursor.movePosition(QTextCursor.MoveOperation.WordLeft)
                 else:
                     cursor.movePosition(QTextCursor.MoveOperation.Left)
-            elif key == Qt.Key_Up:
+            elif key == Qt.Key.Key_Up:
                 cursor.movePosition(QTextCursor.MoveOperation.Up)
-            elif key == Qt.Key_Down:
+            elif key == Qt.Key.Key_Down:
                 cursor.movePosition(QTextCursor.MoveOperation.Down)
-            elif key in (Qt.Key_Home, Qt.Key_PageUp):
-                if ctrl_key or key == Qt.Key_PageUp:
+            elif key in (Qt.Key.Key_Home, Qt.Key.Key_PageUp):
+                if ctrl_key or key == Qt.Key.Key_PageUp:
                     cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock)
                 else:
                     cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
-            elif key in (Qt.Key_End, Qt.Key_PageDown):
-                if ctrl_key or key == Qt.Key_PageDown:
+            elif key in (Qt.Key.Key_End, Qt.Key.Key_PageDown):
+                if ctrl_key or key == Qt.Key.Key_PageDown:
                     cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock)
                 else:
                     cursor.movePosition(QTextCursor.MoveOperation.EndOfLine)
@@ -231,7 +231,7 @@ class PrefEditor(QTextEdit):
                 selection_start = end + 1
                 selection_end = start
             elif pref_pos == PrefPosition.positioned_in:
-                if key == Qt.Key_Left or key == Qt.Key_Home:
+                if key == Qt.Key.Key_Left or key == Qt.Key.Key_Home:
                     # because moving left, position the cursor on the left
                     selection_start = end + 1
                     selection_end = start
@@ -705,9 +705,9 @@ class PresetComboBox(QComboBox):
     def _setRowEnabled(self, enabled: bool, offset: int) -> None:
         item = self._getRowItem(offset=offset)
         if not enabled:
-            item.setFlags(Qt.NoItemFlags)
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
         else:
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
 
     def setRemoveAllCustomEnabled(self, enabled: bool) -> None:
         self._setRowEnabled(
@@ -787,7 +787,7 @@ class CreatePreset(QDialog):
 
         self.name = QLineEdit()
         metrics = QFontMetrics(QFont())
-        self.name.setMinimumWidth(metrics.width(title))
+        self.name.setMinimumWidth(metrics.horizontalAdvance(title))
         self.name.textEdited.connect(self.nameEdited)
         flayout = QFormLayout()
         flayout.addRow(_("Preset Name:"), self.name)
@@ -1071,7 +1071,7 @@ class PrefDialog(QDialog):
         )
         sizePolicy.setVerticalStretch(10)
         self.area.setSizePolicy(sizePolicy)
-        self.area.setFrameShape(QFrame.NoFrame)
+        self.area.setFrameShape(QFrame.Shape.NoFrame)
         layout.addWidget(self.area)
 
         gbSizePolicy = QSizePolicy(
@@ -1182,7 +1182,7 @@ class PrefDialog(QDialog):
                     gLayout.addWidget(widget1, row, 1)
                     gLayout.addWidget(widget2, row, 2)
 
-        self.mapper.mapped[str].connect(self.choiceMade)
+        self.mapper.mappedString.connect(self.choiceMade)
 
         buttonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Cancel
@@ -1237,7 +1237,9 @@ class PrefDialog(QDialog):
             widget.setMinimumWidth(width)
 
         # Set the scroll area to be big enough to eliminate the horizontal scrollbar
-        scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
+        scrollbar_width = self.style().pixelMetric(
+            QStyle.PixelMetric.PM_ScrollBarExtent
+        )
         self.area.setMinimumWidth(self.area.widget().width() + scrollbar_width)
 
     @pyqtSlot(str)
@@ -1258,7 +1260,7 @@ class PrefDialog(QDialog):
         self.editor.insertPrefValue(pref_value)
 
         # Set focus not on the control that was just used, but the editor
-        self.editor.setFocus(Qt.OtherFocusReason)
+        self.editor.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def makeColorCodeLabel(self, color: str) -> QLabel:
         """
@@ -1375,7 +1377,7 @@ class PrefDialog(QDialog):
 
         parts = copy.copy(self.name_parts)
         metrics = QFontMetrics(self.example.font())
-        width = self.example.width() - metrics.width("…")
+        width = self.example.width() - metrics.horizontalAdvance("…")
 
         # Cannot elide rich text using Qt code. Thus, elide the plain text.
         plain_text_name = "".join(parts)
@@ -1384,7 +1386,9 @@ class PrefDialog(QDialog):
             plain_text_name = self.name_generator.filter_subfolder_characters(
                 plain_text_name
             )
-        elided_text = metrics.elidedText(plain_text_name, Qt.ElideRight, width)
+        elided_text = metrics.elidedText(
+            plain_text_name, Qt.TextElideMode.ElideRight, width
+        )
         elided = False
 
         while plain_text_name != elided_text:
@@ -1395,7 +1399,9 @@ class PrefDialog(QDialog):
                 plain_text_name = self.name_generator.filter_subfolder_characters(
                     plain_text_name
                 )
-            elided_text = metrics.elidedText(plain_text_name, Qt.ElideRight, width)
+            elided_text = metrics.elidedText(
+                plain_text_name, Qt.TextElideMode.ElideRight, width
+            )
 
         colored_parts = [
             f'<span style="color: {color};">{part}</span>' if color else part
@@ -1412,7 +1418,7 @@ class PrefDialog(QDialog):
         if self.sample_rpd_file.name_generation_problem:
             self.messageWidget.setCurrentIndex(1)
 
-        self.example.setTextFormat(Qt.RichText)
+        self.example.setTextFormat(Qt.TextFormat.RichText)
         self.example.setText(name)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
@@ -1470,9 +1476,10 @@ class PrefDialog(QDialog):
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Yes | QMessageBox.No,
+                standardButtons=QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
             )
-            if msgbox.exec() == QMessageBox.Yes:
+            if msgbox.exec() == QMessageBox.StandardButton.Yes:
                 if len(self.preset_names) > 1:
                     self.preset.removeCustomPreset(name=self.current_custom_name)
                     self.removeCustomPreset()
@@ -1488,9 +1495,10 @@ class PrefDialog(QDialog):
             msgbox = standardMessageBox(
                 message=message,
                 rich_text=True,
-                standardButtons=QMessageBox.Yes | QMessageBox.No,
+                standardButtons=QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
             )
-            if msgbox.exec() == QMessageBox.Yes:
+            if msgbox.exec() == QMessageBox.StandardButton.Yes:
                 self._removeAllCustomPresets()
             self.updateComboBoxCurrentIndex()
         elif preset_class == PresetClass.update_preset:
@@ -1654,7 +1662,8 @@ class PrefDialog(QDialog):
                     "of whether you create a new custom preset or not."
                 )
                 msgBox = standardMessageBox(
-                    standardButtons=QMessageBox.Yes | QMessageBox.No,
+                    standardButtons=QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
                     title=title,
                     rich_text=True,
                     message=message,
@@ -1663,7 +1672,7 @@ class PrefDialog(QDialog):
             else:
                 assert self.preset.preset_edited
                 msgBox = QMessageBox()
-                msgBox.setTextFormat(Qt.RichText)
+                msgBox.setTextFormat(Qt.TextFormat.RichText)
                 msgBox.setIcon(QMessageBox.Icon.Question)
                 msgBox.setWindowTitle(title)
                 message = _(
@@ -1674,7 +1683,7 @@ class PrefDialog(QDialog):
                     "of whether you save a custom preset or not."
                 )
                 msgBox.setText(message)
-                msgBox.addButton(QMessageBox.No)
+                msgBox.addButton(QMessageBox.StandardButton.No)
                 translateMessageBoxButtons(msgBox)
                 updateButton = msgBox.addButton(
                     _('Update Custom Preset "%s"') % self.current_custom_name,
@@ -1687,7 +1696,7 @@ class PrefDialog(QDialog):
             choice = msgBox.exec()
             save_new = update = False
             if self.preset.new_preset:
-                save_new = choice == QMessageBox.Yes
+                save_new = choice == QMessageBox.StandardButton.Yes
             else:
                 if msgBox.clickedButton() == updateButton:
                     update = True

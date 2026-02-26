@@ -10,8 +10,10 @@ import math
 import os
 from collections import defaultdict
 
-from PyQt5.QtCore import QPoint, QRect, QRectF, QSize, QStorageInfo, Qt, pyqtSlot
-from PyQt5.QtGui import (
+from PyQt6.QtCore import QPoint, QRect, QRectF, QSize, QStorageInfo, Qt, pyqtSlot
+from PyQt6.QtGui import (
+    QAction,
+    QActionGroup,
     QBrush,
     QColor,
     QFont,
@@ -24,9 +26,7 @@ from PyQt5.QtGui import (
     QPen,
     QPixmap,
 )
-from PyQt5.QtWidgets import (
-    QAction,
-    QActionGroup,
+from PyQt6.QtWidgets import (
     QApplication,
     QMenu,
     QSizePolicy,
@@ -298,7 +298,9 @@ class DestinationDisplay(QWidget):
         self._downloading_to: DownloadingTo = defaultdict(set)
 
         self.midPen = paletteMidPen()
-        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.frame_width = QApplication.style().pixelMetric(
+            QStyle.PixelMetric.PM_DefaultFrameWidth
+        )
         self.container_vertical_scrollbar_visible = None
 
         self.status = DestinationDisplayStatus.valid
@@ -773,7 +775,10 @@ class DestinationDisplay(QWidget):
 
         iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
 
-        if iconRect.contains(event.pos()) and event.button() == Qt.LeftButton:
+        if (
+            iconRect.contains(event.position())
+            and event.button() == Qt.MouseButton.LeftButton
+        ):
             menuTopReal = iconRect.bottomLeft()
             x = math.ceil(menuTopReal.x())
             y = math.ceil(menuTopReal.y())
@@ -795,10 +800,10 @@ class DestinationDisplay(QWidget):
             # make tooltip different when hovering above storage space compared
             # to when hovering above the destination folder
 
-            headerRect = QRect(
-                0, 0, self.width(), self.deviceDisplay.dc.device_name_height
+            headerRect = QRectF(
+                0.0, 0.0, self.width(), self.deviceDisplay.dc.device_name_height
             )
-            if not headerRect.contains(event.pos()):
+            if not headerRect.contains(event.position()):
                 if (
                     self.tooltip_display_state
                     != DestinationDisplayTooltipState.storage_space
@@ -812,7 +817,7 @@ class DestinationDisplay(QWidget):
                 return
 
         iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
-        if iconRect.contains(event.pos()):
+        if iconRect.contains(event.position()):
             if self.mouse_pos == DestinationDisplayMousePos.normal:
                 self.mouse_pos = DestinationDisplayMousePos.menu
 

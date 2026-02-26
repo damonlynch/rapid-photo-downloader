@@ -23,8 +23,9 @@ Copyright notice from QtWaitingSpinner source:
 import logging
 import math
 from collections import defaultdict, namedtuple
+from typing import Any
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QAbstractItemModel,
     QAbstractListModel,
     QEvent,
@@ -40,7 +41,7 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QBrush,
     QColor,
     QFont,
@@ -54,7 +55,7 @@ from PyQt5.QtGui import (
     QPen,
     QPixmap,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QMenu,
@@ -130,8 +131,10 @@ class DeviceModel(QAbstractListModel):
         self.devices: dict[int, Device] = {}
         # scan_id: DeviceState
         self.spinner_state: dict[int, DeviceState] = {}
-        # scan_id: bool
-        self.checked: dict[int, Qt.CheckState] = defaultdict(lambda: Qt.Checked)
+        # scan_id: Qt.CheckState
+        self.checked: dict[int, Qt.CheckState] = defaultdict(
+            lambda: Qt.CheckState.Checked
+        )
         self.icons: dict[int, QPixmap] = {}
         self.rows: RowTracker = RowTracker()
         self.row_id_counter: int = 0
@@ -314,7 +317,7 @@ class DeviceModel(QAbstractListModel):
         self.spinner_state[scan_id] = state
         self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
-    def data(self, index: QModelIndex, role=Qt.DisplayRole):
+    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
 
@@ -326,22 +329,22 @@ class DeviceModel(QAbstractListModel):
 
         row_id = self.rows[row]
         scan_id = self.row_id_to_scan_id[row_id]
+        device: Device = self.devices[scan_id]
 
-        if role == Qt.DisplayRole:
-            if row_id in self.headers:
-                return ViewRowType.header
-            else:
-                return ViewRowType.content
-        elif role == Qt.CheckStateRole:
-            return self.checked[scan_id]
-        elif role == Roles.scan_id:
-            return scan_id
-        else:
-            device: Device = self.devices[scan_id]
-            if role == Qt.ToolTipRole:
+        match role:
+            case Qt.ItemDataRole.DisplayRole:
+                if row_id in self.headers:
+                    return ViewRowType.header
+                else:
+                    return ViewRowType.content
+            case Qt.ItemDataRole.CheckStateRole:
+                return self.checked[scan_id]
+            case Roles.scan_id:
+                return scan_id
+            case Qt.ItemDataRole.ToolTipRole:
                 if device.device_type in (DeviceType.path, DeviceType.volume):
                     return device.path
-            elif role == Roles.device_details:
+            case Roles.device_details:
                 return (
                     device.display_name,
                     self.icons[scan_id],
@@ -349,15 +352,15 @@ class DeviceModel(QAbstractListModel):
                     self._rotation_position,
                     self.percent_complete[scan_id],
                 )
-            elif role == Roles.storage:
+            case Roles.storage:
                 return device, self.storage[row_id]
-            elif role == Roles.device_type:
+            case Roles.device_type:
                 return device.device_type
-            elif role == Roles.download_statuses:
+            case Roles.download_statuses:
                 return device.download_statuses
         return None
 
-    def setData(self, index: QModelIndex, value, role: int) -> bool:
+    def setData(self, index: QModelIndex, value: Any, role: Qt.ItemDataRole) -> bool:
         if not index.isValid():
             return False
 
@@ -367,15 +370,10 @@ class DeviceModel(QAbstractListModel):
         row_id = self.rows[row]
         scan_id = self.row_id_to_scan_id[row_id]
 
-        if role == Qt.CheckStateRole:
-            # In theory, update checkbox immediately, as selecting a very large number
-            # of thumbnails can take time. However, the code is probably wrong, as it
-            # doesn't work:
-            # self.setCheckedValue(
-            #   checked=value, scan_id=scan_id, row=row, log_state_change=False
-            # )
-            # QApplication.instance().processEvents()
-            self.rapidApp.thumbnailModel.checkAll(value, scan_id=scan_id)
+        if role == Qt.ItemDataRole.CheckStateRole:
+            self.rapidApp.thumbnailModel.checkAll(
+                check_all=value == Qt.CheckState.Checked, scan_id=scan_id
+            )
             return True
         return False
 
@@ -470,8 +468,8 @@ class DeviceView(ListViewFlexiFrame):
         self.view_width = DeviceComponent().sample_width()
         # Assume view is always going to be placed into a container that can be scrolled
         # or a splitter
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.setMouseTracking(True)
         self.entered.connect(self.rowEntered)
@@ -549,7 +547,9 @@ class EmulatedHeaderRow(QWidget):
         self.setMinimumSize(1, device_header_row_height())
         self.select_text = select_text
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, palette.color(palette.Base))
+        palette.setColor(
+            QPalette.ColorRole.Window, palette.color(palette.ColorRole.Base)
+        )
         self.setAutoFillBackground(True)
         self.setPalette(palette)
 
@@ -563,7 +563,11 @@ class EmulatedHeaderRow(QWidget):
         font = QFont()
         font.setItalic(True)
         painter.setFont(font)
-        painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, self.select_text)
+        painter.drawText(
+            rect,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            self.select_text,
+        )
         painter.end()
 
 
@@ -577,8 +581,8 @@ class DeviceComponent(QObject):
     def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent=parent)
         style = QApplication.style()
-        self.frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
-        self.scrollbar_width = style.pixelMetric(QStyle.PM_ScrollBarExtent)
+        self.frame_width = style.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
+        self.scrollbar_width = style.pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
 
         self.padding = DeviceDisplayPadding
         self.header_horizontal_padding = 8
@@ -752,7 +756,11 @@ class DeviceDisplay(QObject):
 
         text_x = target.right() + self.dc.header_horizontal_padding
         deviceNameRect.setLeft(text_x)
-        painter.drawText(deviceNameRect, Qt.AlignLeft | Qt.AlignVCenter, display_name)
+        painter.drawText(
+            deviceNameRect,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            display_name,
+        )
 
         if self.menuButtonIcon:
             size = icon_size()
@@ -802,7 +810,9 @@ class DeviceDisplay(QObject):
         if self.rendering_destination:
             # bytes free of total size e.g. 123 MB free of 2 TB
             painter.drawText(
-                text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_free_of_total
+                text_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                d.bytes_free_of_total,
             )
 
             # Render the used space in the gradient bar before rendering the space
@@ -816,11 +826,15 @@ class DeviceDisplay(QObject):
         else:
             # Device size e.g. 32 GB
             painter.drawText(
-                text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_total_text
+                text_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                d.bytes_total_text,
             )
             # Percent used e.g. 79%
             painter.drawText(
-                text_rect, Qt.AlignRight | Qt.AlignBottom, d.percent_used_text
+                text_rect,
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom,
+                d.percent_used_text,
             )
 
             # Don't change the order
@@ -947,9 +961,15 @@ class DeviceDisplay(QObject):
             comp4_rect = QRectF(comp4_x, details_y, comp4_width, self.dc.details_height)
 
             painter.setPen(standard_pen_color)
-            painter.drawText(comp4_rect, Qt.AlignLeft | Qt.AlignTop, d.comp4_text)
             painter.drawText(
-                comp4_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp4_size_text
+                comp4_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                d.comp4_text,
+            )
+            painter.drawText(
+                comp4_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                d.comp4_size_text,
             )
             photos_g2_x = comp4_rect.right() + 10
         else:
@@ -993,9 +1013,15 @@ class DeviceDisplay(QObject):
             )
 
             painter.setPen(standard_pen_color)
-            painter.drawText(photos_rect, Qt.AlignLeft | Qt.AlignTop, d.comp1_text)
             painter.drawText(
-                photos_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp1_size_text
+                photos_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                d.comp1_text,
+            )
+            painter.drawText(
+                photos_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                d.comp1_size_text,
             )
             videos_g2_x = photos_rect.right() + self.dc.inter_device_padding
 
@@ -1037,9 +1063,15 @@ class DeviceDisplay(QObject):
             )
 
             painter.setPen(standard_pen_color)
-            painter.drawText(videos_rect, Qt.AlignLeft | Qt.AlignTop, d.comp2_text)
             painter.drawText(
-                videos_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp2_size_text
+                videos_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                d.comp2_text,
+            )
+            painter.drawText(
+                videos_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                d.comp2_size_text,
             )
 
             other_g2_x = videos_rect.right() + self.dc.inter_device_padding
@@ -1076,9 +1108,15 @@ class DeviceDisplay(QObject):
             other_rect = QRectF(other_x, details_y, other_width, self.dc.details_height)
 
             painter.setPen(standard_pen_color)
-            painter.drawText(other_rect, Qt.AlignLeft | Qt.AlignTop, d.comp3_text)
             painter.drawText(
-                other_rect, Qt.AlignLeft | Qt.AlignBottom, d.comp3_size_text
+                other_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                d.comp3_text,
+            )
+            painter.drawText(
+                other_rect,
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom,
+                d.comp3_size_text,
             )
 
             final_g2_x = other_rect.right()
@@ -1100,7 +1138,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect: QRect = QApplication.style().subElementRect(
-            QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None
+            QStyle.SubElement.SE_CheckBoxIndicator, self.checkboxStyleOption, None
         )
         self.checkbox_right = self.checkboxRect.right()
         self.checkbox_y_offset = (
@@ -1108,7 +1146,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         ) // 2
 
         # Spinner values
-        self.spinner_color = QColor(Qt.black)
+        self.spinner_color = QColor(Qt.GlobalColor.black)
         self.spinner_roundness = 100.0
         self.spinner_min_trail_opacity = 0.0
         self.spinner_trail_fade_percent = 60.0
@@ -1144,7 +1182,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         icon: QPixmap,
         device_state: DeviceState,
         rotation: int,
-        checked: bool,
+        checked: Qt.CheckState | None,
         download_statuses: set[DownloadStatus],
         percent_complete: float,
     ) -> None:
@@ -1170,19 +1208,22 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         elif device_state not in (DeviceState.scanning, DeviceState.downloading):
             checkboxStyleOption = QStyleOptionButton()
-            if checked == Qt.Checked:
-                checkboxStyleOption.state |= QStyle.State_On
-            elif checked == Qt.PartiallyChecked:
-                checkboxStyleOption.state |= QStyle.State_NoChange
-            else:
-                checkboxStyleOption.state |= QStyle.State_Off
-            checkboxStyleOption.state |= QStyle.State_Enabled
+            match checked:
+                case Qt.CheckState.Checked:
+                    checkboxStyleOption.state |= QStyle.StateFlag.State_On
+                case Qt.CheckState.PartiallyChecked:
+                    checkboxStyleOption.state |= QStyle.StateFlag.State_NoChange
+                case _:
+                    checkboxStyleOption.state |= QStyle.StateFlag.State_Off
+            checkboxStyleOption.state |= QStyle.StateFlag.State_Enabled
 
             checkboxStyleOption.rect = self.getCheckBoxRect(x, y)
 
             style = QApplication.style()
             style.setOverride(override=True)
-            style.drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
+            style.drawControl(
+                QStyle.ControlElement.CE_CheckBox, checkboxStyleOption, painter
+            )
             style.setOverride(override=False)
 
         else:
@@ -1190,7 +1231,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
             y = y + self.dc.padding
             # Draw spinning widget
             # TODO use floating point
-            painter.setPen(Qt.NoPen)
+            painter.setPen(Qt.PenStyle.NoPen)
             for i in range(0, number_spinner_lines):
                 painter.save()
                 painter.translate(
@@ -1213,7 +1254,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                     rect,
                     self.spinner_roundness,
                     self.spinner_roundness,
-                    Qt.RelativeSize,
+                    Qt.SizeMode.RelativeSize,
                 )
                 painter.restore()
 
@@ -1224,7 +1265,7 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                 x2 = x1 + percent_complete * width
                 painter.drawLine(QPointF(x1, y), QPointF(x2, y))
 
-            painter.setPen(Qt.SolidLine)
+            painter.setPen(Qt.PenStyle.SolidLine)
             painter.setPen(standard_pen_color)
 
     def paint_alternate(self, painter: QPainter, x: int, y: int, text: str) -> None:
@@ -1335,7 +1376,7 @@ class DeviceDelegate(QStyledItemDelegate):
         y = option.rect.y()
         width = option.rect.width()
 
-        view_type: ViewRowType = index.data(Qt.DisplayRole)
+        view_type: ViewRowType = index.data(Qt.ItemDataRole.DisplayRole)
         if view_type == ViewRowType.header:
             display_name, icon, device_state, rotation, percent_complete = index.data(
                 Roles.device_details
@@ -1348,7 +1389,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 download_statuses = set()
 
             if device_state not in (DeviceState.scanning, DeviceState.downloading):
-                checked = index.model().data(index, Qt.CheckStateRole)
+                checked = index.model().data(index, Qt.ItemDataRole.CheckStateRole)
             else:
                 checked = None
 
@@ -1460,7 +1501,7 @@ class DeviceDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        view_type: ViewRowType = index.data(Qt.DisplayRole)
+        view_type: ViewRowType = index.data(Qt.ItemDataRole.DisplayRole)
         if view_type == ViewRowType.header:
             height = self.deviceDisplay.dc.device_name_height
         else:
@@ -1486,10 +1527,10 @@ class DeviceDelegate(QStyledItemDelegate):
         """
 
         if (
-            event.type() == QEvent.MouseButtonRelease
-            or event.type() == QEvent.MouseButtonDblClick
+            event.type() == QEvent.Type.MouseButtonRelease
+            or event.type() == QEvent.Type.MouseButtonDblClick
         ):
-            if event.button() == Qt.RightButton:
+            if event.button() == Qt.MouseButton.RightButton:
                 # Disable ignore and blacklist menus if the device is a "This Computer"
                 # path
 
@@ -1508,20 +1549,20 @@ class DeviceDelegate(QStyledItemDelegate):
                 self.rescanDeviceAct.setEnabled(scan_id not in downloading)
 
                 view = self.rapidApp.mapView(scan_id)
-                globalPos = view.viewport().mapToGlobal(event.pos())
-                self.contextMenu.popup(globalPos)
+                globalPos = view.viewport().mapToGlobal(event.position())
+                self.contextMenu.popup(globalPos.toPoint())
                 return False
             if (
-                event.button() != Qt.LeftButton
+                event.button() != Qt.MouseButton.LeftButton
                 or not self.deviceDisplay.getCheckBoxRect(
                     option.rect.x(), option.rect.y()
-                ).contains(event.pos())
+                ).contains(event.position().toPoint())
             ):
                 return False
-            if event.type() == QEvent.MouseButtonDblClick:
+            if event.type() == QEvent.Type.MouseButtonDblClick:
                 return True
-        elif event.type() == QEvent.KeyPress:
-            if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
+        elif event.type() == QEvent.Type.KeyPress:
+            if event.key() != Qt.Key.Key_Space and event.key() != Qt.Key.Key_Select:
                 return False
         else:
             return False
@@ -1533,5 +1574,10 @@ class DeviceDelegate(QStyledItemDelegate):
     def setModelData(
         self, editor: QWidget | None, model: QAbstractItemModel, index: QModelIndex
     ) -> None:
-        newValue = not (index.model().data(index, Qt.CheckStateRole))
-        model.setData(index, newValue, Qt.CheckStateRole)
+        state = index.model().data(index, Qt.ItemDataRole.CheckStateRole)
+        if state == Qt.CheckState.Checked:
+            newState = Qt.CheckState.Unchecked
+        else:
+            # This turns both Unchecked and PartiallyChecked into Checked
+            newState = Qt.CheckState.Checked
+        model.setData(index, newState, Qt.ItemDataRole.CheckStateRole)

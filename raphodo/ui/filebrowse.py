@@ -10,7 +10,7 @@ import os
 import pathlib
 import re
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QDir,
     QItemSelectionModel,
     QModelIndex,
@@ -21,11 +21,9 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import QFont, QPainter
-from PyQt5.QtWidgets import (
+from PyQt6.QtGui import QAction, QFileSystemModel, QFont, QPainter
+from PyQt6.QtWidgets import (
     QAbstractItemView,
-    QAction,
-    QFileSystemModel,
     QMenu,
     QSizePolicy,
     QStyledItemDelegate,
@@ -93,9 +91,9 @@ class FileSystemModel(QFileSystemModel):
         # Folders that were actually used to download files into
         self.subfolders_downloaded_into: set[str] = set()
 
-    def data(self, index: QModelIndex, role=Qt.DisplayRole):
-        if role == Qt.DecorationRole:
-            path: str = index.data(QFileSystemModel.FilePathRole)
+    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DecorationRole:
+            path: str = index.data(QFileSystemModel.Roles.FilePathRole)
             if (
                 path in self.download_subfolders
                 or path in self.subfolders_downloaded_into
@@ -104,7 +102,7 @@ class FileSystemModel(QFileSystemModel):
             else:
                 return self.folder_icon
         if role == Roles.folder_preview:
-            path = index.data(QFileSystemModel.FilePathRole)
+            path = index.data(QFileSystemModel.Roles.FilePathRole)
             return (
                 path in self.preview_subfolders
                 and path not in self.subfolders_downloaded_into
@@ -150,7 +148,7 @@ class FileSystemView(QTreeView):
         )
         self.setMinimumWidth(minPanelWidth())
         self.setMinimumHeight(minFileSystemViewHeight())
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onCustomContextMenu)
         self.contextMenu = QMenu()
         self.openInFileBrowserAct = self.contextMenu.addAction(
@@ -293,7 +291,7 @@ class FileSystemFilter(QSortFilterProxyModel):
         self, sourceRow: int, sourceParent: QModelIndex = None
     ) -> bool:
         index: QModelIndex = self.sourceModel().index(sourceRow, 0, sourceParent)
-        path: str = index.data(QFileSystemModel.FilePathRole)
+        path: str = index.data(QFileSystemModel.Roles.FilePathRole)
 
         if not self.prefs.show_system_folders and path != "/":
             path_ok = False
@@ -311,7 +309,7 @@ class FileSystemFilter(QSortFilterProxyModel):
         if not self.filtered_dir_names and not self.is_wsl2:
             return True
 
-        file_name = index.data(QFileSystemModel.FileNameRole)
+        file_name = index.data(QFileSystemModel.Roles.FileNameRole)
         do_filter = (
             file_name not in self.filtered_dir_names and path not in self.filter_paths
         )

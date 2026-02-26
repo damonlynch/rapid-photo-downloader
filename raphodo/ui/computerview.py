@@ -5,7 +5,7 @@
 Combines a deviceview and a file system view into one widget
 """
 
-from PyQt5.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget
+from PyQt6.QtWidgets import QFrame, QSizePolicy, QSplitter, QWidget
 
 from raphodo.constants import minFileSystemViewHeight
 from raphodo.ui.destinationdisplay import DestinationDisplay
@@ -63,7 +63,7 @@ class ComputerWidget(TightFlexiFrame):
         # file system view
         layout.addWidget(self.fileSystemView, 5)
         self.view.setStyleSheet("QListView {border: none;}")
-        self.fileSystemView.setFrameShape(QFrame.NoFrame)
+        self.fileSystemView.setFrameShape(QFrame.Shape.NoFrame)
 
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)

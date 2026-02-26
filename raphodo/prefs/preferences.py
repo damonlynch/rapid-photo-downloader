@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
 import logging
@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from packaging.version import Version, parse
-from PyQt5.QtCore import QSettings, Qt, QTime
+from PyQt6.QtCore import QSettings, Qt, QTime
 
 import raphodo.__about__
 import raphodo.constants as constants
@@ -870,9 +870,9 @@ class Preferences:
 
         value = self[key]
         if value:
-            return Qt.Checked
+            return Qt.CheckState.Checked
         else:
-            return Qt.Unchecked
+            return Qt.CheckState.Unchecked
 
     def pref_uses_job_code(self, pref_list: list[str]) -> bool:
         """Returns True if the particular preference contains a job code"""

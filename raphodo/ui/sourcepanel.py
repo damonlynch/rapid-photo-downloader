@@ -7,8 +7,8 @@ Display photo and video sources -- Devices and This Computer, as well as the Tim
 
 import logging
 
-from PyQt5.QtCore import QPoint, QSettings, Qt, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QSizePolicy, QStyle, QVBoxLayout, QWidget
+from PyQt6.QtCore import QPoint, QSettings, Qt, pyqtSlot
+from PyQt6.QtWidgets import QApplication, QSizePolicy, QStyle, QVBoxLayout, QWidget
 
 from raphodo.constants import TemporalProximityState
 from raphodo.internationalisation.install import install_gettext
@@ -39,7 +39,7 @@ class SourcePanel(ScrollAreaNoFrame):
 
         self.splitter = SourceSplitter(parent=self.sourcePanelWidget)
         self.splitter.setObjectName("sourcePanelSplitter")
-        self.splitter.setOrientation(Qt.Vertical)
+        self.splitter.setOrientation(Qt.Orientation.Vertical)
         self.setWidget(self.sourcePanelWidget)
         self.setWidgetResizable(True)
 
@@ -51,7 +51,7 @@ class SourcePanel(ScrollAreaNoFrame):
         self.thisComputerBottomFrameConnection = None
         self.thisComputerAltBottomFrameConnection = None
 
-        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.frame_width = QApplication.style().pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
 
     def sourcesIsChecked(self) -> bool:
         """

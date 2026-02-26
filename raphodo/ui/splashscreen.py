@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
-from PyQt5.QtWidgets import QSplashScreen
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QBrush, QColor, QPainter, QPen, QPixmap
+from PyQt6.QtWidgets import QSplashScreen
 
 from raphodo import __about__
 
@@ -17,11 +17,11 @@ class SplashScreen(QSplashScreen):
         except AttributeError:
             self.image_width = pixmap.width() / pixmap.devicePixelRatio()
 
-        self.progressBarPen = QPen(QBrush(QColor(Qt.white)), 2.0)
+        self.progressBarPen = QPen(QBrush(QColor(Qt.GlobalColor.white)), 2.0)
 
     def drawContents(self, painter: QPainter):
         painter.save()
-        painter.setPen(QColor(Qt.black))
+        painter.setPen(QColor(Qt.GlobalColor.black))
         painter.drawText(18, 64, __about__.__version__)
         if self.progress:
             painter.setPen(self.progressBarPen)

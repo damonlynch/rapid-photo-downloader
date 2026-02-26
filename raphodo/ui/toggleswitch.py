@@ -14,9 +14,9 @@ http://stackoverflow.com/questions/14780517/toggle-switch-in-qt
 http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 """
 
-from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QColor, QFont, QFontMetrics, QPalette
-from PyQt5.QtWidgets import QAbstractSlider, QApplication, QSlider
+from PyQt6.QtCore import Qt, pyqtSlot
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPalette
+from PyQt6.QtWidgets import QAbstractSlider, QApplication, QSlider
 
 
 class QToggleSwitch(QSlider):
@@ -37,7 +37,7 @@ class QToggleSwitch(QSlider):
         :param size: size of widget as multiplier, where base widget height is half
          that of font height
         """
-        super().__init__(Qt.Horizontal, parent)
+        super().__init__(Qt.Orientation.Horizontal, parent)
 
         self.base_height = QFontMetrics(QFont()).height() // 2 * size
         self.radius = self.base_height // 2
@@ -62,26 +62,30 @@ class QToggleSwitch(QSlider):
 
     def stylesheet(self, background: QColor | None) -> str:
         shading_intensity = 104
-        windowColor: QColor = QPalette().color(QPalette().Window)
+        windowColor: QColor = QPalette().color(QPalette().ColorRole.Window)
 
         if background is None:
             backgroundName = windowColor.name()
         else:
             backgroundName = QColor(background).name()
 
-        handleLightName: str = (QPalette().color(QPalette().Light)).name()
-        handleDarkName: str = (QPalette().color(QPalette().Dark)).name()
+        handleLightName: str = (QPalette().color(QPalette().ColorRole.Light)).name()
+        handleDarkName: str = (QPalette().color(QPalette().ColorRole.Dark)).name()
         handleHoverLightName = (
-            (QPalette().color(QPalette().Light)).lighter(shading_intensity).name()
+            (QPalette().color(QPalette().ColorRole.Light))
+            .lighter(shading_intensity)
+            .name()
         )
         handleHoverDarkName = (
-            (QPalette().color(QPalette().Dark)).darker(shading_intensity).name()
+            (QPalette().color(QPalette().ColorRole.Dark))
+            .darker(shading_intensity)
+            .name()
         )
 
         insetDarkName = windowColor.darker(108).name()
         insetLightName = windowColor.darker(102).name()
 
-        highlightColor: QColor = QPalette().color(QPalette().Highlight)
+        highlightColor: QColor = QPalette().color(QPalette().ColorRole.Highlight)
         highlightLightName = highlightColor.lighter(110).name()
         highlightDarkName = highlightColor.darker(130).name()
 

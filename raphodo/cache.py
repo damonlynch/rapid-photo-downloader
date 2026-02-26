@@ -39,8 +39,8 @@ import time
 from collections import namedtuple
 from urllib.request import pathname2url
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QImage
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QImage
 
 from raphodo.constants import ThumbnailCacheDiskStatus
 from raphodo.rpdsql import CacheSQL

@@ -5,8 +5,8 @@
 Show 'Did you know?' dialog at start-up
 """
 
-from PyQt5.QtCore import QSettings, QSize, Qt, pyqtSlot
-from PyQt5.QtGui import (
+from PyQt6.QtCore import QSettings, QSize, Qt, pyqtSlot
+from PyQt6.QtGui import (
     QCloseEvent,
     QFont,
     QFontMetrics,
@@ -15,9 +15,8 @@ from PyQt5.QtGui import (
     QShowEvent,
     QTextCursor,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication,
-    QCheckBox,
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
@@ -30,6 +29,7 @@ from PyQt5.QtWidgets import (
 from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import data_file_path
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import translateDialogBoxButtons
 
 install_gettext()
@@ -471,9 +471,9 @@ class DidYouKnowDialog(QDialog):
 
         self.tips = Tips()
 
-        self.showTips = QCheckBox(_("Show tips on startup"))
+        self.showTips = CompatCheckBox(_("Show tips on startup"))
         self.showTips.setChecked(self.prefs.did_you_know_on_startup)
-        self.showTips.stateChanged.connect(self.showTipsChanged)
+        self.showTips.checkStateChanged.connect(self.showTipsStateChanged)
 
         self.nextButton = QPushButton(_("&Next"))
         self.previousButton = QPushButton(_("&Previous"))
@@ -526,12 +526,12 @@ class DidYouKnowDialog(QDialog):
 
     def showEvent(self, event: QShowEvent) -> None:
         self.nextButton.setDefault(True)
-        self.nextButton.setFocus(Qt.OtherFocusReason)
+        self.nextButton.setFocus(Qt.FocusReason.OtherFocusReason)
         event.accept()
 
-    @pyqtSlot(int)
-    def showTipsChanged(self, state: int) -> None:
-        self.prefs.did_you_know_on_startup = state == Qt.Checked
+    @pyqtSlot(Qt.CheckState)
+    def showTipsStateChanged(self, state: Qt.CheckState) -> None:
+        self.prefs.did_you_know_on_startup = state == Qt.CheckState.Checked
 
     @pyqtSlot()
     def nextButtonClicked(self) -> None:

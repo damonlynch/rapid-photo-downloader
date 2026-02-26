@@ -43,7 +43,7 @@ with contextlib.suppress(locale.Error):
     locale.setlocale(locale.LC_ALL, "")
 
 import gphoto2 as gp
-from PyQt5.QtCore import QStorageInfo
+from PyQt6.QtCore import QStorageInfo
 
 import raphodo.metadata.fileformats as fileformats
 import raphodo.metadata.metadataexiftool as metadataexiftool

@@ -3,8 +3,8 @@
 
 import math
 
-from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import (
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import (
     QFont,
     QFontMetrics,
     QGuiApplication,
@@ -12,7 +12,7 @@ from PyQt5.QtGui import (
     QPainter,
     QPaintEvent,
 )
-from PyQt5.QtWidgets import QApplication, QPushButton, QSizePolicy
+from PyQt6.QtWidgets import QApplication, QPushButton, QSizePolicy
 
 from raphodo.internationalisation.install import install_gettext
 from raphodo.ui.rotatedpushbutton import FlatButton
@@ -94,7 +94,7 @@ class TopPushButton(QPushButton, FlatButton):
 
         usable_width = round(0.9 * maximum_width)
         elided_text = metrics.elidedText(
-            self.non_elided_text, Qt.ElideMiddle, usable_width
+            self.non_elided_text, Qt.TextElideMode.ElideMiddle, usable_width
         )
         super().setText(elided_text)
         super().paintEvent(event)

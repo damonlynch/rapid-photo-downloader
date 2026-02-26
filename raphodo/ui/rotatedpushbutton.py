@@ -3,8 +3,8 @@
 
 from enum import IntEnum
 
-from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import (
+from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QStyle,
@@ -105,8 +105,8 @@ class FlatButton:
 
     def setHighlightedFlatStyle(self, button: QPushButton) -> None:
         palette = QPalette()
-        color = palette.color(palette.Highlight)
-        text_color = palette.color(palette.HighlightedText)
+        color = palette.color(palette.ColorRole.Highlight)
+        text_color = palette.color(palette.ColorRole.HighlightedText)
         self.setFlatStyle(
             button,
             color=color,
@@ -151,7 +151,7 @@ class RotatedButton(QPushButton, FlatButton):
             painter.translate(-1 * self.height(), 0)
         elif self.buttonRotation == VerticalRotation.right_side:
             painter.translate(0, -1 * self.width())
-        painter.drawControl(QStyle.CE_PushButton, self.getSyleOptions())
+        painter.drawControl(QStyle.ControlElement.CE_PushButton, self.getSyleOptions())
 
     def setRotation(self, rotation: float):
         self.buttonRotation = rotation
@@ -168,11 +168,7 @@ class RotatedButton(QPushButton, FlatButton):
         size.transpose()
         options.rect.setSize(size)
 
-        try:
-            options.features = QStyleOptionButton.None_
-        except AttributeError:
-            # Allow for bug in PyQt 5.4
-            options.features = getattr(QStyleOptionButton, "None")
+        options.features = QStyleOptionButton.ButtonFeature.None_
         if self.isFlat():
             options.features |= QStyleOptionButton.ButtonFeature.Flat
         if self.menu():
@@ -182,11 +178,11 @@ class RotatedButton(QPushButton, FlatButton):
         if self.isDefault():
             options.features |= QStyleOptionButton.ButtonFeature.DefaultButton
         if self.isDown() or (self.menu() and self.menu().isVisible()):
-            options.state |= QStyle.State_Sunken
+            options.state |= QStyle.StateFlag.State_Sunken
         if self.isChecked():
-            options.state |= QStyle.State_On
+            options.state |= QStyle.StateFlag.State_On
         if not self.isFlat() and not self.isDown():
-            options.state |= QStyle.State_Raised
+            options.state |= QStyle.StateFlag.State_Raised
 
         options.text = self.text()
         options.icon = self.icon()

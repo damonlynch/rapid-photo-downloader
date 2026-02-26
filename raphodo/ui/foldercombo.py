@@ -8,9 +8,9 @@ Combobox widget to easily choose file locations
 import logging
 import os
 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QComboBox, QFileDialog
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QComboBox, QFileDialog
 
 from raphodo.constants import (
     FileType,

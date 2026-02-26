@@ -7,16 +7,15 @@ Display, edit and apply Job Codes.
 
 import logging
 
-from PyQt5.QtCore import QRegularExpression, Qt, pyqtSlot
-from PyQt5.QtGui import (
+from PyQt6.QtCore import QRegularExpression, Qt, pyqtSlot
+from PyQt6.QtGui import (
     QFont,
     QIcon,
     QPalette,
     QRegularExpressionValidator,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractItemView,
-    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -37,6 +36,7 @@ from raphodo.tools.utilities import data_file_path
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.messagewidget import MessageButton, MessageWidget
 from raphodo.ui.panelview import QPanelView
+from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     FlexiFrame,
     QNarrowListWidget,
@@ -166,14 +166,14 @@ class JobCodeDialog(QDialog):
         )
         iconLabel = QLabel()
         iconLabel.setPixmap(icon)
-        iconLabel.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        iconLabel.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         iconLabel.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
         jobCodeLabel = QLabel(_("&Job Code:"))
         jobCodeLabel.setBuddy(self.jobCodeComboBox)
 
         if on_download or not no_selection_made:
-            self.rememberCheckBox = QCheckBox(_("&Remember this Job Code"))
+            self.rememberCheckBox = CompatCheckBox(_("&Remember this Job Code"))
             self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
 
         buttonBox = QDialogButtonBox(
@@ -266,8 +266,8 @@ class JobCodeOptionsWidget(FlexiFrame):
         self.sortLabel = self.sortCombo.makeLabel(_("Job Code Sort:"))
 
         self.sortOrder = ChevronCombo(in_panel=True)
-        self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
-        self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
+        self.sortOrder.addItem(_("Ascending"), Qt.SortOrder.AscendingOrder)
+        self.sortOrder.addItem(_("Descending"), Qt.SortOrder.DescendingOrder)
         if self._sort_index_valid(self.prefs.job_code_sort_order):
             self.sortOrder.setCurrentIndex(self.prefs.job_code_sort_order)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
@@ -502,9 +502,10 @@ class JobCodeOptionsWidget(FlexiFrame):
             title=_("Remove all Job Codes"),
             message=message,
             rich_text=False,
-            standardButtons=QMessageBox.Yes | QMessageBox.No,
+            standardButtons=QMessageBox.StandardButton.Yes
+            | QMessageBox.StandardButton.No,
         )
-        if msgBox.exec() == QMessageBox.Yes:
+        if msgBox.exec() == QMessageBox.StandardButton.Yes:
             # Must clear the job codes before adjusting the qlistwidget,
             # or else the Remove All button will not be disabled.
             self.prefs.job_codes = [""]

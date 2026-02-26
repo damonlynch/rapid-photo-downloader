@@ -9,7 +9,7 @@ import math
 import re
 from collections import deque
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QEvent,
     QRect,
     QSize,
@@ -19,7 +19,7 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QColor,
     QFont,
     QFontMetrics,
@@ -35,7 +35,7 @@ from PyQt5.QtGui import (
     QTextCursor,
     QTextDocument,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication,
     QDialog,
     QDialogButtonBox,
@@ -72,7 +72,7 @@ class QFindLineEdit(QLineEdit):
             self.find_text = find_text
 
         self.noTextPalette = QPalette()
-        self.noTextPalette.setColor(QPalette.ColorRole.Text, Qt.gray)
+        self.noTextPalette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.gray)
 
         self.setEmptyState()
 
@@ -154,7 +154,7 @@ class ErrorReport(QDialog):
         # document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
         self.highlightColor = QColor("#cb1dfa")
-        self.textHighlightColor = QColor(Qt.white)
+        self.textHighlightColor = QColor(Qt.GlobalColor.white)
 
         self.noFindPalette = QPalette()
         self.noFindPalette.setColor(
@@ -181,8 +181,8 @@ class ErrorReport(QDialog):
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
         style: QStyle = self.find.style()
-        frame_width = style.pixelMetric(QStyle.PM_DefaultFrameWidth)
-        button_margin = style.pixelMetric(QStyle.PM_ButtonMargin)
+        frame_width = style.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
+        button_margin = style.pixelMetric(QStyle.PixelMetric.PM_ButtonMargin)
         spacing = (frame_width + button_margin) * 2 + 8
 
         self.find.setMinimumWidth(
@@ -267,7 +267,7 @@ class ErrorReport(QDialog):
     def textChanged(self) -> None:
         self.clear.setEnabled(bool(self.log.document().characterCount()))
 
-    def _makeFind(self, back: bool = False) -> QTextDocument.FindFlags:
+    def _makeFind(self, back: bool = False) -> QTextDocument.FindFlag:
         flags = QTextDocument.FindFlags()
         if self.matchCase.isChecked():
             flags |= QTextDocument.FindFlag.FindCaseSensitively
@@ -527,7 +527,7 @@ class ErrorReport(QDialog):
         self.dialogShown.emit()
 
     def changeEvent(self, event: QEvent) -> None:
-        if event.type() == QEvent.ActivationChange and self.isActiveWindow():
+        if event.type() == QEvent.Type.ActivationChange and self.isActiveWindow():
             self.dialogActivated.emit()
         super().changeEvent(event)
 
@@ -553,7 +553,7 @@ class SpeechBubble(QLabel):
         self.custom_height = max(
             math.ceil(QFontMetrics(self.counterFont).height() * 1.7), 24
         )
-        self.counterPen = QPen(QColor(Qt.white))
+        self.counterPen = QPen(QColor(Qt.GlobalColor.white))
         self.setStyleSheet("QLabel {border: 0px;}")
         self.click_tooltip = _(
             "The number of new entries added to the Error Report since it was "
@@ -590,7 +590,7 @@ class SpeechBubble(QLabel):
             painter.setFont(self.counterFont)
             painter.setPen(self.counterPen)
             value = "9+" if self._count > 9 else str(self._count)
-            painter.drawText(rect, Qt.AlignCenter, value)
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, value)
         painter.end()
 
     def sizeHint(self) -> QSize:

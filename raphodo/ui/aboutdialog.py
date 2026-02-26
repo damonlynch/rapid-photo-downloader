@@ -8,9 +8,9 @@ Display an About window
 import re
 from pathlib import Path
 
-from PyQt5.QtCore import PYQT_VERSION_STR, QT_VERSION_STR, QSize, Qt, pyqtSlot
-from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import PYQT_VERSION_STR, QT_VERSION_STR, QSize, Qt, pyqtSlot
+from PyQt6.QtGui import QFont, QPixmap
+from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
@@ -39,7 +39,7 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint)
 
         self.setObjectName("AboutDialog")
         png = data_file_path("splashscreen.png")
@@ -339,10 +339,14 @@ class AboutDialog(QDialog):
         self.stack.addWidget(about)
         self.stack.addWidget(credits)
         self.stack.addWidget(translators)
-        self.stack.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.stack.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
 
         buttonBox = QDialogButtonBox()
-        closeButton: QPushButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Close)
+        closeButton: QPushButton = buttonBox.addButton(
+            QDialogButtonBox.StandardButton.Close
+        )
         translateDialogBoxButtons(buttonBox)
         self.creditsButton: QPushButton = buttonBox.addButton(
             _("Credits"), QDialogButtonBox.ButtonRole.HelpRole

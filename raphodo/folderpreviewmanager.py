@@ -1,9 +1,9 @@
-# SPDX-FileCopyrightText: 2016-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2016-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSlot
 
 from raphodo.devices import DeviceCollection
 from raphodo.folderspreview import DownloadDestination, FoldersPreview

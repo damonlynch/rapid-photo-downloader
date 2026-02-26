@@ -13,12 +13,11 @@ import dateutil
 import gi
 import psutil
 import zmq
-from PyQt5 import QtCore, sip
+from PyQt6 import QtCore, sip
 from showinfm import linux_desktop, linux_desktop_humanize
 
 from raphodo import __about__ as __about__
 from raphodo.camera import gphoto2_version, python_gphoto2_version
-from raphodo.constants import ScalingAction, ScalingDetected
 from raphodo.heif import have_heif_module, libheif_version, pillow_heif_version
 from raphodo.metadata import fileformats as fileformats
 from raphodo.metadata.metadatavideo import pymedia_version_info
@@ -32,9 +31,6 @@ from raphodo.tools.utilities import format_size_for_user
 
 def get_versions(
     file_manager: str | None,
-    scaling_action: ScalingAction,
-    scaling_detected: ScalingDetected,
-    xsetting_running: bool,
     force_wayland: bool,
     app_style: str | None,
     platform_selected: str | None,
@@ -57,7 +53,7 @@ def get_versions(
         f"Python: {platform.python_version()}",
         f"Python executable: {sys.executable}",
         f"Qt: {QtCore.QT_VERSION_STR}",
-        f"PyQt: {QtCore.PYQT_VERSION_STR} {python_package_source('PyQt5')}",
+        f"PyQt: {QtCore.PYQT_VERSION_STR} {python_package_source('PyQt6')}",
         f"SIP: {sip.SIP_VERSION_STR}",
         f"ZeroMQ: {zmq.zmq_version()}",
         f"Python ZeroMQ: {zmq.pyzmq_version()} ({pyzmq_backend} backend)",
@@ -116,14 +112,6 @@ def get_versions(
             break
     if session:
         versions.append(f"Session: {session}")
-
-    versions.append("Desktop scaling: {}".format(scaling_action.name.replace("_", " ")))
-    versions.append(
-        "Desktop scaling detection: {}{}".format(
-            scaling_detected.name.replace("_", " "),
-            "" if xsetting_running else " (xsetting not running)",
-        )
-    )
 
     try:
         desktop = linux_desktop_humanize(linux_desktop())

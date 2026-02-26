@@ -6,7 +6,7 @@ import sys
 from collections import namedtuple
 
 from packaging.version import parse
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QT_VERSION_STR,
     QAbstractItemModel,
     QBuffer,
@@ -20,7 +20,7 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QColor,
     QFont,
     QFontMetrics,
@@ -35,7 +35,7 @@ from PyQt5.QtGui import (
     QResizeEvent,
     QShowEvent,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication,
     QDialogButtonBox,
     QFrame,
@@ -59,14 +59,13 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-import raphodo.tools.xsettings as xsettings
-from raphodo.constants import HeaderBackgroundName, ScalingDetected
+from raphodo.constants import HeaderBackgroundName
 from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
 
 install_gettext()
 
-QT5_VERSION = parse(QT_VERSION_STR)
+QT6_VERSION = parse(QT_VERSION_STR)
 
 
 class RowTracker:
@@ -208,7 +207,7 @@ class MainWindowSplitter(QSplitter):
         super().__init__(parent=parent)
         self.previous_height = 0
         self.setObjectName("mainWindowHorizontalSplitter")
-        self.setOrientation(Qt.Horizontal)
+        self.setOrientation(Qt.Orientation.Horizontal)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
         super().resizeEvent(event)
@@ -243,7 +242,7 @@ class SourceSplitter(QSplitter):
     """
 
     def createHandle(self) -> QSplitterHandle:
-        return SourceSplitterHandle(Qt.Vertical, self)
+        return SourceSplitterHandle(Qt.Orientation.Vertical, self)
 
 
 class ScrollBarEmitsVisible(QScrollBar):
@@ -279,8 +278,12 @@ class FramedScrollBar(QScrollBar):
 
     def __init__(self, orientation, name: str, parent: QWidget | None = None) -> None:
         super().__init__(orientation=orientation, parent=parent)
-        self.frame_width = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-        orientation = "Vertical" if orientation == Qt.Vertical else "Horizontal"
+        self.frame_width = self.style().pixelMetric(
+            QStyle.PixelMetric.PM_DefaultFrameWidth
+        )
+        orientation = (
+            "Vertical" if orientation == Qt.Orientation.Vertical else "Horizontal"
+        )
         self.setObjectName(f"{name}{orientation}ScrollBar")
         self.midPen = paletteMidPen()
 
@@ -306,7 +309,7 @@ class FramedScrollBar(QScrollBar):
         """
 
         size = super().sizeHint()
-        if self.orientation() == Qt.Vertical:
+        if self.orientation() == Qt.Orientation.Vertical:
             return QSize(
                 size.width() + self.frame_width, size.height() + self.frame_width * 2
             )
@@ -322,7 +325,7 @@ class FramedScrollBar(QScrollBar):
         """
 
         painter = QStylePainter(self)
-        if self.orientation() == Qt.Vertical:
+        if self.orientation() == Qt.Orientation.Vertical:
             painter.translate(0.0, self.frame_width)
         else:
             painter.translate(self.frame_width, 0.0)
@@ -335,30 +338,35 @@ class FramedScrollBar(QScrollBar):
         option.singleStep = self.singleStep()
         option.sliderPosition = self.sliderPosition()
         option.orientation = self.orientation()
-        if self.orientation() == Qt.Horizontal:
-            option.state |= QStyle.State_Horizontal
+        if self.orientation() == Qt.Orientation.Horizontal:
+            option.state |= QStyle.StateFlag.State_Horizontal
 
         rect = self.renderRect()
 
         option.rect = rect
         option.palette = self.palette()
         option.subControls = (
-            QStyle.SC_ScrollBarAddLine
-            | QStyle.SC_ScrollBarSubLine
-            | QStyle.SC_ScrollBarAddPage
-            | QStyle.SC_ScrollBarSubPage
-            | QStyle.SC_ScrollBarFirst
-            | QStyle.SC_ScrollBarLast
+            QStyle.SubControl.SC_ScrollBarAddLine
+            | QStyle.SubControl.SC_ScrollBarSubLine
+            | QStyle.SubControl.SC_ScrollBarAddPage
+            | QStyle.SubControl.SC_ScrollBarSubPage
+            | QStyle.SubControl.SC_ScrollBarFirst
+            | QStyle.SubControl.SC_ScrollBarLast
         )
 
         painter.fillRect(
             option.rect, QApplication.palette().window().color().darker(102)
         )
-        self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
+        self.style().drawComplexControl(
+            QStyle.ComplexControl.CC_ScrollBar, option, painter
+        )
 
         # Highlight the handle (slider) on mouse over, otherwise render it as normal
-        option.subControls = QStyle.SC_ScrollBarSlider
-        if option.state & QStyle.State_MouseOver == QStyle.State_MouseOver:
+        option.subControls = QStyle.SubControl.SC_ScrollBarSlider
+        if (
+            option.state & QStyle.StateFlag.State_MouseOver
+            == QStyle.StateFlag.State_MouseOver
+        ):
             palette = self.palette()
             if sys.platform == "win32":
                 color = self.palette().base().color()
@@ -366,7 +374,9 @@ class FramedScrollBar(QScrollBar):
                 color = self.palette().button().color().lighter(102)
             palette.setColor(QPalette.ColorRole.Button, color)
             option.palette = palette
-        self.style().drawComplexControl(QStyle.CC_ScrollBar, option, painter)
+        self.style().drawComplexControl(
+            QStyle.ComplexControl.CC_ScrollBar, option, painter
+        )
 
         # Render the borders
         painter.resetTransform()
@@ -375,7 +385,7 @@ class FramedScrollBar(QScrollBar):
 
     def renderRect(self) -> QRect:
         rect = QRect(self.rect())
-        if self.orientation() == Qt.Vertical:
+        if self.orientation() == Qt.Orientation.Vertical:
             rect.adjust(self.frame_width, self.frame_width * 2, 0, 0)
         else:
             rect.adjust(self.frame_width * 2, self.frame_width, 0, 0)
@@ -383,7 +393,7 @@ class FramedScrollBar(QScrollBar):
 
     def renderEdges(self, painter: QStylePainter) -> None:
         rect = self.rect()
-        if self.orientation() == Qt.Vertical:
+        if self.orientation() == Qt.Orientation.Vertical:
             painter.drawLine(rect.topLeft(), rect.topRight())
             painter.drawLine(rect.topRight(), rect.bottomRight())
             painter.drawLine(rect.topLeft(), rect.bottomLeft())
@@ -399,7 +409,7 @@ class FramedScrollBar(QScrollBar):
 
 class TopFramedVerticalScrollBar(FramedScrollBar):
     def __init__(self, name: str, parent: QWidget | None = None) -> None:
-        super().__init__(orientation=Qt.Vertical, name=name, parent=parent)
+        super().__init__(orientation=Qt.Orientation.Vertical, name=name, parent=parent)
 
     def sizeHint(self) -> QSize:
         """
@@ -430,9 +440,9 @@ class ScrollAreaNoFrame(QScrollArea):
 
     def __init__(self, name: str, parent: QWidget) -> None:
         super().__init__(parent=parent)
-        self.setFrameShape(QFrame.NoFrame)
-        sbv = FramedScrollBar(orientation=Qt.Vertical, name=name)
-        sbh = FramedScrollBar(orientation=Qt.Horizontal, name=name)
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        sbv = FramedScrollBar(orientation=Qt.Orientation.Vertical, name=name)
+        sbh = FramedScrollBar(orientation=Qt.Orientation.Horizontal, name=name)
         self.setVerticalScrollBar(sbv)
         self.setHorizontalScrollBar(sbh)
         sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)
@@ -442,7 +452,9 @@ class ScrollAreaNoFrame(QScrollArea):
 class FlexiFrameObject:
     def __init__(self, **kwds):
         super().__init__(**kwds)
-        self.frame_width = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.frame_width = QApplication.style().pixelMetric(
+            QStyle.PixelMetric.PM_DefaultFrameWidth
+        )
         self.container_vertical_scrollbar_visible = None
         self.container_horizontal_scrollbar_visible = None
         self.midPen = paletteMidPen()
@@ -475,7 +487,7 @@ class FlexiFrame(QWidget, FlexiFrameObject):
         self.render_top_edge = render_top_edge
         self.setAutoFillBackground(True)
         palette = self.palette()
-        palette.setColor(self.backgroundRole(), palette.color(palette.Base))
+        palette.setColor(self.backgroundRole(), palette.color(palette.ColorRole.Base))
         self.setPalette(palette)
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -531,7 +543,7 @@ class ListViewFlexiFrame(QListView, FlexiFrameObject):
         self, frame_enabled: bool | None = True, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent)
-        self.setFrameShape(QFrame.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_enabled = frame_enabled
 
     @pyqtSlot(bool)
@@ -553,7 +565,9 @@ class BlankWidget(FlexiFrame):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, palette.color(palette.Base))
+        palette.setColor(
+            QPalette.ColorRole.Window, palette.color(palette.ColorRole.Base)
+        )
         self.setAutoFillBackground(True)
         self.setPalette(palette)
 
@@ -588,7 +602,7 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
         painter: QPainter,
         widget: QWidget,
     ) -> None:
-        if QStyle.PE_FrameFocusRect == element:
+        if QStyle.PrimitiveElement.PE_FrameFocusRect == element:
             pass
         else:
             super().drawPrimitive(element, option, painter, widget)
@@ -597,7 +611,7 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
 @functools.cache
 def is_dark_mode() -> bool:
     text_hsv_value = QApplication.palette().color(QPalette.ColorRole.WindowText).value()
-    bg_hsv_value = QApplication.palette().color(QPalette.Background).value()
+    bg_hsv_value = QApplication.palette().color(QPalette.ColorRole.Window).value()
     return text_hsv_value > bg_hsv_value
 
 
@@ -616,7 +630,7 @@ class QNarrowListWidget(QListWidget):
         parent=None,
     ) -> None:
         super().__init__(parent=parent)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._minimum_rows = minimum_rows
         self._minimum_width = minimum_width
         if no_focus_recentangle:
@@ -678,12 +692,12 @@ def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
         return
 
     buttons = (
-        (QMessageBox.Ok, _("&OK")),
-        (QMessageBox.Close, _("&Close")),
-        (QMessageBox.Cancel, _("&Cancel")),
-        (QMessageBox.Save, _("&Save")),
-        (QMessageBox.Yes, _("&Yes")),
-        (QMessageBox.No, _("&No")),
+        (QMessageBox.StandardButton.Ok, _("&OK")),
+        (QMessageBox.StandardButton.Close, _("&Close")),
+        (QMessageBox.StandardButton.Cancel, _("&Cancel")),
+        (QMessageBox.StandardButton.Save, _("&Save")),
+        (QMessageBox.StandardButton.Yes, _("&Yes")),
+        (QMessageBox.StandardButton.No, _("&No")),
     )
     for role, text in buttons:
         button = messageBox.button(role)
@@ -694,7 +708,7 @@ def translateMessageBoxButtons(messageBox: QMessageBox) -> None:
 def standardMessageBox(
     message: str,
     rich_text: bool,
-    standardButtons: QMessageBox.StandardButton | QMessageBox.StandardButtons,
+    standardButtons: QMessageBox.StandardButton,
     defaultButton: QMessageBox.StandardButton | None = None,
     parent=None,
     title: str | None = None,
@@ -713,7 +727,7 @@ def standardMessageBox(
     :param title: optional title for message box, else defaults to
      localized 'Rapid Photo Downloader'
     :param iconType: type of QMessageBox.Icon to display. If standardButtons
-     are equal to QMessageBox.Yes | QMessageBox.No, then QMessageBox.Icon.Question
+     are equal to QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, then QMessageBox.Icon.Question
      will be assigned to iconType
     :param iconPixmap: icon to display, in QPixmap format. Used only if
     iconType is None
@@ -726,7 +740,7 @@ def standardMessageBox(
     if title is None:
         title = _("Rapid Photo Downloader")
     if rich_text:
-        msgBox.setTextFormat(Qt.RichText)
+        msgBox.setTextFormat(Qt.TextFormat.RichText)
     msgBox.setWindowTitle(title)
     msgBox.setText(message)
 
@@ -735,7 +749,11 @@ def standardMessageBox(
         msgBox.setDefaultButton(defaultButton)
     translateMessageBoxButtons(messageBox=msgBox)
 
-    if iconType is None and standardButtons == QMessageBox.Yes | QMessageBox.No:
+    if (
+        iconType is None
+        and standardButtons
+        == QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+    ):
         iconType = QMessageBox.Icon.Question
 
     if iconType:
@@ -751,22 +769,6 @@ def standardMessageBox(
         msgBox.setIconPixmap(iconPixmap)
 
     return msgBox
-
-
-def qt5_screen_scale_environment_variable() -> str:
-    """
-    Get application scaling environment variable applicable to version of Qt 5
-    See https://doc.qt.io/qt-5/highdpi.html#high-dpi-support-in-qt
-
-    Assumes Qt >= 5.4
-
-    :return: correct variable
-    """
-
-    if parse("5.14.0") > QT5_VERSION:
-        return "QT_AUTO_SCREEN_SCALE_FACTOR"
-    else:
-        return "QT_ENABLE_HIGHDPI_SCALING"
 
 
 def validateWindowSizeLimit(available: QSize, desired: QSize) -> tuple[bool, QSize]:
@@ -820,7 +822,9 @@ def validateWindowPosition(
 def scaledPixmap(path: str, scale: float) -> QPixmap:
     pixmap = QPixmap(path)
     if scale > 1.0:
-        pixmap = pixmap.scaledToWidth(pixmap.width() * scale, Qt.SmoothTransformation)
+        pixmap = pixmap.scaledToWidth(
+            pixmap.width() * scale, Qt.TransformationMode.SmoothTransformation
+        )
         pixmap.setDevicePixelRatio(scale)
     return pixmap
 
@@ -839,11 +843,6 @@ def scaledIcon(path: str, size: QSize | None = None) -> QIcon:
     """
     Create a QIcon that scales well
     Uses .addFile()
-
-    :param path:
-    :param scale:
-    :param size:
-    :return:
     """
     i = QIcon()
     if size is None:
@@ -929,62 +928,7 @@ def menuHoverColor() -> QColor:
     if is_dark_mode():
         return QGuiApplication.palette().color(QPalette.ColorRole.Highlight)
     else:
-        return QGuiApplication.palette().color(QPalette.Background).darker(110)
-
-
-def screen_scaled_xsettings() -> bool:
-    """
-    Use xsettings to detect if screen scaling is on.
-
-    No error checking.
-
-    :return: True if detected, False otherwise
-    """
-
-    x11 = xsettings.get_xsettings()
-    return x11.get(b"Gdk/WindowScalingFactor", 1) > 1
-
-
-def any_screen_scaled_qt() -> bool:
-    """
-    Detect if any of the screens on this system have scaling enabled.
-
-    Call before QApplication is initialized. Uses temporary QGuiApplication.
-
-    :return: True if found, else False
-    """
-
-    app = QGuiApplication(sys.argv)
-    ratio = app.devicePixelRatio()
-    del app
-
-    return ratio > 1.0
-
-
-def any_screen_scaled() -> tuple[ScalingDetected, bool]:
-    """
-    Detect if any of the screens on this system have scaling enabled.
-
-    Uses Qt and xsettings to do detection.
-
-    :return: True if found, else False
-    """
-
-    qt_detected_scaling = any_screen_scaled_qt()
-    try:
-        xsettings_detected_scaling = screen_scaled_xsettings()
-        xsettings_running = True
-    except Exception:
-        xsettings_detected_scaling = False
-        xsettings_running = False
-
-    if qt_detected_scaling:
-        if xsettings_detected_scaling:
-            return ScalingDetected.Qt_and_Xsetting, xsettings_running
-        return ScalingDetected.Qt, xsettings_running
-    if xsettings_detected_scaling:
-        return ScalingDetected.Xsetting, xsettings_running
-    return ScalingDetected.undetected, xsettings_running
+        return QGuiApplication.palette().color(QPalette.ColorRole.Window).darker(110)
 
 
 class CheckBoxDelegate(QItemDelegate):
@@ -998,7 +942,7 @@ class CheckBoxDelegate(QItemDelegate):
 
         checkboxRect = QRect(
             QApplication.style().subElementRect(
-                QStyle.SE_CheckBoxIndicator, QStyleOptionButton(), None
+                QStyle.SubElement.SE_CheckBoxIndicator, QStyleOptionButton(), None
             )
         )
         self.checkboxHalfWidth = int(checkboxRect.width() / 2)
@@ -1019,8 +963,8 @@ class CheckBoxDelegate(QItemDelegate):
         Paint a checkbox without a label
         """
 
-        checked = index.data(Qt.CheckStateRole) == Qt.Checked
-        enabled = int(index.flags() & Qt.ItemIsEditable) > 0
+        checked = index.data(Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked
+        enabled = int(index.flags() & Qt.ItemFlag.ItemIsEditable) > 0
 
         if not checked and not enabled:
             return
@@ -1029,16 +973,16 @@ class CheckBoxDelegate(QItemDelegate):
 
         checkboxStyleOption = QStyleOptionButton()
         if checked:
-            checkboxStyleOption.state |= QStyle.State_On
+            checkboxStyleOption.state |= QStyle.StateFlag.State_On
         else:
-            checkboxStyleOption.state |= QStyle.State_Off
+            checkboxStyleOption.state |= QStyle.StateFlag.State_Off
 
         if enabled:
-            checkboxStyleOption.state |= QStyle.State_Enabled
-            checkboxStyleOption.state &= ~QStyle.State_ReadOnly
+            checkboxStyleOption.state |= QStyle.StateFlag.State_Enabled
+            checkboxStyleOption.state &= ~QStyle.StateFlag.State_ReadOnly
         else:
-            checkboxStyleOption.state &= ~QStyle.State_Enabled
-            checkboxStyleOption.state |= QStyle.State_ReadOnly
+            checkboxStyleOption.state &= ~QStyle.StateFlag.State_Enabled
+            checkboxStyleOption.state |= QStyle.StateFlag.State_ReadOnly
             color = checkboxStyleOption.palette.color(QPalette.ColorRole.Window).darker(
                 130
             )
@@ -1050,7 +994,7 @@ class CheckBoxDelegate(QItemDelegate):
         )
 
         QApplication.style().drawControl(
-            QStyle.CE_CheckBox, checkboxStyleOption, painter
+            QStyle.ControlElement.CE_CheckBox, checkboxStyleOption, painter
         )
         painter.restore()
 
@@ -1061,17 +1005,17 @@ class CheckBoxDelegate(QItemDelegate):
         option: QStyleOptionViewItem,
         index: QModelIndex,
     ) -> bool:
-        if not int(index.flags() & Qt.ItemIsEditable) > 0:
+        if not int(index.flags() & Qt.ItemFlag.ItemIsEditable) > 0:
             return False
 
         if (
-            event.type() == QEvent.MouseButtonRelease
-            and event.button() == Qt.LeftButton
+            event.type() == QEvent.Type.MouseButtonRelease
+            and event.button() == Qt.MouseButton.LeftButton
         ):
             self.setModelData(None, model, index)
             return True
-        elif event.type() == QEvent.KeyPress:
-            if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
+        elif event.type() == QEvent.Type.KeyPress:
+            if event.key() != Qt.Key.Key_Space and event.key() != Qt.Key.Key_Select:
                 return False
             self.setModelData(None, model, index)
             return True
@@ -1085,10 +1029,10 @@ class CheckBoxDelegate(QItemDelegate):
         """
         model.setData(
             index,
-            Qt.Unchecked
-            if (index.data(Qt.CheckStateRole)) == Qt.Checked
-            else Qt.Checked,
-            Qt.CheckStateRole,
+            Qt.CheckState.Unchecked
+            if (index.data(Qt.ItemDataRole.CheckStateRole)) == Qt.CheckState.Checked
+            else Qt.CheckState.Checked,
+            Qt.ItemDataRole.CheckStateRole,
         )
 
 
@@ -1112,9 +1056,13 @@ def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
     :return: data in base 64 format
     """
 
-    pixmap = pixmap.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    pixmap = pixmap.scaled(
+        size,
+        Qt.AspectRatioMode.KeepAspectRatio,
+        Qt.TransformationMode.SmoothTransformation,
+    )
     buffer = QBuffer()
-    buffer.open(QIODevice.WriteOnly)
+    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
     # Quality 100 means uncompressed, which is faster.
     pixmap.save(buffer, "PNG", quality=100)
     return bytes(buffer.data().toBase64()).decode()

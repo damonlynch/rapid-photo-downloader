@@ -6,14 +6,15 @@ import logging
 import os
 from collections import defaultdict, deque
 from collections.abc import Sequence
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import arrow.arrow
 from colour import Color
 from dateutil.tz import tzlocal
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QAbstractItemModel,
     QAbstractListModel,
+    QEasingCurve,
     QEvent,
     QItemSelection,
     QItemSelectionModel,
@@ -29,7 +30,7 @@ from PyQt5.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QBrush,
     QColor,
     QFont,
@@ -42,7 +43,7 @@ from PyQt5.QtGui import (
     QPixmap,
     QResizeEvent,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QFrame,
@@ -199,7 +200,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         # Sorting and filtering GUI defaults
         self.sort_by = Sort.modification_time
-        self.sort_order = Qt.AscendingOrder
+        self.sort_order = Qt.SortOrder.AscendingOrder
         self.show = Show.all
 
         self.initialize()
@@ -272,7 +273,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.currently_highlighting_tp_row: int | None = None
         self._resetHighlightingValues()
         self.highlightingTimeline = QTimeLine(FadeMilliseconds // 2)
-        self.highlightingTimeline.setCurveShape(QTimeLine.SineCurve)
+        self.highlightingTimeline.setEasingCurve(QEasingCurve.Type.SineCurve)
         self.highlightingTimeline.frameChanged.connect(self.doHighlightThumbs)
         self.highlightingTimeline.finished.connect(self.highlightPhaseFinished)
         self.highlighting_timeline_max = FadeSteps
@@ -435,23 +436,27 @@ class ThumbnailListModel(QAbstractListModel):
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.rows)
 
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if not index.isValid():
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
 
         row = index.row()
         if row >= len(self.rows) or row < 0:
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
 
         uid = self.rows[row][0]
         rpd_file: RPDFile = self.rpd_files[uid]
 
         if rpd_file.status == DownloadStatus.not_downloaded:
-            return super().flags(index) | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return (
+                super().flags(index)
+                | Qt.ItemFlag.ItemIsEnabled
+                | Qt.ItemFlag.ItemIsSelectable
+            )
         else:
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
 
-    def data(self, index: QModelIndex, role=Qt.DisplayRole):
+    def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
 
@@ -462,210 +467,213 @@ class ThumbnailListModel(QAbstractListModel):
         uid = self.rows[row][0]
         rpd_file: RPDFile = self.rpd_files[uid]
 
-        if role == Qt.DisplayRole:
-            # This is never displayed, but is (was?) used for filtering!
-            return rpd_file.modification_time
-        elif role == Roles.highlight:
-            if self.currently_highlighting_scan_id is not None:
-                if rpd_file.scan_id == self.currently_highlighting_scan_id:
-                    return self.highlight_value
+        match role:
+            case Qt.ItemDataRole.DisplayRole:
+                # This is never displayed, but is (was?) used for filtering!
+                return rpd_file.modification_time
+            case Roles.highlight:
+                if self.currently_highlighting_scan_id is not None:
+                    if rpd_file.scan_id == self.currently_highlighting_scan_id:
+                        return self.highlight_value
+                    else:
+                        return 0
+                elif self.currently_highlighting_tp_row is not None:
+                    if uid in self.current_highlight_uids:
+                        return self.highlight_value
+                    else:
+                        return 0
+                return 0
+            case Qt.ItemDataRole.DecorationRole:
+                return self.thumbnails[uid]
+            case Qt.ItemDataRole.CheckStateRole:
+                if self.rows[row][1]:
+                    return Qt.CheckState.Checked
                 else:
-                    return 0
-            elif self.currently_highlighting_tp_row is not None:
-                if uid in self.current_highlight_uids:
-                    return self.highlight_value
+                    return Qt.CheckState.Unchecked
+            case Roles.sort_extension:
+                return rpd_file.extension
+            case Roles.filename:
+                return rpd_file.name
+            case Roles.previously_downloaded:
+                return rpd_file.previously_downloaded
+            case Roles.extension:
+                return rpd_file.extension, rpd_file.extension_type
+            case Roles.download_status:
+                return rpd_file.status
+            case Roles.job_code:
+                return rpd_file.job_code
+            case Roles.has_audio:
+                return rpd_file.has_audio()
+            case Roles.secondary_attribute:
+                if rpd_file.xmp_file_full_name:
+                    return "XMP"
+                elif rpd_file.log_file_full_name:
+                    return "LOG"
                 else:
-                    return 0
-            return 0
-        elif role == Qt.DecorationRole:
-            return self.thumbnails[uid]
-        elif role == Qt.CheckStateRole:
-            if self.rows[row][1]:
-                return Qt.Checked
-            else:
-                return Qt.Unchecked
-        elif role == Roles.sort_extension:
-            return rpd_file.extension
-        elif role == Roles.filename:
-            return rpd_file.name
-        elif role == Roles.previously_downloaded:
-            return rpd_file.previously_downloaded
-        elif role == Roles.extension:
-            return rpd_file.extension, rpd_file.extension_type
-        elif role == Roles.download_status:
-            return rpd_file.status
-        elif role == Roles.job_code:
-            return rpd_file.job_code
-        elif role == Roles.has_audio:
-            return rpd_file.has_audio()
-        elif role == Roles.secondary_attribute:
-            if rpd_file.xmp_file_full_name:
-                return "XMP"
-            elif rpd_file.log_file_full_name:
-                return "LOG"
-            else:
-                return None
-        elif role == Roles.path:
-            if rpd_file.status in Downloaded:
-                return rpd_file.download_full_file_name
-            else:
-                return rpd_file.full_file_name
-        elif role == Roles.uri:
-            return rpd_file.get_uri()
-        elif role == Roles.camera_memory_card:
-            return rpd_file.camera_memory_card_identifiers
-        elif role == Roles.mtp:
-            return rpd_file.is_mtp_device
-        elif role == Roles.scan_id:
-            return rpd_file.scan_id
-        elif role == Roles.is_camera:
-            return rpd_file.from_camera
-        elif role == Qt.ToolTipRole:
-            devices = self.rapidApp.devices
-            if len(devices) > 1:
-                # To account for situations where the device has been removed, use
-                # the display name from the device archive
-                device_name = devices.device_archive[rpd_file.scan_id].name
-            else:
-                device_name = ""
-            size = format_size_for_user(rpd_file.size)
-            mtime = arrow.get(rpd_file.modification_time)
-
-            try:
-                mtime_h = mtime.humanize(locale=self.arrow_locale_for_humanize)
-            except Exception:
-                mtime_h = mtime.humanize()
-                logging.debug(
-                    "Failed to humanize modification time %s with locale %s, reverting "
-                    "to English",
-                    mtime_h,
-                    self.arrow_locale_for_humanize,
-                )
-
-            if rpd_file.ctime_mtime_differ():
-                ctime = arrow.get(rpd_file.ctime)
-
-                # Sadly, arrow raises an exception if it's locale is not translated
-                # when using humanize. So attempt conversion using user's locale, and if
-                # that fails, use English.
+                    return None
+            case Roles.path:
+                if rpd_file.status in Downloaded:
+                    return rpd_file.download_full_file_name
+                else:
+                    return rpd_file.full_file_name
+            case Roles.uri:
+                return rpd_file.get_uri()
+            case Roles.camera_memory_card:
+                return rpd_file.camera_memory_card_identifiers
+            case Roles.mtp:
+                return rpd_file.is_mtp_device
+            case Roles.scan_id:
+                return rpd_file.scan_id
+            case Roles.is_camera:
+                return rpd_file.from_camera
+            case Qt.ItemDataRole.ToolTipRole:
+                devices = self.rapidApp.devices
+                if len(devices) > 1:
+                    # To account for situations where the device has been removed, use
+                    # the display name from the device archive
+                    device_name = devices.device_archive[rpd_file.scan_id].name
+                else:
+                    device_name = ""
+                size = format_size_for_user(rpd_file.size)
+                mtime = arrow.get(rpd_file.modification_time)
 
                 try:
-                    ctime_h = ctime.humanize(locale=self.arrow_locale_for_humanize)
+                    mtime_h = mtime.humanize(locale=self.arrow_locale_for_humanize)
                 except Exception:
-                    ctime_h = ctime.humanize()
+                    mtime_h = mtime.humanize()
                     logging.debug(
-                        "Failed to humanize taken on time %s with locale %s, reverting "
-                        "to English",
-                        ctime_h,
+                        "Failed to humanize modification time %s with "
+                        "locale %s, reverting to English",
+                        mtime_h,
                         self.arrow_locale_for_humanize,
                     )
 
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                humanized_ctime = _(
-                    "Taken on %(date_time)s (%(human_readable)s)"
-                ) % dict(
-                    date_time=ctime.to("local").naive.strftime("%c"),
-                    human_readable=ctime_h,
-                )
+                if rpd_file.ctime_mtime_differ():
+                    ctime = arrow.get(rpd_file.ctime)
 
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                humanized_mtime = _(
-                    "Modified on %(date_time)s (%(human_readable)s)"
-                ) % dict(
-                    date_time=mtime.to("local").naive.strftime("%c"),
-                    human_readable=mtime_h,
-                )
-                humanized_file_time = f"{humanized_ctime}<br>{humanized_mtime}"
-            else:
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                humanized_file_time = _("%(date_time)s (%(human_readable)s)") % dict(
-                    date_time=mtime.to("local").naive.strftime("%c"),
-                    human_readable=mtime_h,
-                )
+                    # Sadly, arrow raises an exception if it's locale is not translated
+                    # when using humanize. So attempt conversion using user's locale,
+                    # and if that fails, use English.
 
-            humanized_file_time = humanized_file_time.replace(" ", "&nbsp;")
+                    try:
+                        ctime_h = ctime.humanize(locale=self.arrow_locale_for_humanize)
+                    except Exception:
+                        ctime_h = ctime.humanize()
+                        logging.debug(
+                            "Failed to humanize taken on time %s with locale %s, "
+                            "reverting to English",
+                            ctime_h,
+                            self.arrow_locale_for_humanize,
+                        )
 
-            if not device_name:
-                msg = f"<b>{rpd_file.name}</b><br>{humanized_file_time}<br>{size}"
-            else:
-                msg = (
-                    f"<b>{rpd_file.name}</b><br>{device_name}"
-                    f"<br>{humanized_file_time}<br>{size}"
-                )
-
-            if rpd_file.camera_memory_card_identifiers:
-                if len(rpd_file.camera_memory_card_identifiers) > 1:
-                    cards = _("Memory cards: %s") % make_internationalized_list([
-                        str(i) for i in rpd_file.camera_memory_card_identifiers
-                    ])
-                else:
-                    cards = (
-                        _("Memory card: %s")
-                        % rpd_file.camera_memory_card_identifiers[0]
-                    )
-                msg += "<br>" + cards
-
-            if rpd_file.status in Downloaded:
-                path = rpd_file.download_path + os.sep
-                downloaded_as = _("Downloaded as:")
-                msg += (
-                    f"<br><br><i>{downloaded_as}</i>"
-                    f"<br>{rpd_file.download_name}<br>{path}"
-                )
-
-            if rpd_file.previously_downloaded:
-                prev_datetime = arrow.get(rpd_file.prev_datetime, tzlocal())
-                try:
-                    prev_dt_h = prev_datetime.humanize(
-                        locale=self.arrow_locale_for_humanize
-                    )
-                except Exception:
-                    prev_dt_h = prev_datetime.humanize()
-                    logging.debug(
-                        "Failed to humanize taken on time %s with locale %s, reverting "
-                        "to English",
-                        prev_dt_h,
-                        self.arrow_locale_for_humanize,
-                    )
-                # Translators: %(variable)s represents Python code, not a plural of the
-                # term variable. You must keep the %(variable)s untranslated, or the
-                # program will crash.
-                prev_date = _("%(date_time)s (%(human_readable)s)") % dict(
-                    date_time=prev_datetime.naive.strftime("%c"),
-                    human_readable=prev_dt_h,
-                )
-
-                if rpd_file.prev_full_name != manually_marked_previously_downloaded:
-                    path, prev_file_name = os.path.split(rpd_file.prev_full_name)
-                    path += os.sep
                     # Translators: %(variable)s represents Python code, not a plural of
                     # the term variable. You must keep the %(variable)s untranslated, or
                     # the program will crash.
-                    # Translators: please do not change HTML codes like <br>, <i>, </i>,
-                    # or <b>, </b> etc.
-                    msg += _(
-                        "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>"
-                        "%(date)s"
-                    ) % dict(date=prev_date, filename=prev_file_name, path=path)
+                    humanized_ctime = _(
+                        "Taken on %(date_time)s (%(human_readable)s)"
+                    ) % dict(
+                        date_time=ctime.to("local").naive.strftime("%c"),
+                        human_readable=ctime_h,
+                    )
+
+                    # Translators: %(variable)s represents Python code, not a plural of
+                    # the term variable. You must keep the %(variable)s untranslated, or
+                    # the program will crash.
+                    humanized_mtime = _(
+                        "Modified on %(date_time)s (%(human_readable)s)"
+                    ) % dict(
+                        date_time=mtime.to("local").naive.strftime("%c"),
+                        human_readable=mtime_h,
+                    )
+                    humanized_file_time = f"{humanized_ctime}<br>{humanized_mtime}"
                 else:
                     # Translators: %(variable)s represents Python code, not a plural of
                     # the term variable. You must keep the %(variable)s untranslated, or
                     # the program will crash.
-                    # Translators: please do not change HTML codes like <br>, <i>, </i>,
-                    # or <b>, </b> etc.
-                    msg += _(
-                        "<br><br>"
-                        "<i>Manually set as previously downloaded on %(date)s</i>"
-                    ) % dict(date=prev_date)
-            return msg
+                    humanized_file_time = _(
+                        "%(date_time)s (%(human_readable)s)"
+                    ) % dict(
+                        date_time=mtime.to("local").naive.strftime("%c"),
+                        human_readable=mtime_h,
+                    )
 
-    def setData(self, index: QModelIndex, value, role: int) -> bool:
+                humanized_file_time = humanized_file_time.replace(" ", "&nbsp;")
+
+                if not device_name:
+                    msg = f"<b>{rpd_file.name}</b><br>{humanized_file_time}<br>{size}"
+                else:
+                    msg = (
+                        f"<b>{rpd_file.name}</b><br>{device_name}"
+                        f"<br>{humanized_file_time}<br>{size}"
+                    )
+
+                if rpd_file.camera_memory_card_identifiers:
+                    if len(rpd_file.camera_memory_card_identifiers) > 1:
+                        cards = _("Memory cards: %s") % make_internationalized_list([
+                            str(i) for i in rpd_file.camera_memory_card_identifiers
+                        ])
+                    else:
+                        cards = (
+                            _("Memory card: %s")
+                            % rpd_file.camera_memory_card_identifiers[0]
+                        )
+                    msg += "<br>" + cards
+
+                if rpd_file.status in Downloaded:
+                    path = rpd_file.download_path + os.sep
+                    downloaded_as = _("Downloaded as:")
+                    msg += (
+                        f"<br><br><i>{downloaded_as}</i>"
+                        f"<br>{rpd_file.download_name}<br>{path}"
+                    )
+
+                if rpd_file.previously_downloaded:
+                    prev_datetime = arrow.get(rpd_file.prev_datetime, tzlocal())
+                    try:
+                        prev_dt_h = prev_datetime.humanize(
+                            locale=self.arrow_locale_for_humanize
+                        )
+                    except Exception:
+                        prev_dt_h = prev_datetime.humanize()
+                        logging.debug(
+                            "Failed to humanize taken on time %s with locale %s, "
+                            "reverting to English",
+                            prev_dt_h,
+                            self.arrow_locale_for_humanize,
+                        )
+                    # Translators: %(variable)s represents Python code, not a plural of
+                    # the term variable. You must keep the %(variable)s untranslated, or
+                    # the program will crash.
+                    prev_date = _("%(date_time)s (%(human_readable)s)") % dict(
+                        date_time=prev_datetime.naive.strftime("%c"),
+                        human_readable=prev_dt_h,
+                    )
+
+                    if rpd_file.prev_full_name != manually_marked_previously_downloaded:
+                        path, prev_file_name = os.path.split(rpd_file.prev_full_name)
+                        path += os.sep
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        # Translators: please do not change HTML codes like <br>, <i>,
+                        # </i>, or <b>, </b> etc.
+                        msg += _(
+                            "<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>"
+                            "%(date)s"
+                        ) % dict(date=prev_date, filename=prev_file_name, path=path)
+                    else:
+                        # Translators: %(variable)s represents Python code, not a plural
+                        # of the term variable. You must keep the %(variable)s
+                        # untranslated, or the program will crash.
+                        # Translators: please do not change HTML codes like <br>, <i>,
+                        # </i>, or <b>, </b> etc.
+                        msg += _(
+                            "<br><br>"
+                            "<i>Manually set as previously downloaded on %(date)s</i>"
+                        ) % dict(date=prev_date)
+                return msg
+
+    def setData(self, index: QModelIndex, value: Any, role: Qt.ItemDataRole) -> bool:
         if not index.isValid():
             return False
 
@@ -673,7 +681,7 @@ class ThumbnailListModel(QAbstractListModel):
         if row >= len(self.rows) or row < 0:
             return False
         uid = self.rows[row][0]
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             self.tsql.set_marked(uid=uid, marked=value)
             self.rows[row] = (uid, value is True)
             self.dataChanged.emit(index, index)
@@ -1688,11 +1696,11 @@ class ThumbnailListModel(QAbstractListModel):
             uid_count = self.getDisplayedCount(scan_id=scan_id)
             checked_uid_count = self.getDisplayedCount(scan_id=scan_id, marked=True)
             if uid_count == 0 or checked_uid_count == 0:
-                checked = Qt.Unchecked
+                checked = Qt.CheckState.Unchecked
             elif uid_count != checked_uid_count:
-                checked = Qt.PartiallyChecked
+                checked = Qt.CheckState.PartiallyChecked
             else:
-                checked = Qt.Checked
+                checked = Qt.CheckState.Checked
             self.rapidApp.mapModel(scan_id).setCheckedValue(checked, scan_id)
 
     def updateAllDeviceDisplayCheckMarks(self) -> None:
@@ -1940,7 +1948,7 @@ class ThumbnailView(QListView):
         self.setUniformItemSizes(True)
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.setFrameShadow(QFrame.Plain)
+        self.setFrameShadow(QFrame.Shadow.Plain)
         palette = self.palette()
         color = QColor()
         if is_dark_mode():
@@ -1951,7 +1959,7 @@ class ThumbnailView(QListView):
         self.setPalette(palette)
         self.possiblyPreserveSelectionPostClick = False
 
-        sbv = ScrollBarEmitsVisible(orientation=Qt.Vertical)
+        sbv = ScrollBarEmitsVisible(orientation=Qt.Orientation.Vertical)
         self.setVerticalScrollBar(sbv)
         sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)
 
@@ -2004,9 +2012,12 @@ class ThumbnailView(QListView):
             current = self.currentIndex()
             if not (len(selected.indexes()) == 1 and selected.indexes()[0] == current):
                 deselected.merge(
-                    self.selectionModel().selection(), QItemSelectionModel.SelectionFlag.Select
+                    self.selectionModel().selection(),
+                    QItemSelectionModel.SelectionFlag.Select,
                 )
-                self.selectionModel().select(deselected, QItemSelectionModel.SelectionFlag.Select)
+                self.selectionModel().select(
+                    deselected, QItemSelectionModel.SelectionFlag.Select
+                )
 
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
@@ -2019,25 +2030,22 @@ class ThumbnailView(QListView):
         know about our checkboxes. Therefore if the user is in fact
         clicking on a checkbox, we need to filter that event.
 
-        On some versions of Qt 5 (to be determined), no matter what we do here,
-        the delegate's editorEvent will still be triggered.
-
         :param event: the mouse click event
         """
 
-        right_button_pressed = event.button() == Qt.RightButton
+        right_button_pressed = event.button() == Qt.MouseButton.RightButton
         if right_button_pressed:
             super().mousePressEvent(event)
 
         else:
-            index = self.indexAt(event.pos())
+            index = self.indexAt(event.position().toPoint())
             clicked_row = index.row()
 
             if clicked_row >= 0:
                 rect: QRect = self.visualRect(index)
-                delegate: ThumbnailDelegate = self.itemDelegate(index)
+                delegate: ThumbnailDelegate = self.itemDelegateForIndex(index)
                 checkboxRect = delegate.getCheckBoxRect(rect)
-                checkbox_clicked = checkboxRect.contains(event.pos())
+                checkbox_clicked = checkboxRect.contains(event.position())
                 if checkbox_clicked:
                     status: DownloadStatus = index.data(Roles.download_status)
                     checkbox_clicked = status not in Downloaded
@@ -2142,18 +2150,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
-        try:
-            # Works on Qt 5.6 and above
-            self.device_pixel_ratio = rapidApp.devicePixelRatioF()
-            self.devicePixelF = True
-        except AttributeError:
-            self.device_pixel_ratio = rapidApp.devicePixelRatio()
-            self.devicePixelF = False
+        self.device_pixel_ratio = rapidApp.devicePixelRatioF()
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QRectF(
             QApplication.style().subElementRect(
-                QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None
+                QStyle.SubElement.SE_CheckBoxIndicator, self.checkboxStyleOption, None
             )
         )
         self.checkbox_size = self.checkboxRect.height()
@@ -2178,10 +2180,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         # Determine pixel scaling for SVG files
         # Applies to all SVG files delegate will load
-        if self.devicePixelF:
-            self.pixmap_ratio = self.downloadPendingPixmap.devicePixelRatioF()
-        else:
-            self.pixmap_ratio = self.downloadedErrorPixmap.devicePixelRatio()
+        self.pixmap_ratio = self.downloadPendingPixmap.devicePixelRatioF()
+        try:
+            assert self.pixmap_ratio
+        except AssertionError:
+            raise (
+                "Ensure the package to render SVG files in Qt6 is installed correctly"
+            )
 
         self.dimmed_opacity = 0.5
 
@@ -2250,8 +2255,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.highlightPen = QPen()
         self.highlightPen.setColor(self.highlight)
         self.highlightPen.setWidth(self.highlight_size)
-        self.highlightPen.setStyle(Qt.SolidLine)
-        self.highlightPen.setJoinStyle(Qt.MiterJoin)
+        self.highlightPen.setStyle(Qt.PenStyle.SolidLine)
+        self.highlightPen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
 
         self.emblemFont = QFont()
         self.emblemFont.setPointSize(self.emblemFont.pointSize() - 3)
@@ -2353,7 +2358,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # Save state of painter, restore on function exit
         painter.save()
 
-        checked = index.data(Qt.CheckStateRole) == Qt.Checked
+        checked = index.data(Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked
         previously_downloaded = index.data(Roles.previously_downloaded)
         extension, ext_type = index.data(Roles.extension)
         download_status: DownloadStatus = index.data(Roles.download_status)
@@ -2366,7 +2371,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # job_code = 'An extremely long and complicated Job Code'
         # job_code = 'Job Code'
 
-        is_selected = option.state & QStyle.State_Selected
+        is_selected = option.state & QStyle.StateFlag.State_Selected
 
         x = option.rect.x()
         y = option.rect.y()
@@ -2397,7 +2402,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.setPen(self.highlightPen)
             painter.drawRect(hightlightRect)
 
-        thumbnail: QPixmap = index.model().data(index, Qt.DecorationRole)
+        thumbnail: QPixmap = index.model().data(index, Qt.ItemDataRole.DecorationRole)
 
         # If on high DPI screen, scale the thumbnail using a smooth transform
         if self.device_pixel_ratio > 1.0:
@@ -2409,14 +2414,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
             and download_status == DownloadStatus.not_downloaded
         ):
             disabled = QPixmap(thumbnail.size())
-            if self.devicePixelF:
-                disabled.setDevicePixelRatio(thumbnail.devicePixelRatioF())
-            else:
-                disabled.setDevicePixelRatio(thumbnail.devicePixelRatio())
-            disabled.fill(Qt.transparent)
+            disabled.setDevicePixelRatio(thumbnail.devicePixelRatioF())
+            disabled.fill(Qt.GlobalColor.transparent)
             p = QPainter(disabled)
-            p.setBackgroundMode(Qt.TransparentMode)
-            p.setBackground(QBrush(Qt.transparent))
+            p.setBackgroundMode(Qt.BGMode.TransparentMode)
+            p.setBackground(QBrush(Qt.GlobalColor.transparent))
             p.eraseRect(thumbnail.rect())
             p.setOpacity(self.dimmed_opacity)
             p.drawPixmap(0, 0, thumbnail)
@@ -2425,10 +2427,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         thumbnail_width = thumbnail.size().width()
         thumbnail_height = thumbnail.size().height()
-        if self.devicePixelF:
-            ratio = thumbnail.devicePixelRatioF()
-        else:
-            ratio = thumbnail.devicePixelRatio()
+        ratio = thumbnail.devicePixelRatioF()
 
         thumbnailX = (
             self.horizontal_margin
@@ -2469,24 +2468,24 @@ class ThumbnailDelegate(QStyledItemDelegate):
             )
             painter.fillRect(jobCodeRect, color)
             painter.setFont(self.jobCodeFont)
-            painter.setPen(QColor(Qt.white))
+            painter.setPen(QColor(Qt.GlobalColor.white))
             if job_code in self.job_code_lru:
                 text = self.job_code_lru[job_code]
             else:
                 text = self.jobCodeMetrics.elidedText(
-                    job_code, Qt.ElideRight, self.job_code_text_width
+                    job_code, Qt.TextElideMode.ElideRight, self.job_code_text_width
                 )
                 self.job_code_lru[job_code] = text
             if not dimmed:
                 painter.setOpacity(1.0)
             else:
                 painter.setOpacity(self.dimmed_opacity)
-            painter.drawText(jobCodeRect, Qt.AlignCenter, text)
+            painter.drawText(jobCodeRect, Qt.AlignmentFlag.AlignCenter, text)
 
         if dimmed:
             painter.setOpacity(self.dimmed_opacity)
 
-        # painter.setPen(QColor(Qt.blue))
+        # painter.setPen(QColor(Qt.GlobalColor.blue))
         # painter.drawText(x + 2, y + 15, str(index.row()))
 
         if has_audio:
@@ -2515,8 +2514,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # Use an angular rect, because a rounded rect with anti-aliasing doesn't look
         # too good
         painter.fillRect(emblemRect, color)
-        painter.setPen(QColor(Qt.white))
-        painter.drawText(emblemRect, Qt.AlignCenter, extension)
+        painter.setPen(QColor(Qt.GlobalColor.white))
+        painter.drawText(emblemRect, Qt.AlignmentFlag.AlignCenter, extension)
 
         # Draw another small colored box to the left of the
         # file extension box containing a secondary
@@ -2530,7 +2529,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             color = QColor(self.color3)
             secRect = QRectF(sec_rect_x, emblem_rect_y, sec_width, self.emblem_height)
             painter.fillRect(secRect, color)
-            painter.drawText(secRect, Qt.AlignCenter, secondary_attribute)
+            painter.drawText(secRect, Qt.AlignmentFlag.AlignCenter, secondary_attribute)
 
         if memory_cards:
             # if downloaded from a camera, and the camera has more than
@@ -2543,7 +2542,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 color = QColor(70, 70, 70)
                 cardRect = QRectF(text_x, emblem_rect_y, card_width, self.emblem_height)
                 painter.fillRect(cardRect, color)
-                painter.drawText(cardRect, Qt.AlignCenter, card)
+                painter.drawText(cardRect, Qt.AlignmentFlag.AlignCenter, card)
                 text_x = text_x + card_width + self.footer_padding
 
         if dimmed:
@@ -2552,14 +2551,16 @@ class ThumbnailDelegate(QStyledItemDelegate):
         if download_status == DownloadStatus.not_downloaded:
             checkboxStyleOption = QStyleOptionButton()
             if checked:
-                checkboxStyleOption.state |= QStyle.State_On
+                checkboxStyleOption.state |= QStyle.StateFlag.State_On
             else:
-                checkboxStyleOption.state |= QStyle.State_Off
-            checkboxStyleOption.state |= QStyle.State_Enabled
+                checkboxStyleOption.state |= QStyle.StateFlag.State_Off
+            checkboxStyleOption.state |= QStyle.StateFlag.State_Enabled
             checkboxStyleOption.rect = self.getCheckBoxRect(option.rect).toRect()
             style = QApplication.style()
             style.setOverride(override=True)
-            style.drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
+            style.drawControl(
+                QStyle.ControlElement.CE_CheckBox, checkboxStyleOption, painter
+            )
             style.setOverride(override=False)
         else:
             if download_status == DownloadStatus.download_pending:
@@ -2627,10 +2628,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
         download_status = index.data(Roles.download_status)
 
         if (
-            event.type() == QEvent.MouseButtonRelease
-            or event.type() == QEvent.MouseButtonDblClick
+            event.type() == QEvent.Type.MouseButtonRelease
+            or event.type() == QEvent.Type.MouseButtonDblClick
         ):
-            if event.button() == Qt.RightButton:
+            if event.button() == Qt.MouseButton.RightButton:
                 self.clickedIndex = index
 
                 # Determine if user can manually mark file or files as previously
@@ -2656,7 +2657,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                         self.markFileDownloadedAct.setVisible(False)
 
                 globalPos = self.rapidApp.thumbnailView.viewport().mapToGlobal(
-                    event.pos()
+                    event.position()  # type: QPointF
                 )
                 # libgphoto2 needs exclusive access to the camera, so there are times
                 # when "open in file browswer" should be disabled:
@@ -2688,16 +2689,16 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 self.openInFileBrowserAct.setEnabled(
                     not (disable_kde or active_camera) and have_file_manager
                 )
-                self.contextMenu.popup(globalPos)
+                self.contextMenu.popup(globalPos.toPoint())
                 return False
-            if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
+            if event.button() != Qt.MouseButton.LeftButton or not self.getCheckBoxRect(
                 option.rect
-            ).contains(event.pos()):
+            ).contains(event.position()):
                 return False
-            if event.type() == QEvent.MouseButtonDblClick:
+            if event.type() == QEvent.Type.MouseButtonDblClick:
                 return True
-        elif event.type() == QEvent.KeyPress:
-            if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
+        elif event.type() == QEvent.Type.KeyPress:
+            if event.key() != Qt.Key.Key_Space and event.key() != Qt.Key.Key_Select:
                 return False
         else:
             return False
@@ -2712,25 +2713,25 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def setModelData(
         self, editor: QWidget, model: QAbstractItemModel, index: QModelIndex
     ) -> None:
-        newValue = index.data(Qt.CheckStateRole) != Qt.Checked
+        newValue = index.data(Qt.ItemDataRole.CheckStateRole) != Qt.CheckState.Checked
         thumbnailModel: ThumbnailListModel = self.rapidApp.thumbnailModel
         selection: QItemSelectionModel = self.rapidApp.thumbnailView.selectionModel()
         if selection.hasSelection():
             selected: QItemSelection = selection.selection()
             if index in selected.indexes():
                 for i in selected.indexes():
-                    thumbnailModel.setData(i, newValue, Qt.CheckStateRole)
+                    thumbnailModel.setData(i, newValue, Qt.ItemDataRole.CheckStateRole)
             else:
                 # The user has clicked on a checkbox that for a
                 # thumbnail that is outside their previous selection
                 selection.clear()
                 selection.select(index, QItemSelectionModel.SelectionFlag.Select)
-                model.setData(index, newValue, Qt.CheckStateRole)
+                model.setData(index, newValue, Qt.ItemDataRole.CheckStateRole)
         else:
             # The user has previously selected nothing, so mark this
             # thumbnail as selected
             selection.select(index, QItemSelectionModel.SelectionFlag.Select)
-            model.setData(index, newValue, Qt.CheckStateRole)
+            model.setData(index, newValue, Qt.ItemDataRole.CheckStateRole)
         thumbnailModel.updateDisplayPostDataChange()
 
     def getLeftPoint(self, rect: QRect) -> QPointF:
