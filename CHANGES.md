@@ -1,5 +1,9 @@
 # Changelog for Rapid Photo Downloader
 
+## 0.9.38a1 (2026-xx-xx)
+
+- Use PyQt6 instead of PyQt5.
+
 ## 0.9.37 (2026-02-18)
 
 - Corrected a build configuration error in tarball of 0.9.37b1 release.
