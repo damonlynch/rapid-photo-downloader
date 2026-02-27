@@ -160,3 +160,7 @@ select = [
     # isort
     "I",
 ]
+ignore = [
+    "N806",
+    "N802"
+]
