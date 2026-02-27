@@ -90,6 +90,8 @@ class ClickableLabel(QLabel):
 
 
 CONSOLIDATION_IMPLEMENTED = False
+# For an explanation of what consolidation is:
+# https://discuss.pixls.us/t/request-for-comments-photo-and-video-consolidation-for-rapid-photo-downloader/4671
 FORCE_EXIFTOOL_VIDEO_IMPLEMENTED = False
 
 system_language = "SYSTEM"
@@ -113,12 +115,57 @@ class PreferencesDialog(QDialog):
 
         self.rapidApp = parent
 
+        self.setWindowFlag(
+            Qt.WindowType.CustomizeWindowHint
+            | Qt.WindowType.WindowContextHelpButtonHint
+        )
+
         self.setWindowTitle(_("Preferences"))
 
         self.prefs = prefs
 
         self.is_prerelease = current_version_is_dev_version()
 
+        self.setupMenuChooser(flat_look=False)
+
+        self.setupDeviceControls()
+        self.layoutDeviceControls()
+        self.setDeviceControlValues()
+        self.makeDeviceControlConnections()
+        self.setupLanguageControls()
+        self.setLanguageWidgetValues()
+        self.layoutLanguageControls()
+        self.setupAutomationControls()
+        self.layoutAutomationControls()
+        self.setupThumbnailControls()
+        self.layoutThumbnailControls()
+        self.setupTimeZoneControls()
+        self.layoutTimeZoneControls()
+        self.setTimeZoneValues()
+        self.makeTimeZoneControlConnections()
+        self.setupErrorHandlingControls()
+        self.layoutErrorHandlingControls()
+        self.setErrorHandingValues()
+        self.makeErrorHandlingControlConnections()
+        self.setupWarningControls()
+        self.setWarningValues()
+        self.makeWarningControlConnections()
+        self.layoutWarningControls()
+        if CONSOLIDATION_IMPLEMENTED:
+            self.setupConsolidationControls()
+            self.layoutConsolidationControls()
+        else:
+            self.setupMiscellaneousControls()
+        self.setMetdataValues()
+        self.makeMiscellaneousControlConnections()
+        self.layoutMiscellaneousControls()
+        self.layoutPanels()
+
+        self.layoutMenuChooser()
+        self.setupButtons()
+        self.layoutDialog()
+
+    def setupMenuChooser(self, flat_look: bool) -> None:
         self.panels = QStackedWidget()
 
         self.chooser = QNarrowListWidget(no_focus_recentangle=True)
@@ -179,7 +226,7 @@ class PreferencesDialog(QDialog):
             )
 
         for prefIcon, label in zip(icons, self.chooser_items):
-            # make the selected icons be the same colour as the selected text
+            # make the selected icons be the same color as the selected text
             icon = QIcon()
             pixmap = QPixmap(data_file_path(prefIcon))
             selected = QPixmap(pixmap.size())
@@ -200,9 +247,23 @@ class PreferencesDialog(QDialog):
             QSizePolicy.Policy.Minimum, QSizePolicy.Policy.MinimumExpanding
         )
 
-        self.devices = QWidget()
+    def reject(self) -> None:
+        # If not called, rejecting this dialog will cause Rapid Photo Downloader to
+        # crash
+        self.close()
 
-        self.scanBox = QGroupBox(_("Device Scanning"))
+    def _addItems(self, pref_list: str, pref_type: int) -> None:
+        if self.prefs.list_not_empty(key=pref_list):
+            for value in self.prefs[pref_list]:
+                QListWidgetItem(value, self.rememberedDevices, pref_type)
+
+    def setupDeviceControls(self) -> None:
+        self.setupDeviceControlsScan()
+        self.setupDeviceControlsRemembered()
+        self.setupDeviceControlsIgnored()
+
+    def setupDeviceControlsScan(self) -> None:
+        self.deviceScanBox = QGroupBox(_("Device Scanning"))
         self.onlyExternal = CompatCheckBox(_("Scan only external devices"))
         self.onlyExternal.setToolTip(
             _(
@@ -251,42 +312,7 @@ class PreferencesDialog(QDialog):
         self.addFolderToScan.clicked.connect(self.addFolderToScanClicked)
         self.removeFolderToScan.clicked.connect(self.removeFolderToScanClicked)
 
-        scanLayout = QGridLayout()
-        scanLayout.setHorizontalSpacing(18)
-        scanLayout.addWidget(self.onlyExternal, 0, 0, 1, 3)
-        scanLayout.addWidget(self.scanSpecificFolders, 1, 0, 1, 3)
-        scanLayout.addWidget(self.foldersToScanLabel, 2, 1, 1, 2)
-        scanLayout.addWidget(self.foldersToScan, 3, 1, 3, 1)
-        scanLayout.addWidget(self.addFolderToScan, 3, 2, 1, 1)
-        scanLayout.addWidget(self.removeFolderToScan, 4, 2, 1, 1)
-        self.scanBox.setLayout(scanLayout)
-
-        tip = _("Devices that have been set to automatically ignore or download from.")
-        self.knownDevicesBox = QGroupBox(_("Remembered Devices"))
-        self.knownDevices = QNarrowListWidget(minimum_rows=5)
-        self.knownDevices.setToolTip(tip)
-        tip = _(
-            "Remove a device from the list of devices to automatically ignore or "
-            "download from."
-        )
-        self.removeDevice = QPushButton(_("Remove"))
-        self.removeDevice.setToolTip(tip)
-        self.removeAllDevice = QPushButton(_("Remove All"))
-        tip = _(
-            "Clear the list of devices from which to automatically ignore or download "
-            "from.\n\n"
-            "Note: Changes take effect when the computer is next scanned for devices."
-        )
-        self.removeAllDevice.setToolTip(tip)
-        self.removeDevice.clicked.connect(self.removeDeviceClicked)
-        self.removeAllDevice.clicked.connect(self.removeAllDeviceClicked)
-        knownDevicesLayout = QGridLayout()
-        knownDevicesLayout.setHorizontalSpacing(18)
-        knownDevicesLayout.addWidget(self.knownDevices, 0, 0, 3, 1)
-        knownDevicesLayout.addWidget(self.removeDevice, 0, 1, 1, 1)
-        knownDevicesLayout.addWidget(self.removeAllDevice, 1, 1, 1, 1)
-        self.knownDevicesBox.setLayout(knownDevicesLayout)
-
+    def setupDeviceControlsIgnored(self) -> None:
         self.ignoredPathsBox = QGroupBox(_("Ignored Paths"))
         tip = _(
             "The end part of a path that should never be scanned for photos or videos."
@@ -324,7 +350,7 @@ class PreferencesDialog(QDialog):
             # well.
             _("Use python-style <a {link}>regular expressions</a>").format(
                 link='style="text-decoration:none; color: palette(highlight);"'
-                'href="http://damonlynch.net/rapid/documentation/#regularexpressions"'
+                'href="https://damonlynch.net/rapid/documentation/#regularexpressions"'
             )
         )
         self.ignorePathsReLabel.setToolTip(
@@ -338,6 +364,39 @@ class PreferencesDialog(QDialog):
         )
         self.ignorePathsReLabel.setOpenExternalLinks(True)
         self.ignorePathsReLabel.clicked.connect(self.ignorePathsReLabelClicked)
+
+    def setupDeviceControlsRemembered(self) -> None:
+        tip = _("Devices that have been set to automatically ignore or download from.")
+        self.rememberedDevicesBox = QGroupBox(_("Remembered Devices"))
+        self.rememberedDevices = QNarrowListWidget(minimum_rows=5)
+        self.rememberedDevices.setToolTip(tip)
+        tip = _(
+            "Remove a device from the list of devices to automatically ignore or "
+            "download from."
+        )
+        self.removeDevice = QPushButton(_("Remove"))
+        self.removeDevice.setToolTip(tip)
+        self.removeAllDevice = QPushButton(_("Remove All"))
+        tip = _(
+            "Clear the list of devices from which to automatically ignore or download "
+            "from.\n\n"
+            "Note: Changes take effect when the computer is next scanned for devices."
+        )
+        self.removeAllDevice.setToolTip(tip)
+        self.removeDevice.clicked.connect(self.removeDeviceClicked)
+        self.removeAllDevice.clicked.connect(self.removeAllDeviceClicked)
+
+    def layoutDeviceControls(self) -> None:
+        deviceScanLayout = QGridLayout()
+        deviceScanLayout.setHorizontalSpacing(18)
+        deviceScanLayout.addWidget(self.onlyExternal, 0, 0, 1, 3)
+        deviceScanLayout.addWidget(self.scanSpecificFolders, 1, 0, 1, 3)
+        deviceScanLayout.addWidget(self.foldersToScanLabel, 2, 1, 1, 2)
+        deviceScanLayout.addWidget(self.foldersToScan, 3, 1, 3, 1)
+        deviceScanLayout.addWidget(self.addFolderToScan, 3, 2, 1, 1)
+        deviceScanLayout.addWidget(self.removeFolderToScan, 4, 2, 1, 1)
+        self.deviceScanBox.setLayout(deviceScanLayout)
+
         reLayout = QHBoxLayout()
         reLayout.setSpacing(5)
         reLayout.addWidget(self.ignoredPathsRe)
@@ -352,34 +411,28 @@ class PreferencesDialog(QDialog):
         ignoredPathsLayout.addLayout(reLayout, 4, 0, 1, 2)
         self.ignoredPathsBox.setLayout(ignoredPathsLayout)
 
-        self.setDeviceWidgetValues()
+        rememberedDevicesLayout = QGridLayout()
+        rememberedDevicesLayout.setHorizontalSpacing(18)
+        rememberedDevicesLayout.addWidget(self.rememberedDevices, 0, 0, 3, 1)
+        rememberedDevicesLayout.addWidget(self.removeDevice, 0, 1, 1, 1)
+        rememberedDevicesLayout.addWidget(self.removeAllDevice, 1, 1, 1, 1)
+        self.rememberedDevicesBox.setLayout(rememberedDevicesLayout)
 
+    def makeDeviceControlConnections(self) -> None:
         # connect these next 3 only after having set their values, so rescan / search
         # again in rapidApp is not triggered
         self.onlyExternal.checkStateChanged.connect(self.onlyExternalStateChanged)
         self.scanSpecificFolders.checkStateChanged.connect(self.noDcimStateChanged)
         self.ignoredPathsRe.checkStateChanged.connect(self.ignoredPathsReStateChanged)
 
-        devicesLayout = QVBoxLayout()
-        devicesLayout.addWidget(self.scanBox)
-        devicesLayout.addWidget(self.ignoredPathsBox)
-        devicesLayout.addWidget(self.knownDevicesBox)
-        devicesLayout.addStretch()
-        devicesLayout.setSpacing(18)
-
-        self.devices.setLayout(devicesLayout)
-        devicesLayout.setContentsMargins(0, 0, 0, 0)
-
-        self.language = QWidget()
+    def setupLanguageControls(self) -> None:
+        self.languageWidgets = QWidget()
         self.languages = QComboBox()
         self.languages.setEditable(False)
         self.languagesLabel = QLabel(_("Language: "))
         self.languages.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
 
-        self.setLanguageWidgetValues()
-
-        self.languages.currentIndexChanged.connect(self.languagesChanged)
-
+    def layoutLanguageControls(self) -> None:
         languageWidgetsLayout = QHBoxLayout()
         languageWidgetsLayout.addWidget(self.languagesLabel)
         languageWidgetsLayout.addWidget(self.languages)
@@ -388,19 +441,11 @@ class PreferencesDialog(QDialog):
         languageWidgetsLayout.addWidget(QLabel(_("*")))
         languageWidgetsLayout.addStretch()
         languageWidgetsLayout.setSpacing(5)
+        languageWidgetsLayout.setContentsMargins(0, 0, 0, 0)
+        self.languageWidgets.setLayout(languageWidgetsLayout)
+        self.languages.currentIndexChanged.connect(self.languagesChanged)
 
-        languageLayout = QVBoxLayout()
-        languageLayout.addLayout(languageWidgetsLayout)
-        # Translators: the * acts as an asterisk to denote a reference to this
-        # annotation
-        languageLayout.addWidget(QLabel(_("* Takes effect upon program restart")))
-        languageLayout.addStretch()
-        languageLayout.setContentsMargins(0, 0, 0, 0)
-        languageLayout.setSpacing(18)
-        self.language.setLayout(languageLayout)
-
-        self.automation = QWidget()
-
+    def setupAutomationControls(self) -> None:
         self.automationBox = QGroupBox(_("Program Automation"))
         self.autoMount = CompatCheckBox(
             _("Mount devices not already automatically mounted")
@@ -438,6 +483,7 @@ class PreferencesDialog(QDialog):
         self.autoExit.checkStateChanged.connect(self.autoExitStateChanged)
         self.autoExitError.checkStateChanged.connect(self.autoExitErrorStateChanged)
 
+    def layoutAutomationControls(self) -> None:
         automationBoxLayout = QGridLayout()
         automationBoxLayout.addWidget(self.autoMount, 0, 0, 1, 2)
         automationBoxLayout.addWidget(self.autoDownloadStartup, 1, 0, 1, 2)
@@ -445,22 +491,18 @@ class PreferencesDialog(QDialog):
         automationBoxLayout.addWidget(self.autoEject, 3, 0, 1, 2)
         automationBoxLayout.addWidget(self.autoExit, 4, 0, 1, 2)
         automationBoxLayout.addWidget(self.autoExitError, 5, 1, 1, 1)
-        checkbox_width = self.autoExit.style().pixelMetric(
+        self.checkbox_width = self.autoExit.style().pixelMetric(
             QStyle.PixelMetric.PM_IndicatorWidth
         )
-        automationBoxLayout.setColumnMinimumWidth(0, checkbox_width)
+        automationBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
         self.automationBox.setLayout(automationBoxLayout)
 
-        automationLayout = QVBoxLayout()
-        automationLayout.addWidget(self.automationBox)
-        automationLayout.addStretch()
-        automationLayout.setContentsMargins(0, 0, 0, 0)
+    def setupThumbnailControls(self) -> None:
+        self.setupThumbnailControlsGeneration()
+        self.setupThumbnailControlsCache()
 
-        self.automation.setLayout(automationLayout)
-
-        self.performance = QWidget()
-
-        self.performanceBox = QGroupBox(_("Thumbnail Generation"))
+    def setupThumbnailControlsGeneration(self) -> None:
+        self.thumbnailGenerationBox = QGroupBox(_("Thumbnail Generation"))
         self.generateThumbnails = CompatCheckBox(_("Generate thumbnails"))
         self.generateThumbnails.setToolTip(
             _("Generate thumbnails to show in the main program window")
@@ -501,21 +543,7 @@ class PreferencesDialog(QDialog):
 
         self.maxCores.currentIndexChanged.connect(self.maxCoresChanged)
 
-        coresLayout = QHBoxLayout()
-        coresLayout.addWidget(self.coresLabel)
-        coresLayout.addWidget(self.maxCores)
-        # Translators: the * acts as an asterisk to denote a reference to an annotation
-        # such as '* Takes effect upon program restart'
-        coresLayout.addWidget(QLabel(_("*")))
-        coresLayout.addStretch()
-
-        performanceBoxLayout = QVBoxLayout()
-        performanceBoxLayout.addWidget(self.generateThumbnails)
-        performanceBoxLayout.addWidget(self.useThumbnailCache)
-        performanceBoxLayout.addWidget(self.fdoThumbnails)
-        performanceBoxLayout.addLayout(coresLayout)
-        self.performanceBox.setLayout(performanceBoxLayout)
-
+    def setupThumbnailControlsCache(self) -> None:
         self.thumbnail_cache = ThumbnailCacheSql(create_table_if_not_exists=False)
 
         self.cacheSize = CacheSize()
@@ -529,7 +557,7 @@ class PreferencesDialog(QDialog):
 
         self.getCacheSize.emit()
 
-        self.cacheBox = QGroupBox(_("Thumbnail Cache"))
+        self.thumbnailCacheBox = QGroupBox(_("Thumbnail Cache"))
         self.thumbnailCacheSize = QLabel()
         self.thumbnailCacheSize.setText(_("Calculating..."))
         self.thumbnailNumber = QLabel()
@@ -542,6 +570,22 @@ class PreferencesDialog(QDialog):
         self.thumbnailCacheDaysKeep.valueChanged.connect(
             self.thumbnailCacheDaysKeepChanged
         )
+
+    def layoutThumbnailControls(self) -> None:
+        coresLayout = QHBoxLayout()
+        coresLayout.addWidget(self.coresLabel)
+        coresLayout.addWidget(self.maxCores)
+        # Translators: the * acts as an asterisk to denote a reference to an annotation
+        # such as '* Takes effect upon program restart'
+        coresLayout.addWidget(QLabel(_("*")))
+        coresLayout.addStretch()
+
+        performanceBoxLayout = QVBoxLayout()
+        performanceBoxLayout.addWidget(self.generateThumbnails)
+        performanceBoxLayout.addWidget(self.useThumbnailCache)
+        performanceBoxLayout.addWidget(self.fdoThumbnails)
+        performanceBoxLayout.addLayout(coresLayout)
+        self.thumbnailGenerationBox.setLayout(performanceBoxLayout)
 
         cacheBoxLayout = QVBoxLayout()
         cacheLayout = QGridLayout()
@@ -570,21 +614,10 @@ class PreferencesDialog(QDialog):
 
         cacheBoxLayout.addWidget(cacheButtons)
 
-        self.cacheBox.setLayout(cacheBoxLayout)
+        self.thumbnailCacheBox.setLayout(cacheBoxLayout)
         self.setCacheValues()
 
-        performanceLayout = QVBoxLayout()
-        performanceLayout.addWidget(self.performanceBox)
-        performanceLayout.addWidget(self.cacheBox)
-        performanceLayout.addWidget(QLabel(_("* Takes effect upon program restart")))
-        performanceLayout.addStretch()
-        performanceLayout.setContentsMargins(0, 0, 0, 0)
-        performanceLayout.setSpacing(18)
-
-        self.performance.setLayout(performanceLayout)
-
-        self.timeZone = QWidget()
-
+    def setupTimeZoneControls(self) -> None:
         # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
         self.timeZoneBox = QGroupBox(_("Time Zones"))
         # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
@@ -617,43 +650,35 @@ class PreferencesDialog(QDialog):
         self.timeZoneOffset.setLayout(timeZoneOffsetLayout)
 
         # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
-        timeZoneExplanation = QLabel(
+        self.timeZoneExplanationLabel = QLabel(
             _("When detecting if a file has been previously downloaded:")
         )
 
-        timeZoneBoxLayout = QGridLayout()
-        timeZoneBoxLayout.addWidget(timeZoneExplanation, 0, 0, 1, 3)
-        timeZoneBoxLayout.addWidget(self.ignoreTimeZone, 1, 0, 1, 3)
-        timeZoneBoxLayout.addWidget(self.timeZoneOffsetLabel, 2, 1, 1, 1)
-        timeZoneBoxLayout.addWidget(self.timeZoneOffset, 2, 2, 1, 1)
-        timeZoneBoxLayout.setColumnMinimumWidth(0, checkbox_width)
-        self.timeZoneBox.setLayout(timeZoneBoxLayout)
-
-        timeZoneHelpLink = StyledLinkLabel()
-        timeZoneHelpLink.setLink(
+        self.timeZoneHelpLink = StyledLinkLabel()
+        self.timeZoneHelpLink.setLink(
             url="https://damonlynch.net/rapid/documentation#timezonehandling",
             text=_("Learn more about time zone handling"),
         )
-        timeZoneHelpLink.setWordWrap(True)
-        timeZoneHelpLink.setOpenExternalLinks(True)
+        self.timeZoneHelpLink.setWordWrap(True)
+        self.timeZoneHelpLink.setOpenExternalLinks(True)
 
-        timeZoneLayout = QVBoxLayout()
-        timeZoneLayout.addWidget(self.timeZoneBox)
-        timeZoneLayout.addWidget(timeZoneHelpLink)
-        timeZoneLayout.addStretch()
-        timeZoneLayout.setContentsMargins(0, 0, 0, 0)
-        timeZoneLayout.setSpacing(18)
+    def layoutTimeZoneControls(self) -> None:
+        timeZoneBoxLayout = QGridLayout()
+        timeZoneBoxLayout.addWidget(self.timeZoneExplanationLabel, 0, 0, 1, 3)
+        timeZoneBoxLayout.addWidget(self.ignoreTimeZone, 1, 0, 1, 3)
+        timeZoneBoxLayout.addWidget(self.timeZoneOffsetLabel, 2, 1, 1, 1)
+        timeZoneBoxLayout.addWidget(self.timeZoneOffset, 2, 2, 1, 1)
+        timeZoneBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
+        self.timeZoneBox.setLayout(timeZoneBoxLayout)
 
-        self.timeZone.setLayout(timeZoneLayout)
-
-        self.setTimeZoneValues()
+    def makeTimeZoneControlConnections(self) -> None:
         self.ignoreTimeZone.checkStateChanged.connect(self.ignoreTimeZoneStateChanged)
         self.timeZoneOffsetResolution.currentIndexChanged.connect(
             self.timeZoneOffsetResolutionChanged
         )
 
+    def setupErrorHandlingControls(self) -> None:
         self.errorBox = QGroupBox(_("Error Handling"))
-
         self.downloadErrorGroup = QButtonGroup()
         self.skipDownload = QRadioButton(_("Skip download"))
         self.skipDownload.setToolTip(
@@ -679,6 +704,7 @@ class PreferencesDialog(QDialog):
         self.backupErrorGroup.addButton(self.overwriteBackup)
         self.backupErrorGroup.addButton(self.skipBackup)
 
+    def layoutErrorHandlingControls(self) -> None:
         errorBoxLayout = QVBoxLayout()
         lbl = _(
             "When a photo or video of the same name has already been downloaded, "
@@ -714,17 +740,11 @@ class PreferencesDialog(QDialog):
         errorBoxLayout.addWidget(self.skipBackup)
         self.errorBox.setLayout(errorBoxLayout)
 
-        self.setErrorHandingValues()
+    def makeErrorHandlingControlConnections(self) -> None:
         self.downloadErrorGroup.buttonClicked.connect(self.downloadErrorGroupClicked)
         self.backupErrorGroup.buttonClicked.connect(self.backupErrorGroupClicked)
 
-        self.errorWidget = QWidget()
-        errorLayout = QVBoxLayout()
-        self.errorWidget.setLayout(errorLayout)
-        errorLayout.addWidget(self.errorBox)
-        errorLayout.addStretch()
-        errorLayout.setContentsMargins(0, 0, 0, 0)
-
+    def setupWarningControls(self) -> None:
         self.warningBox = QGroupBox(_("Program Warnings"))
         lbl = _("Show a warning when:")
         self.warningLabel = QLabel(lbl)
@@ -794,7 +814,23 @@ class PreferencesDialog(QDialog):
         self.removeExceptFiles.clicked.connect(self.removeExceptFilesClicked)
         self.removeAllExceptFiles.clicked.connect(self.removeAllExceptFilesClicked)
 
-        self.setWarningValues()
+    def layoutWarningControls(self) -> None:
+        warningBoxLayout = QGridLayout()
+        warningBoxLayout.addWidget(self.warningLabel, 0, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnDownloadingAll, 1, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnBackupProblem, 2, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnMissingLibraries, 3, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnMetadata, 4, 0, 1, 3)
+        warningBoxLayout.addWidget(self.warnUnhandledFiles, 5, 0, 1, 3)
+        warningBoxLayout.addWidget(self.exceptTheseFilesLabel, 6, 1, 1, 2)
+        warningBoxLayout.addWidget(self.exceptTheseFiles, 7, 1, 4, 1)
+        warningBoxLayout.addWidget(self.addExceptFiles, 7, 2, 1, 1)
+        warningBoxLayout.addWidget(self.removeExceptFiles, 8, 2, 1, 1)
+        warningBoxLayout.addWidget(self.removeAllExceptFiles, 9, 2, 1, 1)
+        warningBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
+        self.warningBox.setLayout(warningBoxLayout)
+
+    def makeWarningControlConnections(self) -> None:
         self.warnDownloadingAll.checkStateChanged.connect(
             self.warnDownloadingAllStateChanged
         )
@@ -809,177 +845,118 @@ class PreferencesDialog(QDialog):
             self.warnUnhandledFilesStateChanged
         )
 
-        warningBoxLayout = QGridLayout()
-        warningBoxLayout.addWidget(self.warningLabel, 0, 0, 1, 3)
-        warningBoxLayout.addWidget(self.warnDownloadingAll, 1, 0, 1, 3)
-        warningBoxLayout.addWidget(self.warnBackupProblem, 2, 0, 1, 3)
-        warningBoxLayout.addWidget(self.warnMissingLibraries, 3, 0, 1, 3)
-        warningBoxLayout.addWidget(self.warnMetadata, 4, 0, 1, 3)
-        warningBoxLayout.addWidget(self.warnUnhandledFiles, 5, 0, 1, 3)
-        warningBoxLayout.addWidget(self.exceptTheseFilesLabel, 6, 1, 1, 2)
-        warningBoxLayout.addWidget(self.exceptTheseFiles, 7, 1, 4, 1)
-        warningBoxLayout.addWidget(self.addExceptFiles, 7, 2, 1, 1)
-        warningBoxLayout.addWidget(self.removeExceptFiles, 8, 2, 1, 1)
-        warningBoxLayout.addWidget(self.removeAllExceptFiles, 9, 2, 1, 1)
-        warningBoxLayout.setColumnMinimumWidth(0, checkbox_width)
-        self.warningBox.setLayout(warningBoxLayout)
+    def setupConsolidationControls(self) -> None:
+        self.consolidationBox = QGroupBox(_("Photo and Video Consolidation"))
 
-        self.warnings = QWidget()
-        warningLayout = QVBoxLayout()
-        self.warnings.setLayout(warningLayout)
-        warningLayout.addWidget(self.warningBox)
-        warningLayout.addStretch()
-        warningLayout.setContentsMargins(0, 0, 0, 0)
-
-        if CONSOLIDATION_IMPLEMENTED:
-            self.consolidationBox = QGroupBox(_("Photo and Video Consolidation"))
-
-            self.consolidateIdentical = CompatCheckBox(
-                _("Consolidate files across devices and downloads")
-            )
-            tip = _(
-                "Analyze the results of device scans looking for duplicate files and "
-                "matching RAW and JPEG pairs,\n"
-                "comparing them across multiple devices and download sessions."
-            )
-            self.consolidateIdentical.setToolTip(tip)
-
-            self.treatRawJpegLabel = QLabel(_("Treat matching RAW and JPEG files as:"))
-            self.oneRawJpeg = QRadioButton(_("One photo"))
-            self.twoRawJpeg = QRadioButton(_("Two photos"))
-            tip = _(
-                "Display matching pairs of RAW and JPEG photos as one photo, and if "
-                "marked, download both."
-            )
-            self.oneRawJpeg.setToolTip(tip)
-            tip = _(
-                "Display matching pairs of RAW and JPEG photos as two different "
-                "photos. You can still synchronize their sequence numbers."
-            )
-            self.twoRawJpeg.setToolTip(tip)
-
-            self.treatRawJpegGroup = QButtonGroup()
-            self.treatRawJpegGroup.addButton(self.oneRawJpeg)
-            self.treatRawJpegGroup.addButton(self.twoRawJpeg)
-
-            self.markRawJpegLabel = QLabel(_("With matching RAW and JPEG photos:"))
-
-            self.noJpegWhenRaw = QRadioButton(_("Do not mark JPEG for download"))
-            self.noRawWhenJpeg = QRadioButton(_("Do not mark RAW for download"))
-            self.markRawJpeg = QRadioButton(_("Mark both for download"))
-
-            self.markRawJpegGroup = QButtonGroup()
-            for widget in (self.noJpegWhenRaw, self.noRawWhenJpeg, self.markRawJpeg):
-                self.markRawJpegGroup.addButton(widget)
-
-            tip = _(
-                "When matching RAW and JPEG photos are found, do not automatically "
-                "mark the JPEG for\n"
-                "download. You can still mark it for download yourself."
-            )
-            self.noJpegWhenRaw.setToolTip(tip)
-            tip = _(
-                "When matching RAW and JPEG photos are found, do not automatically "
-                "mark the RAW for\n"
-                "download. You can still mark it for download yourself."
-            )
-            self.noRawWhenJpeg.setToolTip(tip)
-            tip = _(
-                "When matching RAW and JPEG photos are found, automatically mark both "
-                "for download."
-            )
-            self.markRawJpeg.setToolTip(tip)
-
-            explanation = _(
-                "If you disable file consolidation, choose what to do when a download "
-                "device is inserted while completed downloads are displayed:"
-            )
-
-        else:
-            explanation = _(
-                "When a download device is inserted while completed downloads are "
-                "displayed:"
-            )
-        self.noconsolidationLabel = QLabel(explanation)
-        self.noconsolidationLabel.setWordWrap(True)
-        self.noconsolidationLabel.setSizePolicy(
-            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
+        self.consolidateIdentical = CompatCheckBox(
+            _("Consolidate files across devices and downloads")
         )
-        # Unless this next call is made, for some reason the widget is far too high! :-(
-        self.noconsolidationLabel.setContentsMargins(0, 0, 1, 0)
-
-        self.noConsolidationGroup = QButtonGroup()
-        self.noConsolidationGroup.buttonClicked.connect(
-            self.noConsolidationGroupClicked
-        )
-
-        self.clearCompletedDownloads = QRadioButton(_("Clear completed downloads"))
-        self.keepCompletedDownloads = QRadioButton(
-            _("Keep displaying completed downloads")
-        )
-        self.promptCompletedDownloads = QRadioButton(_("Prompt for what to do"))
-        self.noConsolidationGroup.addButton(self.clearCompletedDownloads)
-        self.noConsolidationGroup.addButton(self.keepCompletedDownloads)
-        self.noConsolidationGroup.addButton(self.promptCompletedDownloads)
         tip = _(
-            "Automatically clear the display of completed downloads whenever a new "
-            "download device is inserted."
+            "Analyze the results of device scans looking for duplicate files and "
+            "matching RAW and JPEG pairs,\n"
+            "comparing them across multiple devices and download sessions."
         )
-        self.clearCompletedDownloads.setToolTip(tip)
+        self.consolidateIdentical.setToolTip(tip)
+
+        self.treatRawJpegLabel = QLabel(_("Treat matching RAW and JPEG files as:"))
+        self.oneRawJpeg = QRadioButton(_("One photo"))
+        self.twoRawJpeg = QRadioButton(_("Two photos"))
         tip = _(
-            "Keep displaying completed downloads whenever a new download device is "
-            "inserted."
+            "Display matching pairs of RAW and JPEG photos as one photo, and if "
+            "marked, download both."
         )
-        self.keepCompletedDownloads.setToolTip(tip)
+        self.oneRawJpeg.setToolTip(tip)
         tip = _(
-            "Prompt whether to keep displaying completed downloads or clear them "
-            "whenever a new download device is inserted."
+            "Display matching pairs of RAW and JPEG photos as two different "
+            "photos. You can still synchronize their sequence numbers."
         )
-        self.promptCompletedDownloads.setToolTip(tip)
+        self.twoRawJpeg.setToolTip(tip)
 
-        if CONSOLIDATION_IMPLEMENTED:
-            consolidationBoxLayout = QGridLayout()
-            consolidationBoxLayout.addWidget(self.consolidateIdentical, 0, 0, 1, 3)
+        self.treatRawJpegGroup = QButtonGroup()
+        self.treatRawJpegGroup.addButton(self.oneRawJpeg)
+        self.treatRawJpegGroup.addButton(self.twoRawJpeg)
 
-            consolidationBoxLayout.addWidget(self.treatRawJpegLabel, 1, 1, 1, 2)
-            consolidationBoxLayout.addWidget(self.oneRawJpeg, 2, 1, 1, 2)
-            consolidationBoxLayout.addWidget(self.twoRawJpeg, 3, 1, 1, 2)
+        self.markRawJpegLabel = QLabel(_("With matching RAW and JPEG photos:"))
 
-            consolidationBoxLayout.addWidget(self.markRawJpegLabel, 4, 2, 1, 1)
-            consolidationBoxLayout.addWidget(self.noJpegWhenRaw, 5, 2, 1, 1)
-            consolidationBoxLayout.addWidget(self.noRawWhenJpeg, 6, 2, 1, 1)
-            consolidationBoxLayout.addWidget(
-                self.markRawJpeg, 7, 2, 1, 1, Qt.AlignmentFlag.AlignTop
-            )
+        self.noJpegWhenRaw = QRadioButton(_("Do not mark JPEG for download"))
+        self.noRawWhenJpeg = QRadioButton(_("Do not mark RAW for download"))
+        self.markRawJpeg = QRadioButton(_("Mark both for download"))
 
-            consolidationBoxLayout.addWidget(self.noconsolidationLabel, 8, 0, 1, 3)
-            consolidationBoxLayout.addWidget(self.keepCompletedDownloads, 9, 0, 1, 3)
-            consolidationBoxLayout.addWidget(self.clearCompletedDownloads, 10, 0, 1, 3)
-            consolidationBoxLayout.addWidget(self.promptCompletedDownloads, 11, 0, 1, 3)
+        self.markRawJpegGroup = QButtonGroup()
+        for widget in (self.noJpegWhenRaw, self.noRawWhenJpeg, self.markRawJpeg):
+            self.markRawJpegGroup.addButton(widget)
 
-            consolidationBoxLayout.setColumnMinimumWidth(0, checkbox_width)
-            consolidationBoxLayout.setColumnMinimumWidth(1, checkbox_width)
+        tip = _(
+            "When matching RAW and JPEG photos are found, do not automatically "
+            "mark the JPEG for\n"
+            "download. You can still mark it for download yourself."
+        )
+        self.noJpegWhenRaw.setToolTip(tip)
+        tip = _(
+            "When matching RAW and JPEG photos are found, do not automatically "
+            "mark the RAW for\n"
+            "download. You can still mark it for download yourself."
+        )
+        self.noRawWhenJpeg.setToolTip(tip)
+        tip = _(
+            "When matching RAW and JPEG photos are found, automatically mark both "
+            "for download."
+        )
+        self.markRawJpeg.setToolTip(tip)
 
-            consolidationBoxLayout.setRowMinimumHeight(7, checkbox_width * 2)
+        explanation = _(
+            "If you disable file consolidation, choose what to do when a download "
+            "device is inserted while completed downloads are displayed:"
+        )
 
-            self.consolidationBox.setLayout(consolidationBoxLayout)
+    def layoutConsolidationControls(self) -> None:
+        consolidationBoxLayout = QGridLayout()
+        consolidationBoxLayout.addWidget(self.consolidateIdentical, 0, 0, 1, 3)
 
-            self.consolidation = QWidget()
-            consolidationLayout = QVBoxLayout()
-            consolidationLayout.addWidget(self.consolidationBox)
-            consolidationLayout.addStretch()
-            consolidationLayout.setContentsMargins(0, 0, 0, 0)
-            consolidationLayout.setSpacing(18)
-            self.consolidation.setLayout(consolidationLayout)
+        consolidationBoxLayout.addWidget(self.treatRawJpegLabel, 1, 1, 1, 2)
+        consolidationBoxLayout.addWidget(self.oneRawJpeg, 2, 1, 1, 2)
+        consolidationBoxLayout.addWidget(self.twoRawJpeg, 3, 1, 1, 2)
 
-            self.setCompletedDownloadsValues()
-            self.setConsolidatedValues()
-            self.consolidateIdentical.checkStateChanged.connect(
-                self.consolidateIdenticalStateChanged
-            )
-            self.treatRawJpegGroup.buttonClicked.connect(self.treatRawJpegGroupClicked)
-            self.markRawJpegGroup.buttonClicked.connect(self.markRawJpegGroupClicked)
+        consolidationBoxLayout.addWidget(self.markRawJpegLabel, 4, 2, 1, 1)
+        consolidationBoxLayout.addWidget(self.noJpegWhenRaw, 5, 2, 1, 1)
+        consolidationBoxLayout.addWidget(self.noRawWhenJpeg, 6, 2, 1, 1)
+        consolidationBoxLayout.addWidget(
+            self.markRawJpeg, 7, 2, 1, 1, Qt.AlignmentFlag.AlignTop
+        )
 
+        consolidationBoxLayout.addWidget(self.noconsolidationLabel, 8, 0, 1, 3)
+        consolidationBoxLayout.addWidget(self.keepCompletedDownloads, 9, 0, 1, 3)
+        consolidationBoxLayout.addWidget(self.clearCompletedDownloads, 10, 0, 1, 3)
+        consolidationBoxLayout.addWidget(self.promptCompletedDownloads, 11, 0, 1, 3)
+
+        consolidationBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
+        consolidationBoxLayout.setColumnMinimumWidth(1, self.checkbox_width)
+
+        consolidationBoxLayout.setRowMinimumHeight(7, self.checkbox_width * 2)
+
+        self.consolidationBox.setLayout(consolidationBoxLayout)
+
+        self.consolidation = QWidget()
+        consolidationLayout = QVBoxLayout()
+        consolidationLayout.addWidget(self.consolidationBox)
+        consolidationLayout.addStretch()
+        consolidationLayout.setContentsMargins(0, 0, 0, 0)
+        consolidationLayout.setSpacing(18)
+        self.consolidation.setLayout(consolidationLayout)
+
+        self.setCompletedDownloadsValues()
+        self.setConsolidatedValues()
+        self.consolidateIdentical.checkStateChanged.connect(
+            self.consolidateIdenticalStateChanged
+        )
+        self.treatRawJpegGroup.buttonClicked.connect(self.treatRawJpegGroupClicked)
+        self.markRawJpegGroup.buttonClicked.connect(self.markRawJpegGroupClicked)
+
+    def setupMiscellaneousControls(self):
+        self.setupMiscellaneousControlsMetadata()
+        self.setupMiscellaneousControlsCompleted()
+
+    def setupMiscellaneousControlsMetadata(self) -> None:
         self.metadataBox = QGroupBox(_("Metadata"))
         self.ignoreMdatatimeMtpDng = CompatCheckBox(
             _("Ignore DNG date/time metadata on MTP devices")
@@ -1025,15 +1002,49 @@ class PreferencesDialog(QDialog):
         )
         self.forceExiftoolVideo.setToolTip(tip)
 
-        self.setMetdataValues()
-        self.ignoreMdatatimeMtpDng.checkStateChanged.connect(
-            self.ignoreMdatatimeMtpDngStateChanged
+    def setupMiscellaneousControlsCompleted(self) -> None:
+        explanation = _(
+            "When a download device is inserted while completed downloads are "
+            "displayed:"
         )
-        self.forceExiftool.checkStateChanged.connect(self.forceExiftoolStateChanged)
-        self.forceExiftoolVideo.checkStateChanged.connect(
-            self.forceExiftoolVideoStateChanged
+        self.noconsolidationLabel = QLabel(explanation)
+        self.noconsolidationLabel.setWordWrap(True)
+        self.noconsolidationLabel.setSizePolicy(
+            QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Minimum
+        )
+        # Unless this next call is made, for some reason the widget is far too high! :-(
+        self.noconsolidationLabel.setContentsMargins(0, 0, 1, 0)
+
+        self.noConsolidationGroup = QButtonGroup()
+        self.noConsolidationGroup.buttonClicked.connect(
+            self.noConsolidationGroupClicked
         )
 
+        self.clearCompletedDownloads = QRadioButton(_("Clear completed downloads"))
+        self.keepCompletedDownloads = QRadioButton(
+            _("Keep displaying completed downloads")
+        )
+        self.promptCompletedDownloads = QRadioButton(_("Prompt for what to do"))
+        self.noConsolidationGroup.addButton(self.clearCompletedDownloads)
+        self.noConsolidationGroup.addButton(self.keepCompletedDownloads)
+        self.noConsolidationGroup.addButton(self.promptCompletedDownloads)
+        tip = _(
+            "Automatically clear the display of completed downloads whenever a new "
+            "download device is inserted."
+        )
+        self.clearCompletedDownloads.setToolTip(tip)
+        tip = _(
+            "Keep displaying completed downloads whenever a new download device is "
+            "inserted."
+        )
+        self.keepCompletedDownloads.setToolTip(tip)
+        tip = _(
+            "Prompt whether to keep displaying completed downloads or clear them "
+            "whenever a new download device is inserted."
+        )
+        self.promptCompletedDownloads.setToolTip(tip)
+
+    def layoutMiscellaneousControls(self) -> None:
         metadataLayout = QVBoxLayout()
         metadataLayout.addWidget(self.ignoreMdatatimeMtpDng)
         metadataLayout.addWidget(self.forceExiftool)
@@ -1051,51 +1062,126 @@ class PreferencesDialog(QDialog):
             self.completedDownloadsBox.setLayout(completedDownloadsLayout)
             self.setCompletedDownloadsValues()
 
-        self.miscWidget = QWidget()
+    def makeMiscellaneousControlConnections(self) -> None:
+        self.ignoreMdatatimeMtpDng.checkStateChanged.connect(
+            self.ignoreMdatatimeMtpDngStateChanged
+        )
+        self.forceExiftool.checkStateChanged.connect(self.forceExiftoolStateChanged)
+        self.forceExiftoolVideo.checkStateChanged.connect(
+            self.forceExiftoolVideoStateChanged
+        )
+
+    def layoutPanels(self) -> None:
+        devicesLayout = QVBoxLayout()
+        devicesLayout.addWidget(self.deviceScanBox)
+        devicesLayout.addWidget(self.ignoredPathsBox)
+        devicesLayout.addWidget(self.rememberedDevicesBox)
+
+        languageLayout = QVBoxLayout()
+        languageLayout.addWidget(self.languageWidgets)
+        # Translators: the * acts as an asterisk to denote a reference to this
+        # annotation
+        languageLayout.addWidget(QLabel(_("* Takes effect upon program restart")))
+
+        automationLayout = QVBoxLayout()
+        automationLayout.addWidget(self.automationBox)
+
+        thumbnailLayout = QVBoxLayout()
+        thumbnailLayout.addWidget(self.thumbnailGenerationBox)
+        thumbnailLayout.addWidget(self.thumbnailCacheBox)
+        thumbnailLayout.addWidget(QLabel(_("* Takes effect upon program restart")))
+
+        timeZoneLayout = QVBoxLayout()
+        timeZoneLayout.addWidget(self.timeZoneBox)
+        timeZoneLayout.addWidget(self.timeZoneHelpLink)
+
+        errorLayout = QVBoxLayout()
+        errorLayout.addWidget(self.errorBox)
+
+        warningLayout = QVBoxLayout()
+        warningLayout.addWidget(self.warningBox)
+
         miscLayout = QVBoxLayout()
         miscLayout.addWidget(self.metadataBox)
         if not CONSOLIDATION_IMPLEMENTED:
             miscLayout.addWidget(self.completedDownloadsBox)
-        miscLayout.addStretch()
-        miscLayout.setContentsMargins(0, 0, 0, 0)
-        miscLayout.setSpacing(18)
-        self.miscWidget.setLayout(miscLayout)
 
-        self.panels.addWidget(self.devices)
-        self.panels.addWidget(self.language)
-        self.panels.addWidget(self.automation)
-        self.panels.addWidget(self.performance)
-        self.panels.addWidget(self.timeZone)
-        self.panels.addWidget(self.errorWidget)
-        self.panels.addWidget(self.warnings)
+        for layout in (
+            devicesLayout,
+            languageLayout,
+            automationLayout,
+            thumbnailLayout,
+            timeZoneLayout,
+            errorLayout,
+            warningLayout,
+            miscLayout,
+        ):
+            layout.addStretch()
+            layout.setSpacing(18)
+            layout.setContentsMargins(0, 0, 0, 0)
+
+        self.devicesPanel = QWidget()
+        self.devicesPanel.setLayout(devicesLayout)
+
+        self.languagePanel = QWidget()
+        self.languagePanel.setLayout(languageLayout)
+
+        self.automationPanel = QWidget()
+        self.automationPanel.setLayout(automationLayout)
+
+        self.thumbnailPanel = QWidget()
+        self.thumbnailPanel.setLayout(thumbnailLayout)
+
+        self.timeZonePanel = QWidget()
+        self.timeZonePanel.setLayout(timeZoneLayout)
+
+        self.errorPanel = QWidget()
+        self.errorPanel.setLayout(errorLayout)
+
+        self.warningsPanel = QWidget()
+        self.warningsPanel.setLayout(warningLayout)
+
+        self.miscellaneousPanel = QWidget()
+        self.miscellaneousPanel.setLayout(miscLayout)
+
+    def layoutMenuChooser(self) -> None:
+        self.panels.addWidget(self.devicesPanel)
+        self.panels.addWidget(self.languagePanel)
+        self.panels.addWidget(self.automationPanel)
+        self.panels.addWidget(self.thumbnailPanel)
+        self.panels.addWidget(self.timeZonePanel)
+        self.panels.addWidget(self.errorPanel)
+        self.panels.addWidget(self.warningsPanel)
         if CONSOLIDATION_IMPLEMENTED:
             self.panels.addWidget(self.consolidation)
-        self.panels.addWidget(self.miscWidget)
+        self.panels.addWidget(self.miscellaneousPanel)
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        layout.setSpacing(layout.contentsMargins().left() * 2)
-        layout.setContentsMargins(18, 18, 18, 18)
-
-        buttons = QDialogButtonBox(
+    def setupButtons(self) -> None:
+        self.buttonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.RestoreDefaults
             | QDialogButtonBox.StandardButton.Close
             | QDialogButtonBox.StandardButton.Help
         )
-        translateDialogBoxButtons(buttons)
-        self.restoreButton: QPushButton = buttons.button(
+        translateDialogBoxButtons(self.buttonBox)
+        self.restoreButton: QPushButton = self.buttonBox.button(
             QDialogButtonBox.StandardButton.RestoreDefaults
         )
         self.restoreButton.clicked.connect(self.restoreDefaultsClicked)
-        self.helpButton: QPushButton = buttons.button(
+        self.helpButton: QPushButton = self.buttonBox.button(
             QDialogButtonBox.StandardButton.Help
         )
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        self.closeButton: QPushButton = buttons.button(
+        self.closeButton: QPushButton = self.buttonBox.button(
             QDialogButtonBox.StandardButton.Close
         )
         self.closeButton.clicked.connect(self.close)
+
+    def layoutDialog(self) -> None:
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        layout.setSpacing(layout.contentsMargins().left() * 2)
+        layout.setContentsMargins(18, 18, 18, 18)
 
         controlsLayout = QHBoxLayout()
         controlsLayout.addWidget(self.chooser)
@@ -1106,7 +1192,7 @@ class PreferencesDialog(QDialog):
         controlsLayout.setSpacing(layout.contentsMargins().left())
 
         layout.addLayout(controlsLayout)
-        layout.addWidget(buttons)
+        layout.addWidget(self.buttonBox)
 
         self.device_right_side_buttons = (
             self.removeDevice,
@@ -1116,31 +1202,24 @@ class PreferencesDialog(QDialog):
             self.removeAllPath,
         )
 
-        self.device_list_widgets = (self.knownDevices, self.ignoredPaths)
+        self.device_list_widgets = (self.rememberedDevices, self.ignoredPaths)
         self.chooser.setCurrentRow(0)
 
-    def reject(self) -> None:
-        # If not called, rejecting this dialog will cause Rapid Photo Downloader to
-        # crash
-        self.close()
+    def addHeader(self, row: int, explanation: str, layout: QVBoxLayout) -> None:
+        pass
 
-    def _addItems(self, pref_list: str, pref_type: int) -> None:
-        if self.prefs.list_not_empty(key=pref_list):
-            for value in self.prefs[pref_list]:
-                QListWidgetItem(value, self.knownDevices, pref_type)
-
-    def setDeviceWidgetValues(self) -> None:
+    def setDeviceControlValues(self) -> None:
         self.onlyExternal.setChecked(self.prefs.only_external_mounts)
         self.scanSpecificFolders.setChecked(self.prefs.scan_specific_folders)
         self.setFoldersToScanWidgetValues()
-        self.knownDevices.clear()
+        self.rememberedDevices.clear()
         self._addItems("volume_whitelist", KnownDeviceType.volume_whitelist)
         self._addItems("volume_blacklist", KnownDeviceType.volume_blacklist)
         self._addItems("camera_blacklist", KnownDeviceType.camera_blacklist)
-        if self.knownDevices.count():
-            self.knownDevices.setCurrentRow(0)
-        self.removeDevice.setEnabled(bool(self.knownDevices.count()))
-        self.removeAllDevice.setEnabled(bool(self.knownDevices.count()))
+        if self.rememberedDevices.count():
+            self.rememberedDevices.setCurrentRow(0)
+        self.removeDevice.setEnabled(bool(self.rememberedDevices.count()))
+        self.removeAllDevice.setEnabled(bool(self.rememberedDevices.count()))
         self.setIgnorePathWidgetValues()
 
     def setLanguageWidgetValues(self) -> None:
@@ -1428,8 +1507,8 @@ class PreferencesDialog(QDialog):
 
     @pyqtSlot()
     def removeDeviceClicked(self) -> None:
-        row = self.knownDevices.currentRow()
-        item: QListWidgetItem = self.knownDevices.takeItem(row)
+        row = self.rememberedDevices.currentRow()
+        item: QListWidgetItem = self.rememberedDevices.takeItem(row)
         known_device_type = item.type()
         if known_device_type == KnownDeviceType.volume_whitelist:
             self.prefs.del_list_value("volume_whitelist", item.text())
@@ -1439,15 +1518,15 @@ class PreferencesDialog(QDialog):
             assert known_device_type == KnownDeviceType.camera_blacklist
             self.prefs.del_list_value("camera_blacklist", item.text())
 
-        self.removeDevice.setEnabled(bool(self.knownDevices.count()))
-        self.removeAllDevice.setEnabled(bool(self.knownDevices.count()))
+        self.removeDevice.setEnabled(bool(self.rememberedDevices.count()))
+        self.removeAllDevice.setEnabled(bool(self.rememberedDevices.count()))
 
         if self.rapidApp is not None:
             self.rapidApp.search_for_devices_again = True
 
     @pyqtSlot()
     def removeAllDeviceClicked(self) -> None:
-        self.knownDevices.clear()
+        self.rememberedDevices.clear()
         self.prefs.volume_whitelist = [""]
         self.prefs.volume_blacklist = [""]
         self.prefs.camera_blacklist = [""]
@@ -1750,7 +1829,7 @@ class PreferencesDialog(QDialog):
             ):
                 self.prefs.restore(value)
             self.removeAllDeviceClicked()
-            self.setDeviceWidgetValues()
+            self.setDeviceControlValues()
         elif row == 1:
             self.prefs.restore("language")
             self.languages.setCurrentIndex(0)
