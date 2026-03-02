@@ -125,9 +125,7 @@ class AboutDialog(QDialog):
             '<a href="https://www.flickr.com/photos/damonlynch/13598615933/" '
             f"{link_style}>Afghan Men Pulling Heavy Load</a>"
         )
-        artlink1 = (
-            f'<a href="http://www.webalys.com" {link_style}">Vincent Le Moign</a>'
-        )
+        artlink1 = f'<a href="https://www.streamlinehq.com/" {link_style}">Vincent Le Moign</a>'
         artlink2 = (
             '<a href="https://www.iconfinder.com/bluewolfski" '
             f"{link_style}>The Pictographers</a>"
@@ -135,7 +133,7 @@ class AboutDialog(QDialog):
         artlink3 = (
             f'<a href="https://www.iconfinder.com/Enesdal" {link_style}>Enes Dal</a>'
         )
-        artlink4 = f'<a href="http://www.iconsolid.com/" {link_style}>Icons Solid</a>'
+        artlink4 = f'<a href="https://www.iconsolid.com/" {link_style}>Icons Solid</a>'
         artlink5 = f'<a href="https://sellfy.com/designcoon" {link_style}>Icon Coon</a>'
         artlink6 = (
             f'<a href="https://www.iconfinder.com/buninux" {link_style}>'
@@ -144,6 +142,38 @@ class AboutDialog(QDialog):
         artlink7 = (
             f'<a href="https://www.flaticon.com/authors/pixel-perfect" {link_style}>'
             f"Pixel perfect</a>"
+        )
+        artlink8 = (
+            f'<a href="https://www.flaticon.com/free-icon/memory-card_2272442"'
+            f" {link_style}>Creative Stall Premium</a>"
+        )
+        artlink9 = (
+            f'<a href="https://www.flaticon.com/free-icon/translation_2014826"'
+            f" {link_style}>Freepik</a>"
+        )
+        artlink10 = (
+            f'<a href="https://www.flaticon.com/free-icon/loading-arrow_10697092"'
+            f" {link_style}>Laisa Islam Ani</a>"
+        )
+        artlink11 = (
+            f'<a href="https://www.flaticon.com/free-icon/apps_9132841"'
+            f" {link_style}>Robert Angle</a>"
+        )
+        artlink12 = (
+            f'<a href="https://www.flaticon.com/free-icon/wall-clock_3389189"'
+            f" {link_style}>Pixel Perfect</a>"
+        )
+        artlink13 = (
+            f'<a href="https://www.flaticon.com/free-icon/shield_595591"'
+            f" {link_style}>Freepik</a>"
+        )
+        artlink14 = (
+            f'<a href="https://www.flaticon.com/free-icon/exclamation-mark_15674336"'
+            f" {link_style}>SyafriStudio</a>"
+        )
+        artlink15 = (
+            f'<a href="https://www.flaticon.com/free-icon/paper-clip_503426"'
+            f" {link_style}>Creaticca Creative Agency</a>"
         )
 
         gpl3desc = f', licensed under the <a href="{gpl3link}" {link_style}>GNU General Public License, version 3</a>'
@@ -166,7 +196,11 @@ class AboutDialog(QDialog):
         Portions copyright © 2012 Sven Marnach.
         Portions copyright © 2015 Dmitry Shachnev.
 
+        Uses {api_name} {api_version}{qt_licence}.
+        Uses Qt {QT_VERSION_STR}{lgpl3desc}.
+        
         Photo {photolink} copyright © 2014-2018 Damon Lynch, all rights reserved.
+        
         Camera icon courtesy {artlink1}.
         Video camera icon courtesy {artlink2}.
         Home icon courtesy {artlink3}.
@@ -174,9 +208,14 @@ class AboutDialog(QDialog):
         Lightbulb icon courtesy {artlink5}.
         Double arrow icon courtesy {artlink6}.
         Clock icon courtesy {artlink7}.
-        
-        Uses {api_name} {api_version}{qt_licence}.
-        Uses Qt {QT_VERSION_STR}{lgpl3desc}.
+        Memory Card icon courtesy {artlink8}.
+        Translation icon courtesy {artlink9}.
+        Loading icon courtesy {artlink10}.
+        Apps icon courtesy {artlink11}.
+        Wall clock icon courtesy {artlink12}.
+        Shield icon courtesy {artlink13}.
+        Warning sign icon courtesy {artlink14}.
+        Paper clip icon courtesy {artlink15}.
         """
 
         credits_text = credits_text.replace("\n", "<br>\n")

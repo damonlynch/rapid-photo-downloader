@@ -15,6 +15,7 @@ from PyQt6.QtCore import (
     QModelIndex,
     QPoint,
     QRect,
+    QRectF,
     QSize,
     Qt,
     pyqtSignal,
@@ -28,6 +29,7 @@ from PyQt6.QtGui import (
     QIcon,
     QMouseEvent,
     QPainter,
+    QPainterPath,
     QPaintEvent,
     QPalette,
     QPen,
@@ -50,6 +52,7 @@ from PyQt6.QtWidgets import (
     QSplitter,
     QSplitterHandle,
     QStyle,
+    QStyledItemDelegate,
     QStyleOption,
     QStyleOptionButton,
     QStyleOptionSlider,
@@ -608,6 +611,7 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
             super().drawPrimitive(element, option, painter, widget)
 
 
+# TODO evaluate if this is needed in Qt6
 @functools.cache
 def is_dark_mode() -> bool:
     text_hsv_value = QApplication.palette().color(QPalette.ColorRole.WindowText).value()
@@ -615,7 +619,14 @@ def is_dark_mode() -> bool:
     return text_hsv_value > bg_hsv_value
 
 
-class QNarrowListWidget(QListWidget):
+def highlight_is_dark() -> bool:
+    highlight_hsv_value = (
+        QApplication.palette().color(QPalette.ColorRole.Highlight).value()
+    )
+    return highlight_hsv_value < 128
+
+
+class NarrowListWidget(QListWidget):
     """
     Create a list widget that is not by default enormously wide.
 
@@ -626,15 +637,29 @@ class QNarrowListWidget(QListWidget):
         self,
         minimum_rows: int = 0,
         minimum_width: int = 0,
-        no_focus_recentangle: bool = False,
+        no_focus_rectangle: bool = False,
+        flat_look: bool = False,
         parent=None,
     ) -> None:
         super().__init__(parent=parent)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._minimum_rows = minimum_rows
         self._minimum_width = minimum_width
-        if no_focus_recentangle:
+        palette = QPalette()
+
+        if no_focus_rectangle:
             self.setStyle(ProxyStyleNoFocusRectangle())
+        if flat_look:
+            self.setFrameShape(QFrame.Shape.NoFrame)
+            color = palette.window().color()  # type: QColor
+            palette.setColor(QPalette.ColorRole.Base, color)
+            self.right_padding = 60
+            self.setSpacing(2)
+            # Enable hover effect in delegate
+            self.viewport().setMouseTracking(True)
+        else:
+            self.right_padding = 0
+        self.setPalette(palette)
 
     @property
     def minimum_width(self) -> int:
@@ -652,9 +677,73 @@ class QNarrowListWidget(QListWidget):
         else:
             s.setHeight(super().sizeHint().height())
         s.setWidth(
-            max(self.sizeHintForColumn(0) + self.frameWidth() * 2, self._minimum_width)
+            max(
+                self.sizeHintForColumn(0) + self.frameWidth() * 2 + self.right_padding,
+                self._minimum_width,
+            )
         )
         return s
+
+
+class NarrowListDelegate(QStyledItemDelegate):
+    def paint(
+        self, painter: QPainter, inOption: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
+
+        option = QStyleOptionViewItem(inOption)
+        self.initStyleOption(option, index)
+
+        painter.save()
+        rect = option.rect  # type: QRect
+        icon = option.icon  # type: QIcon
+
+        if (
+            QStyle.StateFlag.State_MouseOver in option.state
+            or QStyle.StateFlag.State_Selected in option.state
+        ):
+            painter.fillRect(
+                rect,
+                option.palette.color(
+                    QPalette.ColorGroup.Active, QPalette.ColorRole.Midlight
+                ),
+            )
+
+        icon_width = option.decorationSize.width()
+        bar_width = 4
+        padding = 12
+        icon.paint(
+            painter,
+            rect.x() + bar_width + padding,
+            rect.y(),
+            icon_width,
+            rect.height(),
+            alignment=Qt.AlignmentFlag.AlignVCenter,
+        )
+        text_x = rect.x() + bar_width + padding * 2 + icon_width
+        textRect = rect.adjusted(text_x, 0, 0, 0)
+
+        if QStyle.StateFlag.State_Selected in option.state:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            path = QPainterPath()
+            highlightRect = QRect(rect.x(), rect.y(), bar_width, rect.height())
+            vertical_crop = 7
+            highlightRect.adjust(0, vertical_crop, 0, -vertical_crop)
+            highlightRect = QRectF(highlightRect)
+            path.addRoundedRect(highlightRect, 2.0, 2.0)
+            painter.fillPath(
+                path,
+                option.palette.color(
+                    QPalette.ColorGroup.Active, QPalette.ColorRole.Highlight
+                ),
+            )
+
+        painter.drawText(
+            textRect,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            option.text,
+        )
+
+        painter.restore()
 
 
 def standardIconSize() -> QSize:
@@ -882,6 +971,9 @@ def darkModePixmap(
     size: QSize | None = None,
     soften_regular_mode_color: bool | None = False,
 ) -> QPixmap:
+    """
+    Inverts pixmap when in dark mode
+    """
     if is_dark_mode():
         color = QApplication.palette().windowText().color()
         return coloredPixmap(path=path, pixmap=pixmap, color=color, size=size)

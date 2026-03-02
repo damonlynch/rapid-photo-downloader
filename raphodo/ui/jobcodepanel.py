@@ -39,7 +39,7 @@ from raphodo.ui.panelview import QPanelView
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     FlexiFrame,
-    QNarrowListWidget,
+    NarrowListWidget,
     ScrollAreaNoFrame,
     standardIconSize,
     standardMessageBox,
@@ -294,7 +294,7 @@ class JobCodeOptionsWidget(FlexiFrame):
         self.removeAllButton.isInactive.connect(self.setDefaultMessage)
         self.removeAllButton.clicked.connect(self.removeAllButtonClicked)
 
-        self.jobCodesWidget = QNarrowListWidget()
+        self.jobCodesWidget = NarrowListWidget()
         self.jobCodesWidget.currentRowChanged.connect(self.rowChanged)
         self.jobCodesWidget.itemDoubleClicked.connect(self.rowDoubleClicked)
         self.jobCodesWidget.setSelectionMode(

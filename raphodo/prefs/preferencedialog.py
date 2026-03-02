@@ -74,9 +74,11 @@ from raphodo.tools.utilities import (
 )
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
-    QNarrowListWidget,
+    NarrowListDelegate,
+    NarrowListWidget,
     StyledLinkLabel,
     darkModePixmap,
+    highlight_is_dark,
     standardMessageBox,
     translateDialogBoxButtons,
 )
@@ -124,9 +126,9 @@ class PreferencesDialog(QDialog):
 
         self.prefs = prefs
 
-        self.is_prerelease = current_version_is_dev_version()
+        flat_look = self.screen().size().width() > 800
 
-        self.setupMenuChooser(flat_look=False)
+        self.setupMenuChooser(flat_look=flat_look)
 
         self.setupDeviceControls()
         self.layoutDeviceControls()
@@ -168,7 +170,10 @@ class PreferencesDialog(QDialog):
     def setupMenuChooser(self, flat_look: bool) -> None:
         self.panels = QStackedWidget()
 
-        self.chooser = QNarrowListWidget(no_focus_recentangle=True)
+        self.chooser = NarrowListWidget(no_focus_rectangle=True, flat_look=flat_look)
+        if flat_look:
+            self.chooserDelegate = NarrowListDelegate(self.chooser)
+            self.chooser.setItemDelegate(self.chooserDelegate)
 
         font = QFont()
         fontMetrics = QFontMetrics(font)
@@ -178,7 +183,7 @@ class PreferencesDialog(QDialog):
         self.chooser.setIconSize(QSize(icon_width, icon_height))
 
         palette = QPalette()
-        selectedColour = palette.color(palette.ColorRole.HighlightedText)
+        selectedTextColour = palette.color(palette.ColorRole.HighlightedText)
 
         if CONSOLIDATION_IMPLEMENTED:
             self.chooser_items = (
@@ -214,27 +219,44 @@ class PreferencesDialog(QDialog):
                 _("Warnings"),
                 _("Miscellaneous"),
             )
-            icons = (
-                "prefs/bw/devices.svg",
-                "prefs/bw/language.svg",
-                "prefs/bw/automation.svg",
-                "prefs/bw/thumbnails.svg",
-                "prefs/bw/timezone.svg",
-                "prefs/bw/error-handling.svg",
-                "prefs/bw/warnings.svg",
-                "prefs/bw/miscellaneous.svg",
-            )
+            if flat_look:
+                icons = (
+                    "prefs/devices.svg",
+                    "prefs/language.svg",
+                    "prefs/automation.svg",
+                    "prefs/thumbnails.svg",
+                    "prefs/timezone.svg",
+                    "prefs/error-handling.svg",
+                    "prefs/warnings.svg",
+                    "prefs/miscellaneous.svg",
+                )
+            else:
+                icons = (
+                    "prefs/bw/devices.svg",
+                    "prefs/bw/language.svg",
+                    "prefs/bw/automation.svg",
+                    "prefs/bw/thumbnails.svg",
+                    "prefs/bw/timezone.svg",
+                    "prefs/bw/error-handling.svg",
+                    "prefs/bw/warnings.svg",
+                    "prefs/bw/miscellaneous.svg",
+                )
 
         for prefIcon, label in zip(icons, self.chooser_items):
             # make the selected icons be the same color as the selected text
             icon = QIcon()
             pixmap = QPixmap(data_file_path(prefIcon))
-            selected = QPixmap(pixmap.size())
-            selected.fill(selectedColour)
-            selected.setMask(pixmap.createMaskFromColor(Qt.GlobalColor.transparent))
-            pixmap = darkModePixmap(pixmap=pixmap)
+            if highlight_is_dark():
+                selected = QPixmap(pixmap.size())
+                selected.fill(selectedTextColour)
+                selected.setMask(pixmap.createMaskFromColor(Qt.GlobalColor.transparent))
+            else:
+                selected = None
+            if not flat_look:
+                pixmap = darkModePixmap(pixmap=pixmap)
             icon.addPixmap(pixmap, QIcon.Mode.Normal)
-            icon.addPixmap(selected, QIcon.Mode.Selected)
+            if selected is not None:
+                icon.addPixmap(selected, QIcon.Mode.Selected)
 
             item = QListWidgetItem(icon, label, self.chooser)
             item.setFont(QFont())
@@ -285,7 +307,7 @@ class PreferencesDialog(QDialog):
         self.scanSpecificFolders.setToolTip(tip)
 
         self.foldersToScanLabel = QLabel(_("Folders to scan:"))
-        self.foldersToScan = QNarrowListWidget(minimum_rows=5)
+        self.foldersToScan = NarrowListWidget(minimum_rows=5)
         self.foldersToScan.setToolTip(
             _(
                 "Folders at the base level of device file systems that will be "
@@ -317,7 +339,7 @@ class PreferencesDialog(QDialog):
         tip = _(
             "The end part of a path that should never be scanned for photos or videos."
         )
-        self.ignoredPaths = QNarrowListWidget(minimum_rows=4)
+        self.ignoredPaths = NarrowListWidget(minimum_rows=4)
         self.ignoredPaths.setToolTip(tip)
         self.addPath = QPushButton(_("Add..."))
         self.addPath.setToolTip(
@@ -368,7 +390,7 @@ class PreferencesDialog(QDialog):
     def setupDeviceControlsRemembered(self) -> None:
         tip = _("Devices that have been set to automatically ignore or download from.")
         self.rememberedDevicesBox = QGroupBox(_("Remembered Devices"))
-        self.rememberedDevices = QNarrowListWidget(minimum_rows=5)
+        self.rememberedDevices = NarrowListWidget(minimum_rows=5)
         self.rememberedDevices.setToolTip(tip)
         tip = _(
             "Remove a device from the list of devices to automatically ignore or "
@@ -786,7 +808,7 @@ class PreferencesDialog(QDialog):
             _("Do not warn about unhandled files with extensions:")
         )
         self.exceptTheseFilesLabel.setWordWrap(True)
-        self.exceptTheseFiles = QNarrowListWidget(minimum_rows=4)
+        self.exceptTheseFiles = NarrowListWidget(minimum_rows=4)
         tip = _(
             "File extensions are case insensitive and do not need to include the "
             "leading dot."
