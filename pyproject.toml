@@ -58,7 +58,6 @@ dependencies = [
     "pymediainfo",
     "PyQt6",
     "python-dateutil",
-    "pyxdg; platform_system=='Linux'",
     "pyzmq",
     "show-in-file-manager",
     "sortedcontainers",

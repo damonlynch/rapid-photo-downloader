@@ -3,6 +3,8 @@
 ## 0.9.38a1 (2026-xx-xx)
 
 - Use PyQt6 instead of PyQt5.
+- Refresh Preferences dialog appearance.
+- Purge use of legacy PyXDG Python package. This dependency is no longer required.
 
 ## 0.9.37 (2026-02-18)
 

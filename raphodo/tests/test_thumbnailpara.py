@@ -9,10 +9,9 @@ import pickle
 import tempfile
 import argparse
 
-from PyQt6.QtCore import QSize
+from PyQt6.QtCore import QSize, QStandardPaths
 from PyQt6.QtWidgets import (QApplication, QTextEdit)
 from PyQt6.QtGui import (QPixmap)
-from xdg import BaseDirectory
 
 from raphodo.tools.utilities import CacheDirs
 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
         cache = ThumbnailCacheSql(create_table_if_not_exists=False)
         cache.purge_cache()
         print("Thumbnail cache reset")
-        cache = os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
+        cache = os.path.join(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation), 'thumbnails')
         folders = [os.path.join(cache, subdir) for subdir in ('normal', 'large')]
         i = 0
         for folder in folders:
