@@ -68,7 +68,6 @@ from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import (
     available_cpu_count,
     available_languages,
-    current_version_is_dev_version,
     data_file_path,
     format_size_for_user,
 )
@@ -448,7 +447,7 @@ class PreferencesDialog(QDialog):
         self.ignoredPathsRe.checkStateChanged.connect(self.ignoredPathsReStateChanged)
 
     def setupLanguageControls(self) -> None:
-        self.languageWidgets = QWidget()
+        self.languageContainer = QWidget()
         self.languages = QComboBox()
         self.languages.setEditable(False)
         self.languagesLabel = QLabel(_("Language: "))
@@ -464,11 +463,11 @@ class PreferencesDialog(QDialog):
         languageWidgetsLayout.addStretch()
         languageWidgetsLayout.setSpacing(5)
         languageWidgetsLayout.setContentsMargins(0, 0, 0, 0)
-        self.languageWidgets.setLayout(languageWidgetsLayout)
+        self.languageContainer.setLayout(languageWidgetsLayout)
         self.languages.currentIndexChanged.connect(self.languagesChanged)
 
     def setupAutomationControls(self) -> None:
-        self.automationBox = QGroupBox(_("Program Automation"))
+        self.automationContainer = QWidget()
         self.autoMount = CompatCheckBox(
             _("Mount devices not already automatically mounted")
         )
@@ -517,7 +516,8 @@ class PreferencesDialog(QDialog):
             QStyle.PixelMetric.PM_IndicatorWidth
         )
         automationBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
-        self.automationBox.setLayout(automationBoxLayout)
+        automationBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.automationContainer.setLayout(automationBoxLayout)
 
     def setupThumbnailControls(self) -> None:
         self.setupThumbnailControlsGeneration()
@@ -641,7 +641,7 @@ class PreferencesDialog(QDialog):
 
     def setupTimeZoneControls(self) -> None:
         # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
-        self.timeZoneBox = QGroupBox(_("Time Zones"))
+        self.timeZoneContainer = QWidget()
         # Translators: see explanation at https://damonlynch.net/rapid/documentation/#timezonehandling
         self.ignoreTimeZone = CompatCheckBox(
             _("Ignore time zone and daylight savings changes")
@@ -691,7 +691,8 @@ class PreferencesDialog(QDialog):
         timeZoneBoxLayout.addWidget(self.timeZoneOffsetLabel, 2, 1, 1, 1)
         timeZoneBoxLayout.addWidget(self.timeZoneOffset, 2, 2, 1, 1)
         timeZoneBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
-        self.timeZoneBox.setLayout(timeZoneBoxLayout)
+        timeZoneBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.timeZoneContainer.setLayout(timeZoneBoxLayout)
 
     def makeTimeZoneControlConnections(self) -> None:
         self.ignoreTimeZone.checkStateChanged.connect(self.ignoreTimeZoneStateChanged)
@@ -700,7 +701,7 @@ class PreferencesDialog(QDialog):
         )
 
     def setupErrorHandlingControls(self) -> None:
-        self.errorBox = QGroupBox(_("Error Handling"))
+        self.errorContainer = QWidget()
         self.downloadErrorGroup = QButtonGroup()
         self.skipDownload = QRadioButton(_("Skip download"))
         self.skipDownload.setToolTip(
@@ -760,14 +761,15 @@ class PreferencesDialog(QDialog):
         errorBoxLayout.addWidget(self.backupError)
         errorBoxLayout.addWidget(self.overwriteBackup)
         errorBoxLayout.addWidget(self.skipBackup)
-        self.errorBox.setLayout(errorBoxLayout)
+        errorBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.errorContainer.setLayout(errorBoxLayout)
 
     def makeErrorHandlingControlConnections(self) -> None:
         self.downloadErrorGroup.buttonClicked.connect(self.downloadErrorGroupClicked)
         self.backupErrorGroup.buttonClicked.connect(self.backupErrorGroupClicked)
 
     def setupWarningControls(self) -> None:
-        self.warningBox = QGroupBox(_("Program Warnings"))
+        self.warningContainer = QWidget()
         lbl = _("Show a warning when:")
         self.warningLabel = QLabel(lbl)
         self.warningLabel.setWordWrap(True)
@@ -850,7 +852,8 @@ class PreferencesDialog(QDialog):
         warningBoxLayout.addWidget(self.removeExceptFiles, 8, 2, 1, 1)
         warningBoxLayout.addWidget(self.removeAllExceptFiles, 9, 2, 1, 1)
         warningBoxLayout.setColumnMinimumWidth(0, self.checkbox_width)
-        self.warningBox.setLayout(warningBoxLayout)
+        warningBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.warningContainer.setLayout(warningBoxLayout)
 
     def makeWarningControlConnections(self) -> None:
         self.warnDownloadingAll.checkStateChanged.connect(
@@ -1095,35 +1098,43 @@ class PreferencesDialog(QDialog):
 
     def layoutPanels(self) -> None:
         devicesLayout = QVBoxLayout()
+        self.addHeader(row=0, layout=devicesLayout)
         devicesLayout.addWidget(self.deviceScanBox)
         devicesLayout.addWidget(self.ignoredPathsBox)
         devicesLayout.addWidget(self.rememberedDevicesBox)
 
         languageLayout = QVBoxLayout()
-        languageLayout.addWidget(self.languageWidgets)
+        self.addHeader(row=1, layout=languageLayout)
+        languageLayout.addWidget(self.languageContainer)
         # Translators: the * acts as an asterisk to denote a reference to this
         # annotation
         languageLayout.addWidget(QLabel(_("* Takes effect upon program restart")))
 
         automationLayout = QVBoxLayout()
-        automationLayout.addWidget(self.automationBox)
+        self.addHeader(row=2, layout=automationLayout)
+        automationLayout.addWidget(self.automationContainer)
 
         thumbnailLayout = QVBoxLayout()
+        self.addHeader(row=3, layout=thumbnailLayout)
         thumbnailLayout.addWidget(self.thumbnailGenerationBox)
         thumbnailLayout.addWidget(self.thumbnailCacheBox)
         thumbnailLayout.addWidget(QLabel(_("* Takes effect upon program restart")))
 
         timeZoneLayout = QVBoxLayout()
-        timeZoneLayout.addWidget(self.timeZoneBox)
+        self.addHeader(row=4, layout=timeZoneLayout)
+        timeZoneLayout.addWidget(self.timeZoneContainer)
         timeZoneLayout.addWidget(self.timeZoneHelpLink)
 
         errorLayout = QVBoxLayout()
-        errorLayout.addWidget(self.errorBox)
+        self.addHeader(row=5, layout=errorLayout)
+        errorLayout.addWidget(self.errorContainer)
 
         warningLayout = QVBoxLayout()
-        warningLayout.addWidget(self.warningBox)
+        self.addHeader(row=6, layout=warningLayout)
+        warningLayout.addWidget(self.warningContainer)
 
         miscLayout = QVBoxLayout()
+        self.addHeader(row=7, layout=miscLayout)
         miscLayout.addWidget(self.metadataBox)
         if not CONSOLIDATION_IMPLEMENTED:
             miscLayout.addWidget(self.completedDownloadsBox)
@@ -1227,8 +1238,18 @@ class PreferencesDialog(QDialog):
         self.device_list_widgets = (self.rememberedDevices, self.ignoredPaths)
         self.chooser.setCurrentRow(0)
 
-    def addHeader(self, row: int, explanation: str, layout: QVBoxLayout) -> None:
-        pass
+    def addHeader(self, row: int, layout: QVBoxLayout, explanation: str = "") -> None:
+        label = QLabel(self.chooser.item(row).text())
+        font = label.font()
+        font.setPointSize(font.pointSize() * 2)
+        font.setWeight(QFont.Weight.DemiBold)
+        font.setLetterSpacing(QFont.SpacingType.PercentageSpacing, 102.0)
+        label.setFont(font)
+        layout.addWidget(label)
+        if explanation:
+            label = QLabel(explanation)
+            label.setWordWrap(True)
+            layout.addWidget(label)
 
     def setDeviceControlValues(self) -> None:
         self.onlyExternal.setChecked(self.prefs.only_external_mounts)
