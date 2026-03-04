@@ -152,15 +152,8 @@ def get_distro() -> Distro:
             distro = Distro.ubuntu
         if "Fedora" in name:
             distro = Distro.fedora
-        if "CentOS Linux" in name:
-            version_id = os_release.get("VERSION_ID")
-            distro = Distro.centos7 if version_id == "7" else Distro.centos8
         if "CentOS Stream" in name:
-            version_id = os_release.get("VERSION_ID")
-            if version_id == "8":
-                distro = Distro.centos_stream8
-            else:
-                distro = Distro.centos_stream9
+            distro = Distro.centos_stream
         if "Linux Mint" in name:
             distro = Distro.linuxmint
         if "elementary" in name:
@@ -197,6 +190,8 @@ def get_distro() -> Distro:
                 distro = Distro.debian_derivative
             if "fedora" in idlike:
                 distro = Distro.fedora_derivative
+            if "pop" in idlike:
+                distro = Distro.popos_derivative
 
     if distro is None:
         distro = guess_distro()
@@ -249,11 +244,16 @@ def get_media_dir() -> str:
             Distro.ubuntu,
             Distro.debian,
             Distro.neon,
-            Distro.galliumos,
             Distro.peppermint,
             Distro.elementary,
             Distro.zorin,
+            Distro.kylin,
+            Distro.deepin,
             Distro.popos,
+            Distro.raspbian,
+            Distro.ubuntu_derivative,
+            Distro.debian_derivative,
+            Distro.popos_derivative,
         ):
             if distro not in (
                 Distro.fedora,
@@ -261,10 +261,7 @@ def get_media_dir() -> str:
                 Distro.arch,
                 Distro.opensuse,
                 Distro.gentoo,
-                Distro.centos8,
-                Distro.centos_stream8,
-                Distro.centos_stream9,
-                Distro.centos7,
+                Distro.centos_stream,
             ):
                 logging.debug(
                     "Detected /run/media directory, but distro does not appear "
@@ -505,7 +502,9 @@ def platform_photos_directory(home_on_failure: bool = True) -> str | None:
         path = wsl_home()
         if path.is_dir():
             return str(path / "Pictures")
-    return _platform_special_dir(QStandardPaths.StandardLocation.PicturesLocation, home_on_failure)
+    return _platform_special_dir(
+        QStandardPaths.StandardLocation.PicturesLocation, home_on_failure
+    )
 
 
 def platform_videos_directory(home_on_failure: bool = True) -> str:
@@ -526,7 +525,9 @@ def platform_videos_directory(home_on_failure: bool = True) -> str:
         path = wsl_home()
         if path.is_dir():
             return str(path / "Videos")
-    return _platform_special_dir(QStandardPaths.StandardLocation.MoviesLocation, home_on_failure)
+    return _platform_special_dir(
+        QStandardPaths.StandardLocation.MoviesLocation, home_on_failure
+    )
 
 
 def platform_desktop_directory(home_on_failure: bool = True) -> str:
@@ -538,7 +539,9 @@ def platform_desktop_directory(home_on_failure: bool = True) -> str:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _platform_special_dir(QStandardPaths.StandardLocation.DesktopLocation, home_on_failure)
+    return _platform_special_dir(
+        QStandardPaths.StandardLocation.DesktopLocation, home_on_failure
+    )
 
 
 def platform_photos_identifier() -> str:
@@ -548,7 +551,9 @@ def platform_photos_identifier() -> str:
     'Pictures'
     """
 
-    path = _platform_special_dir(QStandardPaths.StandardLocation.PicturesLocation, home_on_failure=False)
+    path = _platform_special_dir(
+        QStandardPaths.StandardLocation.PicturesLocation, home_on_failure=False
+    )
     if path is None:
         # translators: the name of the Pictures folder
         return _("Pictures")
@@ -562,7 +567,9 @@ def platform_videos_identifier() -> str:
     'Pictures'
     """
 
-    path = _platform_special_dir(QStandardPaths.StandardLocation.MoviesLocation, home_on_failure=False)
+    path = _platform_special_dir(
+        QStandardPaths.StandardLocation.MoviesLocation, home_on_failure=False
+    )
     if path is None:
         # translators: the name of the Videos folder
         return _("Videos")
