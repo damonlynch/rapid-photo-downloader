@@ -6823,39 +6823,36 @@ def main():
         # Show in File Manager versions prior to 1.1.6 do not support Cosmic
         is_cosmic = hasattr(LinuxDesktop, "cosmic") and desktop == LinuxDesktop.cosmic
 
-    is_kde = desktop == LinuxDesktop.kde
-
     dark_mode_quirk = False
-    if not (is_kde or args.force_system_theme):
+
+    if not args.force_system_theme:
         app.setStyle("Fusion")
-        if desktop in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
-            accent_color = gnome_accent_color()
-            prefer_dark = gnome_prefer_dark()
-            if prefer_dark:
-                palette = darkPalette(accent_color=accent_color)
-                dark_mode_quirk = True
-            elif get_distro() == Distro.fedora:
-                palette = standardPalette(accent_color=accent_color)
-            else:
-                # Change only the accent palette, not the entire palette
-                palette = accentPalette(accent_color=accent_color)
-            app.setPalette(palette)
-        elif is_cosmic:
-            prefer_dark = cosmic_prefer_dark()
-            if prefer_dark:
-                palette = darkPalette()
-                dark_mode_quirk = True
+        if desktop != LinuxDesktop.kde:
+            if desktop in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
+                accent_color = gnome_accent_color()
+                prefer_dark = gnome_prefer_dark()
+                if prefer_dark:
+                    palette = darkPalette(accent_color=accent_color)
+                    dark_mode_quirk = True
+                else:
+                    palette = standardPalette(accent_color=accent_color)
                 app.setPalette(palette)
-        elif desktop == LinuxDesktop.cinnamon:
-            accent_color = cinnamon_accent_color()
-            prefer_dark = cinnamon_prefer_dark()
-            if prefer_dark:
-                palette = darkPalette(accent_color=accent_color)
-                dark_mode_quirk = True
-            else:
-                # Change only the accent palette, not the entire palette
-                palette = accentPalette(accent_color=accent_color)
-            app.setPalette(palette)
+            elif is_cosmic:
+                prefer_dark = cosmic_prefer_dark()
+                if prefer_dark:
+                    palette = darkPalette()
+                    dark_mode_quirk = True
+                    app.setPalette(palette)
+            elif desktop == LinuxDesktop.cinnamon:
+                accent_color = cinnamon_accent_color()
+                prefer_dark = cinnamon_prefer_dark()
+                if prefer_dark:
+                    palette = darkPalette(accent_color=accent_color)
+                    dark_mode_quirk = True
+                else:
+                    # Change only the accent palette, not the entire palette
+                    palette = accentPalette(accent_color=accent_color)
+                app.setPalette(palette)
 
     # Apply a proxy style that accounts for quirks when rendering the Fusion style
     # in dark mode.

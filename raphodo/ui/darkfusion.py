@@ -39,7 +39,10 @@ class DarkModeQuirkCheckBoxStyle(QProxyStyle):
         painter: QPainter,
         widget: QWidget | None = None,
     ):
-        if element == QStyle.PrimitiveElement.PE_IndicatorCheckBox and self._proxy_enabled:
+        if (
+            element == QStyle.PrimitiveElement.PE_IndicatorCheckBox
+            and self._proxy_enabled
+        ):
             new_option = QStyleOptionButton(option)
             highlight = option.palette.color(QPalette.ColorRole.Highlight)
 
