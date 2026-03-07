@@ -6532,6 +6532,9 @@ def main():
     except Exception:
         force_wayland = False
 
+    if not args.force_system_theme:
+        QApplication.setDesktopSettingsAware(False)
+
     platform_cmd_line_overruled = False
     if force_wayland:
         qt_app_args = []
