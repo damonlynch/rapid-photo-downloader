@@ -32,6 +32,9 @@ class DarkModeQuirkCheckBoxStyle(QProxyStyle):
         else:
             self._proxy_enabled = self._proxy_state
 
+    def setCheckBoxDarkMode(self, dark_mode: bool) -> None:
+        self._proxy_state = self._proxy_enabled = dark_mode
+
     def drawPrimitive(
         self,
         element: QStyle.PrimitiveElement,

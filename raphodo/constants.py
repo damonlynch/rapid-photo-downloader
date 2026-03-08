@@ -386,6 +386,8 @@ DoubleDarkGray = "#1e1b18"
 
 DarkModeMediumGray = "#2b2b2b"
 
+StockAccent = "#3584e4"
+
 ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,
     FileExtension.video: CustomColors.color2,

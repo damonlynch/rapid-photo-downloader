@@ -68,11 +68,13 @@ from PyQt6.QtCore import (
 from PyQt6.QtGui import (
     QAction,
     QCloseEvent,
+    QColor,
     QDesktopServices,
     QFont,
     QFontMetrics,
     QIcon,
     QMoveEvent,
+    QPalette,
     QPixmap,
     QScreen,
     QShowEvent,
@@ -125,7 +127,6 @@ from raphodo.constants import (
     CompletedDownloads,
     DeviceState,
     DeviceType,
-    Distro,
     FileType,
     FileTypeFlag,
     PostCameraUnmountAction,
@@ -206,7 +207,6 @@ from raphodo.storage.storage import (
     ValidatedFolder,
     ValidMounts,
     WatchDownloadDirs,
-    get_distro,
     get_fdo_cache_thumb_base_directory,
     get_media_dir,
     gvfs_gphoto2_path,
@@ -225,9 +225,6 @@ from raphodo.thumbnaildisplay import (
     ThumbnailListModel,
     ThumbnailView,
 )
-from raphodo.tools.cinnamonplatform import cinnamon_accent_color, cinnamon_prefer_dark
-from raphodo.tools.cosmicplatform import cosmic_prefer_dark
-from raphodo.tools.gnomeplatform import gnome_accent_color, gnome_prefer_dark
 from raphodo.tools.libraryversions import get_versions
 from raphodo.tools.utilities import (
     addPushButtonLabelSpacer,
@@ -241,10 +238,15 @@ from raphodo.tools.utilities import (
 )
 from raphodo.ui import viewutils
 from raphodo.ui.aboutdialog import AboutDialog
+from raphodo.ui.applicationpalette import (
+    darkPalette,
+    standardPalette,
+)
 from raphodo.ui.backuppanel import BackupPanel
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.darkfusion import DarkModeQuirkCheckBoxStyle
+from raphodo.ui.desktopmonitor import DesktopColorSchemeMonitor
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.devicedisplay import (
     DeviceComponent,
@@ -257,11 +259,6 @@ from raphodo.ui.filebrowse import (
     FileSystemFilter,
     FileSystemModel,
     FileSystemView,
-)
-from raphodo.ui.gnomepalette import (
-    accentPalette,
-    darkPalette,
-    standardPalette,
 )
 from raphodo.ui.jobcodepanel import JobCodePanel
 from raphodo.ui.menubutton import MenuButton
@@ -359,6 +356,11 @@ class RapidWindow(QMainWindow):
 
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
+
+        self.desktopMonitor = DesktopColorSchemeMonitor(app)
+        self.setColorScheme(self.desktopMonitor.colorScheme())
+        self.desktopMonitor.accentColorChanged.connect(self.setAccentColor)
+        self.desktopMonitor.colorSchemeChanged.connect(self.setColorScheme)
 
         # Three values to handle window position quirks under X11:
         self.window_show_requested_time: datetime.datetime | None = None
@@ -2477,6 +2479,30 @@ difference to the program's future.</p>"""
         ):
             self.setDefaultWindowSize()
         super().showEvent(event)
+
+    @pyqtSlot(QColor)
+    def setAccentColor(self, color: QColor) -> None:
+        palette = self.palette()
+        palette.setColor(
+            QPalette.ColorGroup.Active, QPalette.ColorRole.Highlight, color
+        )
+        palette.setColor(
+            QPalette.ColorGroup.Inactive, QPalette.ColorRole.Highlight, color
+        )
+        app.setPalette(palette)
+
+    @pyqtSlot(str)
+    def setColorScheme(self, mode: str) -> None:
+        assert mode in ["dark", "light"]
+        dark_mode = mode == "dark"
+        style = self.style()
+        style.setCheckBoxDarkMode(dark_mode=dark_mode)
+        accent = self.desktopMonitor.accentColor()
+        if dark_mode:
+            palette = darkPalette(accent=accent)
+        else:
+            palette = standardPalette(accent=accent)
+        app.setPalette(palette)
 
     def setDownloadCapabilities(self) -> bool:
         """
@@ -6533,6 +6559,7 @@ def main():
         force_wayland = False
 
     if not args.force_system_theme:
+        os.environ["QT_QPA_PLATFORMTHEME"] = "fusion"
         QApplication.setDesktopSettingsAware(False)
 
     platform_cmd_line_overruled = False
@@ -6830,40 +6857,12 @@ def main():
 
     if not args.force_system_theme:
         app.setStyle("Fusion")
-        if desktop != LinuxDesktop.kde:
-            if desktop in (LinuxDesktop.gnome, LinuxDesktop.ubuntugnome):
-                accent_color = gnome_accent_color()
-                prefer_dark = gnome_prefer_dark()
-                if prefer_dark:
-                    palette = darkPalette(accent_color=accent_color)
-                    dark_mode_quirk = True
-                else:
-                    palette = standardPalette(accent_color=accent_color)
-                app.setPalette(palette)
-            elif is_cosmic:
-                prefer_dark = cosmic_prefer_dark()
-                if prefer_dark:
-                    palette = darkPalette()
-                    dark_mode_quirk = True
-                    app.setPalette(palette)
-            elif desktop == LinuxDesktop.cinnamon:
-                accent_color = cinnamon_accent_color()
-                prefer_dark = cinnamon_prefer_dark()
-                if prefer_dark:
-                    palette = darkPalette(accent_color=accent_color)
-                    dark_mode_quirk = True
-                else:
-                    # Change only the accent palette, not the entire palette
-                    palette = accentPalette(accent_color=accent_color)
-                app.setPalette(palette)
 
     # Apply a proxy style that accounts for quirks when rendering the Fusion style
     # in dark mode.
     # When not running Fusion dark mode, disable the proxy.
     appStyle = app.style()
-    darkModeStyle = DarkModeQuirkCheckBoxStyle(
-        style=appStyle, proxy_enabled=dark_mode_quirk
-    )
+    darkModeStyle = DarkModeQuirkCheckBoxStyle(style=appStyle)
     darkModeStyle.setBaseStyle(appStyle)
     app.setStyle(darkModeStyle)
 
