@@ -273,7 +273,9 @@ from raphodo.ui.toggleview import QToggleView
 from raphodo.ui.viewutils import (
     MainWindowSplitter,
     scaledIcon,
+    set_dark_mode,
     standardMessageBox,
+    validate_dark_mode,
     validateWindowPosition,
     validateWindowSizeLimit,
 )
@@ -358,7 +360,10 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         self.desktopMonitor = DesktopColorSchemeMonitor(app)
-        self.setColorScheme(self.desktopMonitor.colorScheme())
+        mode = self.desktopMonitor.colorScheme()
+        self.setColorScheme(mode=mode)
+        dark_mode = mode == "dark"
+        set_dark_mode(mode=dark_mode)
         self.desktopMonitor.accentColorChanged.connect(self.setAccentColor)
         self.desktopMonitor.colorSchemeChanged.connect(self.setColorScheme)
 
@@ -2495,6 +2500,7 @@ difference to the program's future.</p>"""
     def setColorScheme(self, mode: str) -> None:
         assert mode in ["dark", "light"]
         dark_mode = mode == "dark"
+        set_dark_mode(dark_mode)
         style = self.style()
         style.setCheckBoxDarkMode(dark_mode=dark_mode)
         accent = self.desktopMonitor.accentColor()
@@ -2503,6 +2509,10 @@ difference to the program's future.</p>"""
         else:
             palette = standardPalette(accent=accent)
         app.setPalette(palette)
+        try:
+            validate_dark_mode()
+        except AssertionError:
+            logging.warning("Failed to set / unset dark mode")
 
     def setDownloadCapabilities(self) -> bool:
         """
