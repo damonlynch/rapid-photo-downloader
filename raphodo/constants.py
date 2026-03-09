@@ -21,6 +21,13 @@ class ErrorType(Enum):
     warning = 3
 
 
+# Used in code block in qtcompatibility (currently not called by RPD code)
+class QtColorScheme(IntEnum):
+    Unknown = 0
+    Light = 1
+    Dark = 2
+
+
 class PresetPrefType(Enum):
     preset_photo_subfolder = 1
     preset_video_subfolder = 2
