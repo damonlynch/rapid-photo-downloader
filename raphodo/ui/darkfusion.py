@@ -41,7 +41,7 @@ class DarkModeQuirkCheckBoxStyle(QProxyStyle):
         self._proxy_enabled = self._proxy_state = enabled
 
     def applicationPaletteChanged(self, dark_mode: bool) -> None:
-        self._proxy_state = self._proxy_enabled = dark_mode
+        self.proxyEnabled = dark_mode
 
     def drawPrimitive(
         self,
