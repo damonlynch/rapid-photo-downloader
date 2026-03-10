@@ -6,7 +6,7 @@ import logging
 import os
 from collections import defaultdict, deque
 from collections.abc import Sequence
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, cast
 
 import arrow.arrow
 from colour import Color
@@ -57,6 +57,7 @@ from PyQt6.QtWidgets import (
 )
 from showinfm import show_in_file_manager
 
+from raphodo.application import Application
 from raphodo.constants import (
     CustomColors,
     DarkGray,
@@ -1942,6 +1943,8 @@ class ThumbnailView(QListView):
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
         self.rapidApp = parent
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
         self.setObjectName("thumbnailView")
         self.setViewMode(QListView.ViewMode.IconMode)
         self.setResizeMode(QListView.ResizeMode.Adjust)
@@ -1949,14 +1952,7 @@ class ThumbnailView(QListView):
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setFrameShadow(QFrame.Shadow.Plain)
-        palette = self.palette()
-        color = QColor()
-        if is_dark_mode():
-            color.setNamedColor(DarkModeThumbnailBackgroundName)
-        else:
-            color.setNamedColor(ThumbnailBackgroundName)
-        palette.setColor(QPalette.ColorRole.Base, color)
-        self.setPalette(palette)
+        self.setDarkMode(self.app.darkMode)
         self.possiblyPreserveSelectionPostClick = False
 
         sbv = ScrollBarEmitsVisible(orientation=Qt.Orientation.Vertical)
@@ -1966,6 +1962,16 @@ class ThumbnailView(QListView):
         # Track how many columns the user sees
         # QListView IconMode indexes are always set to column 0
         self.user_visible_columns = 0
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        palette = self.palette()
+        if dark_mode:
+            color = QColor(DarkModeThumbnailBackgroundName)
+        else:
+            color = QColor(ThumbnailBackgroundName)
+        palette.setColor(QPalette.ColorRole.Base, color)
+        self.setPalette(palette)
 
     def setScrollTogether(self, on: bool) -> None:
         """

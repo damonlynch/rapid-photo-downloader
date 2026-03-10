@@ -20,9 +20,9 @@ class DarkModeQuirkCheckBoxStyle(QProxyStyle):
     using stylesheets
     """
 
-    def __init__(self, style: QStyle | None = None, proxy_enabled: bool = True):
+    def __init__(self, style: QStyle | None = None):
         super().__init__(style)
-        self._proxy_enabled = proxy_enabled
+        self._proxy_enabled = True
         self._proxy_state = self._proxy_enabled
 
     def setOverride(self, override: bool) -> None:
@@ -32,7 +32,15 @@ class DarkModeQuirkCheckBoxStyle(QProxyStyle):
         else:
             self._proxy_enabled = self._proxy_state
 
-    def setCheckBoxDarkMode(self, dark_mode: bool) -> None:
+    @property
+    def proxyEnabled(self) -> bool:
+        return self._proxy_enabled
+
+    @proxyEnabled.setter
+    def proxyEnabled(self, enabled: bool) -> None:
+        self._proxy_enabled = self._proxy_state = enabled
+
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         self._proxy_state = self._proxy_enabled = dark_mode
 
     def drawPrimitive(

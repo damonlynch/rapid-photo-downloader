@@ -7,6 +7,7 @@ from collections.abc import Generator
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
+from typing import cast
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -66,6 +67,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from raphodo.application import Application
 from raphodo.constants import (
     Align,
     CustomColors,
@@ -2604,10 +2606,9 @@ class SyncButton(QPushButton):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent=parent)
 
-        try:
-            scaling = self.devicePixelRatioF()
-        except AttributeError:
-            scaling = float(self.devicePixelRatio())
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        scaling = self.devicePixelRatioF()
 
         self.activeIcon = SyncIcon(
             path="icons/sync.svg",
@@ -2645,7 +2646,12 @@ class SyncButton(QPushButton):
         self.setToolTip(
             _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
         )
-        if is_dark_mode():
+        self.setDarkMode(self.app.darkMode)
+        self.installEventFilter(self)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        if dark_mode:
             hoverColor = (
                 QPalette()
                 .color(QPalette.ColorRole.Highlight)
@@ -2655,17 +2661,16 @@ class SyncButton(QPushButton):
             color = QPalette().color(QPalette.ColorRole.Window)
             hoverColor = color.darker(110).name(QColor.NameFormat.HexRgb)
 
-        style = """
-            QPushButton {
+        style = f"""
+            QPushButton {{
                 padding: 2px;
                 border: none;
-            } 
-            QPushButton::hover {
-                background-color: %s;
-            }
-            """ % (hoverColor)
+            }} 
+            QPushButton::hover {{
+                background-color: {hoverColor};
+            }}
+            """
         self.setStyleSheet(style)
-        self.installEventFilter(self)
 
     def setState(self, state: SyncButtonState) -> None:
         self.setIcon(self.state_mapper[state])

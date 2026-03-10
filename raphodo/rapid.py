@@ -108,6 +108,7 @@ import raphodo.iplogging as iplogging
 import raphodo.metadata.exiftool as exiftool
 import raphodo.storage.storageidevice as storageidevice
 import raphodo.ui.didyouknow as didyouknow
+from raphodo.application import Application
 from raphodo.argumentsparse import get_parser
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.camera import (
@@ -189,7 +190,6 @@ from raphodo.proximity import (
     TemporalProximityControls,
     TemporalProximityGroups,
 )
-from raphodo.qtsingleapplication import QtSingleApplication
 from raphodo.rpdfile import (
     FileSizeSum,
     FileTypeCounter,
@@ -246,7 +246,6 @@ from raphodo.ui.backuppanel import BackupPanel
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.computerview import ComputerWidget
 from raphodo.ui.darkfusion import DarkModeQuirkCheckBoxStyle
-from raphodo.ui.desktopmonitor import DesktopColorSchemeMonitor
 from raphodo.ui.destinationpanel import DestinationPanel
 from raphodo.ui.devicedisplay import (
     DeviceComponent,
@@ -289,7 +288,7 @@ install_gettext()
 
 # Avoid segfaults at exit:
 # http://pyqt.sourceforge.net/Docs/PyQt6/gotchas.html#crashes-on-exit
-app: QtSingleApplication | None = None
+app: Application | None = None
 
 faulthandler.enable()
 sys.excepthook = excepthook.excepthook
@@ -358,14 +357,6 @@ class RapidWindow(QMainWindow):
 
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
-
-        self.desktopMonitor = DesktopColorSchemeMonitor(app)
-        mode = self.desktopMonitor.colorScheme()
-        self.setColorScheme(mode=mode)
-        dark_mode = mode == "dark"
-        set_dark_mode(mode=dark_mode)
-        self.desktopMonitor.accentColorChanged.connect(self.setAccentColor)
-        self.desktopMonitor.colorSchemeChanged.connect(self.setColorScheme)
 
         # Three values to handle window position quirks under X11:
         self.window_show_requested_time: datetime.datetime | None = None
@@ -1450,7 +1441,7 @@ class RapidWindow(QMainWindow):
             logging.debug("Setting window to maximized state")
             self.setWindowState(Qt.WindowState.WindowMaximized)
 
-    def readWindowSettings(self, app: "QtSingleApplication"):
+    def readWindowSettings(self, app: "Application"):
         self.deferred_resize_and_move_until_after_show = False
 
         # Calculate window sizes
@@ -2484,35 +2475,6 @@ difference to the program's future.</p>"""
         ):
             self.setDefaultWindowSize()
         super().showEvent(event)
-
-    @pyqtSlot(QColor)
-    def setAccentColor(self, color: QColor) -> None:
-        palette = self.palette()
-        palette.setColor(
-            QPalette.ColorGroup.Active, QPalette.ColorRole.Highlight, color
-        )
-        palette.setColor(
-            QPalette.ColorGroup.Inactive, QPalette.ColorRole.Highlight, color
-        )
-        app.setPalette(palette)
-
-    @pyqtSlot(str)
-    def setColorScheme(self, mode: str) -> None:
-        assert mode in ["dark", "light"]
-        dark_mode = mode == "dark"
-        set_dark_mode(dark_mode)
-        style = self.style()
-        style.setCheckBoxDarkMode(dark_mode=dark_mode)
-        accent = self.desktopMonitor.accentColor()
-        if dark_mode:
-            palette = darkPalette(accent=accent)
-        else:
-            palette = standardPalette(accent=accent)
-        app.setPalette(palette)
-        try:
-            validate_dark_mode()
-        except AssertionError:
-            logging.warning("Failed to set / unset dark mode")
 
     def setDownloadCapabilities(self) -> bool:
         """
@@ -6844,7 +6806,7 @@ def main():
 
     # See note at top regarding avoiding crashes
     global app
-    app = QtSingleApplication(appGuid, sys.argv)
+    app = Application(appGuid, sys.argv)
     if app.isRunning():
         print("Rapid Photo Downloader is already running")
         sys.exit(0)
@@ -6854,19 +6816,8 @@ def main():
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QIcon(data_file_path("rapid-photo-downloader.svg")))
 
-    try:
-        desktop = linux_desktop()
-    except Exception:
-        desktop = LinuxDesktop.unknown
-        is_cosmic = os.getenv("XDG_CURRENT_DESKTOP", "") == "COSMIC"
-    else:
-        # Show in File Manager versions prior to 1.1.6 do not support Cosmic
-        is_cosmic = hasattr(LinuxDesktop, "cosmic") and desktop == LinuxDesktop.cosmic
-
-    dark_mode_quirk = False
-
     if not args.force_system_theme:
-        app.setStyle("Fusion")
+        app.setStyle("fusion")
 
     # Apply a proxy style that accounts for quirks when rendering the Fusion style
     # in dark mode.
@@ -6874,7 +6825,9 @@ def main():
     appStyle = app.style()
     darkModeStyle = DarkModeQuirkCheckBoxStyle(style=appStyle)
     darkModeStyle.setBaseStyle(appStyle)
+    darkModeStyle.proxyEnabled = app.darkMode
     app.setStyle(darkModeStyle)
+    app.applicationPaletteChanged.connect(darkModeStyle.applicationPaletteChanged)
 
     # Determine the system locale as reported by Qt. Use it to
     # see if Qt has a base translation available, which allows
