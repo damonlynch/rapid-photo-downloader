@@ -6,7 +6,7 @@ Toggle Switch reminiscent of Android On/off switches:
 https://www.google.com/design/spec/components/selection-controls.html
 
 Visual style is rounded. However, by adjusting the style sheet it can be
-made like a rounded square, close to how Gnome handles it, albeit
+made like a rounded square, close to how Gnome used to handle it, albeit
 without the "ON"/"OFF text.
 
 Inspiration:
@@ -14,9 +14,13 @@ http://stackoverflow.com/questions/14780517/toggle-switch-in-qt
 http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 """
 
+from typing import cast
+
 from PyQt6.QtCore import Qt, pyqtSlot
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPalette
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QGuiApplication, QPalette
 from PyQt6.QtWidgets import QAbstractSlider, QApplication, QSlider
+
+from raphodo.application import Application
 
 
 class QToggleSwitch(QSlider):
@@ -27,17 +31,26 @@ class QToggleSwitch(QSlider):
     """
 
     def __init__(
-        self, background: QColor | None = None, parent=None, size: int = 2
+        self,
+        backgroundColor: QColor | None = None,
+        backgroundDarkColor: QColor | None = None,
+        parent=None,
+        size: int = 2,
     ) -> None:
         """
         Toggle switch that can be dragged or clicked to change value
 
-        :param background: background color
+        :param backgroundColor: background color
+        :param backgroundDarkColor: dark mode background color
         :param parent: parent widget
         :param size: size of widget as multiplier, where base widget height is half
          that of font height
         """
         super().__init__(Qt.Orientation.Horizontal, parent)
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self._backgroundColor = backgroundColor
+        self._backgroundDarkColor = backgroundDarkColor
 
         self.base_height = QFontMetrics(QFont()).height() // 2 * size
         self.radius = self.base_height // 2
@@ -55,10 +68,18 @@ class QToggleSwitch(QSlider):
         # Track if button was dragged in the control
         self.dragged = False
 
-        self.setStyleSheet(self.stylesheet(background))
+        self.setDarkMode(dark_mode=self.app.darkMode)
 
         self.actionTriggered.connect(self.onActionTriggered)
         self.sliderReleased.connect(self.onSliderRelease)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.setStyleSheet(
+            self.stylesheet(
+                self._backgroundDarkColor if dark_mode else self._backgroundColor
+            )
+        )
 
     def stylesheet(self, background: QColor | None) -> str:
         shading_intensity = 104

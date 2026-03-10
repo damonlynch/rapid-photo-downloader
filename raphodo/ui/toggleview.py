@@ -11,12 +11,12 @@ similar to the GtkExpander', Copyright 2012 Canonical Ltd
 
 from PyQt6.QtCore import QSize, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QColor
-from PyQt6.QtWidgets import QLayout, QWidget  # noqa: F401
+from PyQt6.QtWidgets import QWidget
 
 from raphodo.constants import DarkModeHeaderBackgroundName, HeaderBackgroundName
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.toggleswitch import QToggleSwitch
-from raphodo.ui.viewutils import BlankWidget, is_dark_mode
+from raphodo.ui.viewutils import BlankWidget
 
 
 class QToggleView(QPanelView):
@@ -37,29 +37,36 @@ class QToggleView(QPanelView):
         on: bool = True,
         parent: QWidget = None,
     ) -> None:
-        if headerColor is None:
-            if is_dark_mode():
-                headerColor = QColor(DarkModeHeaderBackgroundName)
-            else:
-                headerColor = QColor(HeaderBackgroundName)
         super().__init__(
             label=label,
             headerColor=headerColor,
             headerFontColor=headerFontColor,
             parent=parent,
         )
+
         # Override base class definition:
         self.headerLayout.setContentsMargins(5, 0, 5, 0)
         self.setObjectName(object_name)
 
         if display_alternate:
             self.alternateWidget = BlankWidget()
-            layout = self.layout()  # type: QLayout
+            layout = self.layout()
             layout.addWidget(self.alternateWidget)
         else:
             self.alternateWidget = None
 
-        self.toggleSwitch = QToggleSwitch(background=headerColor, parent=self)
+        if headerColor is None:
+            headerColorDark = QColor(DarkModeHeaderBackgroundName)
+            headerColor = QColor(HeaderBackgroundName)
+        else:
+            headerColorDark = headerColor
+
+        self.toggleSwitch = QToggleSwitch(
+            backgroundColor=headerColor,
+            backgroundDarkColor=headerColorDark,
+            parent=self,
+        )
+
         self.toggleSwitch.valueChanged.connect(self.toggled)
         if toggleToolTip:
             self.toggleSwitch.setToolTip(toggleToolTip)

@@ -97,7 +97,6 @@ from raphodo.ui.viewutils import (
     base64_thumbnail,
     coloredPixmap,
     darkModePixmap,
-    is_dark_mode,
 )
 
 install_gettext()
@@ -2565,7 +2564,12 @@ class SyncIcon(QIcon):
     """
 
     def __init__(
-        self, path: str, state: SyncButtonState, scaling: float, on_hover: bool
+        self,
+        path: str,
+        state: SyncButtonState,
+        scaling: float,
+        on_hover: bool,
+        dark_mode: bool,
     ) -> None:
         super().__init__()
 
@@ -2585,14 +2589,14 @@ class SyncIcon(QIcon):
                 on = darkModePixmap(path=path, size=size)
 
         if on_hover:
-            if is_dark_mode():
+            if dark_mode:
                 color = QGuiApplication.palette().color(
                     QPalette.ColorRole.HighlightedText
                 )
             else:
                 color = QGuiApplication.palette().color(QPalette.ColorRole.Base)
         else:
-            if is_dark_mode():
+            if dark_mode:
                 color = QGuiApplication.palette().color(QPalette.ColorRole.Light)
             else:
                 color = QGuiApplication.palette().color(QPalette.ColorRole.Dark)
@@ -2615,32 +2619,68 @@ class SyncButton(QPushButton):
             state=SyncButtonState.active,
             scaling=scaling,
             on_hover=False,
+            dark_mode=False,
+        )
+        self.activeIconDark = SyncIcon(
+            path="icons/sync.svg",
+            state=SyncButtonState.active,
+            scaling=scaling,
+            on_hover=False,
+            dark_mode=True,
         )
         self.inactiveIcon = SyncIcon(
             path="icons/sync.svg",
             state=SyncButtonState.inactive,
             scaling=scaling,
             on_hover=False,
+            dark_mode=False,
+        )
+        self.inactiveIconDark = SyncIcon(
+            path="icons/sync.svg",
+            state=SyncButtonState.inactive,
+            scaling=scaling,
+            on_hover=False,
+            dark_mode=True,
         )
         self.regularIcon = SyncIcon(
             path="icons/sync.svg",
             state=SyncButtonState.regular,
             scaling=scaling,
             on_hover=False,
+            dark_mode=False,
+        )
+        self.regularIconDark = SyncIcon(
+            path="icons/sync.svg",
+            state=SyncButtonState.regular,
+            scaling=scaling,
+            on_hover=False,
+            dark_mode=True,
         )
         self.regularIconHover = SyncIcon(
             path="icons/sync.svg",
             state=SyncButtonState.regular,
             scaling=scaling,
             on_hover=True,
+            dark_mode=False,
         )
-        self.icon_state = SyncButtonState.regular
-        self.setIcon(self.regularIcon)
+        self.regularIconHover = SyncIcon(
+            path="icons/sync.svg",
+            state=SyncButtonState.regular,
+            scaling=scaling,
+            on_hover=True,
+            dark_mode=True,
+        )
         self.state_mapper = {
             SyncButtonState.active: self.activeIcon,
             SyncButtonState.inactive: self.inactiveIcon,
             SyncButtonState.regular: self.regularIcon,
         }
+        self.state_mapper_dark = {
+            SyncButtonState.active: self.activeIconDark,
+            SyncButtonState.inactive: self.inactiveIconDark,
+            SyncButtonState.regular: self.regularIconDark,
+        }
+        self.icon_state = SyncButtonState.regular
         self.setFlat(True)
         self.setCheckable(True)
         self.setToolTip(
@@ -2671,9 +2711,13 @@ class SyncButton(QPushButton):
             }}
             """
         self.setStyleSheet(style)
+        self.setState(self.icon_state)
 
     def setState(self, state: SyncButtonState) -> None:
-        self.setIcon(self.state_mapper[state])
+        if self.app.darkMode:
+            self.setIcon(self.state_mapper_dark[state])
+        else:
+            self.setIcon(self.state_mapper[state])
         self.icon_state = state
 
     def eventFilter(self, source: QObject, event: QEvent) -> bool:

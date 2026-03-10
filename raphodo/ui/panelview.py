@@ -9,17 +9,19 @@ Portions modeled on Canonical's QExpander, which is an 'Expander widget
 similar to the GtkExpander', Copyright 2012 Canonical Ltd
 """
 
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPalette
+from typing import cast
+
+from PyQt6.QtCore import QSize, Qt, pyqtSlot
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QGuiApplication, QPalette
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
+from raphodo.application import Application
 from raphodo.constants import (
     DarkModeHeaderBackgroundName,
     HeaderBackgroundName,
     minPanelWidth,
 )
 from raphodo.internationalisation.install import install_gettext
-from raphodo.ui.viewutils import is_dark_mode
 
 install_gettext()
 
@@ -37,17 +39,18 @@ class QPanelView(QWidget):
         parent: QWidget = None,
     ) -> None:
         super().__init__(parent=parent)
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
         self.header = QWidget(self)
 
-        if headerColor is None:
-            if is_dark_mode():
-                headerColor = QColor(DarkModeHeaderBackgroundName)
-            else:
-                headerColor = QColor(HeaderBackgroundName)
-        palette = self.header.palette()
-        palette.setColor(QPalette.ColorRole.Window, headerColor)
+        if headerColor is not None:
+            self.headerColor = self.headerColorDark = headerColor
+        else:
+            self.headerColorDark = QColor(DarkModeHeaderBackgroundName)
+            self.headerColor = QColor(HeaderBackgroundName)
+
+        self.setDarkMode(self.app.darkMode)
         self.header.setAutoFillBackground(True)
-        self.header.setPalette(palette)
         self.header.setSizePolicy(
             QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
         )
@@ -74,6 +77,13 @@ class QPanelView(QWidget):
         layout.setSpacing(0)
         self.setLayout(layout)
         layout.addWidget(self.header)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        headerColor = self.headerColorDark if dark_mode else self.headerColor
+        palette = self.header.palette()
+        palette.setColor(QPalette.ColorRole.Window, headerColor)
+        self.header.setPalette(palette)
 
     def addWidget(self, widget: QWidget) -> None:
         """
