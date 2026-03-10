@@ -272,9 +272,7 @@ from raphodo.ui.toggleview import QToggleView
 from raphodo.ui.viewutils import (
     MainWindowSplitter,
     scaledIcon,
-    set_dark_mode,
     standardMessageBox,
-    validate_dark_mode,
     validateWindowPosition,
     validateWindowSizeLimit,
 )

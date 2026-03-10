@@ -109,7 +109,6 @@ from raphodo.tools.utilities import (
 from raphodo.ui.viewutils import (
     ScrollBarEmitsVisible,
     ThumbnailDataForProximity,
-    is_dark_mode,
     scaledIcon,
 )
 
