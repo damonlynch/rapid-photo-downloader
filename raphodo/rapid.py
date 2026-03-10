@@ -321,7 +321,6 @@ class RapidWindow(QMainWindow):
         self,
         splash: "SplashScreen",
         force_wayland: bool,
-        display_height: int,
         platform_selected: str | None,
         photo_rename: bool | None = None,
         video_rename: bool | None = None,
@@ -6891,11 +6890,6 @@ def main():
 
     splash = SplashScreen(pixmap, Qt.WindowType.WindowStaysOnTopHint)
     splash.show()
-    try:
-        display_height = splash.screen().availableGeometry().height()
-    except Exception:
-        display_height = 0
-        logging.warning("Unable to determine display height")
 
     app.processEvents()
     rw = RapidWindow(
@@ -6920,7 +6914,6 @@ def main():
         splash=splash,
         force_wayland=force_wayland,
         platform_selected=args.platform,
-        display_height=display_height,
     )
 
     app.setActivationWindow(rw)
