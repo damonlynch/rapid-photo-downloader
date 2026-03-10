@@ -618,23 +618,6 @@ def is_dark_mode() -> bool:
     return _is_dark_mode
 
 
-def set_dark_mode(mode: bool) -> None:
-    global _is_dark_mode
-    _is_dark_mode = mode
-
-
-def validate_dark_mode():
-    app = QGuiApplication.instance()
-    if app is None:
-        return False
-    palette = app.palette()
-    mode = (
-        palette.color(QPalette.ColorRole.Window).lightnessF()
-        < palette.color(QPalette.ColorRole.WindowText).lightnessF()
-    )
-    assert mode == _is_dark_mode
-
-
 def highlight_is_dark() -> bool:
     highlight_hsv_value = (
         QApplication.palette().color(QPalette.ColorRole.Highlight).value()
