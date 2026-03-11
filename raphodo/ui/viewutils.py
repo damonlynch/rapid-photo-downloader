@@ -1055,7 +1055,7 @@ class CheckBoxDelegate(QItemDelegate):
         """
 
         checked = index.data(Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked
-        enabled = int(index.flags() & Qt.ItemFlag.ItemIsEditable) > 0
+        enabled = bool(index.flags() & Qt.ItemFlag.ItemIsEditable)
 
         if not checked and not enabled:
             return
@@ -1096,7 +1096,7 @@ class CheckBoxDelegate(QItemDelegate):
         option: QStyleOptionViewItem,
         index: QModelIndex,
     ) -> bool:
-        if not int(index.flags() & Qt.ItemFlag.ItemIsEditable) > 0:
+        if not bool(index.flags() & Qt.ItemFlag.ItemIsEditable):
             return False
 
         if (
