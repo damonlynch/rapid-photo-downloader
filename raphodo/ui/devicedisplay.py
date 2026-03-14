@@ -23,7 +23,7 @@ Copyright notice from QtWaitingSpinner source:
 import logging
 import math
 from collections import defaultdict, namedtuple
-from typing import Any
+from typing import Any, cast
 
 from PyQt6.QtCore import (
     QAbstractItemModel,
@@ -66,6 +66,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from raphodo.application import Application
 from raphodo.constants import (
     Checked_Status,
     CustomColors,
@@ -88,12 +89,11 @@ from raphodo.internationalisation.utilities import thousands
 from raphodo.rpdfile import make_key
 from raphodo.storage.storage import StorageSpace
 from raphodo.tools.utilities import data_file_path, format_size_for_user
+from raphodo.ui.flexiframe import ListViewFlexiFrame
 from raphodo.ui.viewutils import (
-    ListViewFlexiFrame,
     RowTracker,
     darkModePixmap,
     device_name_highlight_color,
-    is_dark_mode,
     scaledIcon,
     standard_font_size,
 )
@@ -544,8 +544,15 @@ class EmulatedHeaderRow(QWidget):
         :return:
         """
         super().__init__()
+        self.app = cast(Application, QGuiApplication.instance())
+
         self.setMinimumSize(1, device_header_row_height())
         self.select_text = select_text
+        self.setAutoFillBackground(True)
+        self.setDarkMode(self.app.darkMode)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
         palette = QPalette()
         palette.setColor(
             QPalette.ColorRole.Window, palette.color(palette.ColorRole.Base)
@@ -558,7 +565,8 @@ class EmulatedHeaderRow(QWidget):
         painter.begin(self)
         rect: QRect = self.rect()
         rect.setHeight(device_name_height())
-        painter.fillRect(rect, device_name_highlight_color())
+        painter.fillRect(rect, device_name_highlight_color(self.app.darkMode))
+        painter.end()
         rect.adjust(DeviceDisplayPadding, 0, 0, 0)
         font = QFont()
         font.setItalic(True)
@@ -691,6 +699,9 @@ class DeviceDisplay(QObject):
 
     def __init__(self, parent: QObject, menuButtonIcon: QIcon | None = None) -> None:
         super().__init__(parent)
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+
         self.menuButtonIcon = menuButtonIcon
 
         self.rendering_destination = True
@@ -700,14 +711,17 @@ class DeviceDisplay(QObject):
 
         self.view_width = self.dc.sample_width()
 
-        self.deviceNameHighlightColor = device_name_highlight_color()
         self.storageBorderColor = QColor("#bcbcbc")
-        if is_dark_mode():
+        self.emptySpaceColor = QColor("#f2f2f2")
+        self.setDarkMode(self.app.darkMode)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.deviceNameHighlightColor = device_name_highlight_color(dark_mode)
+        if dark_mode:
             self.menuHighlightColor = QPalette().color(QPalette.ColorRole.Highlight)
         else:
             self.menuHighlightColor = self.deviceNameHighlightColor.darker(115)
-
-        self.emptySpaceColor = QColor("#f2f2f2")
 
     @pyqtSlot(int)
     def _widthChanged(self, width) -> None:

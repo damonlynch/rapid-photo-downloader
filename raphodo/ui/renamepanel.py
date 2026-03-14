@@ -34,10 +34,11 @@ from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import DownloadsTodayTracker, Preferences
 from raphodo.rpdfile import Photo, Video
 from raphodo.tools.utilities import platform_c_maxint
+from raphodo.ui.flexiframe import FlexiFrame
 from raphodo.ui.nameeditor import PrefDialog, PresetComboBox, make_sample_rpd_file
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.qtcompatibility import CompatCheckBox
-from raphodo.ui.viewutils import FlexiFrame, ScrollAreaNoFrame
+from raphodo.ui.viewutils import ScrollAreaNoFrame
 
 install_gettext()
 

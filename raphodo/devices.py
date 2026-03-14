@@ -63,6 +63,7 @@ from raphodo.tools.utilities import (
     same_device,
     stdchannel_redirected,
 )
+from raphodo.ui.viewutils import ProgramIcon
 
 install_gettext()
 
@@ -368,26 +369,24 @@ class Device:
     def get_icon(self) -> QIcon:
         """Return icon for the device."""
 
-        # TODO consider scaledIcon() here
         if self.device_type == DeviceType.volume:
-            return QIcon(data_file_path("icons/drive-removable-media.svg"))
+            return ProgramIcon(data_file_path("icons/drive-removable-media.svg"))
         elif self.device_type == DeviceType.path:
-            return QIcon(data_file_path("icons/folder.svg"))
+            return ProgramIcon(data_file_path("icons/folder.svg"))
         else:
             assert self.device_type in camera_devices
             if self.is_mtp_device or self.is_apple_mobile:
-                if self.camera_model.lower().find("tablet") >= 0:
-                    # TODO use tablet icon
-                    pass
-                return QIcon(data_file_path("icons/smartphone.svg"))
-            return QIcon(data_file_path("icons/camera.svg"))
+                return ProgramIcon(data_file_path("icons/smartphone.svg"))
+            return ProgramIcon(data_file_path("icons/camera.svg"))
 
     def get_pixmap(
         self, size: QSize = QSize(30, 30), device_pixel_ratio: float | None = None
     ) -> QPixmap:
         icon = self.get_icon()
         pixmap = icon.pixmap(size)
+        # TODO Implement dark  mode feature, perhaps
         if device_pixel_ratio is not None:
+            # TODO Is this still necessary with Qt6?
             pixmap.setDevicePixelRatio(device_pixel_ratio)
         return pixmap
 
@@ -1195,7 +1194,7 @@ class DeviceCollection:
             )
         self._sample_video = video
 
-    def get_main_window_display_name_and_icon(self) -> tuple[str, QIcon]:
+    def get_main_window_display_name_and_icon(self) -> tuple[str, ProgramIcon]:
         """
         Generate the name to display at the top left of the main
         window, indicating the source of the files.
@@ -1204,7 +1203,7 @@ class DeviceCollection:
         """
 
         if not len(self):
-            return _("Select Source"), QIcon(data_file_path("icons/computer.svg"))
+            return _("Select Source"), ProgramIcon(data_file_path("icons/computer.svg"))
         elif len(self) == 1:
             # includes case where path is the only device
             device = list(self.devices.values())[0]

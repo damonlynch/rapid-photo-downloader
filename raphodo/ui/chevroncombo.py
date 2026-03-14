@@ -5,10 +5,13 @@
 Combo box with a chevron selector
 """
 
-from PyQt6.QtCore import QPointF, QSize, Qt
-from PyQt6.QtGui import QFont, QFontMetrics, QPainter
+from typing import cast
+
+from PyQt6.QtCore import QPointF, QSize, Qt, pyqtSlot
+from PyQt6.QtGui import QFont, QFontMetrics, QGuiApplication, QPainter
 from PyQt6.QtWidgets import QComboBox, QLabel, QSizePolicy
 
+from raphodo.application import Application
 from raphodo.ui.viewutils import darkModePixmap
 
 
@@ -23,6 +26,12 @@ class ChevronCombo(QComboBox):
          else set to window color
         """
         super().__init__(parent)
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -30,7 +39,9 @@ class ChevronCombo(QComboBox):
         # Draw chevron (down arrow)
         width = int(QFontMetrics(QFont()).height() * (2 / 3))
         size = QSize(width, width)
-        pixmap = darkModePixmap(path="icons/chevron-down.svg", size=size)
+        pixmap = darkModePixmap(
+            path="icons/chevron-down.svg", size=size, dark_mode=self.app.darkMode
+        )
         x = self.rect().width() - width - 6
         y = self.rect().center().y() - width / 2
         p = QPointF(x, y)

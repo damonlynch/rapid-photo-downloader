@@ -1,7 +1,6 @@
 #  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
-import functools
 import sys
 from collections import namedtuple
 
@@ -15,7 +14,6 @@ from PyQt6.QtCore import (
     QModelIndex,
     QPoint,
     QRect,
-    QRectF,
     QSize,
     Qt,
     pyqtSignal,
@@ -29,7 +27,6 @@ from PyQt6.QtGui import (
     QIcon,
     QMouseEvent,
     QPainter,
-    QPainterPath,
     QPaintEvent,
     QPalette,
     QPen,
@@ -43,8 +40,6 @@ from PyQt6.QtWidgets import (
     QFrame,
     QItemDelegate,
     QLabel,
-    QListView,
-    QListWidget,
     QMessageBox,
     QProxyStyle,
     QScrollArea,
@@ -52,13 +47,11 @@ from PyQt6.QtWidgets import (
     QSplitter,
     QSplitterHandle,
     QStyle,
-    QStyledItemDelegate,
     QStyleOption,
     QStyleOptionButton,
     QStyleOptionSlider,
     QStyleOptionViewItem,
     QStylePainter,
-    QVBoxLayout,
     QWidget,
 )
 
@@ -452,129 +445,6 @@ class ScrollAreaNoFrame(QScrollArea):
         sbh.scrollBarVisible.connect(self.horizontalScrollBarVisible)
 
 
-class FlexiFrameObject:
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
-        self.frame_width = QApplication.style().pixelMetric(
-            QStyle.PixelMetric.PM_DefaultFrameWidth
-        )
-        self.container_vertical_scrollbar_visible = None
-        self.container_horizontal_scrollbar_visible = None
-        self.midPen = paletteMidPen()
-        self.quirk_mode = False
-        self.quirkPen = QPen(device_name_highlight_color())
-
-    def paintBorders(self, painter: QPainter, rect: QRect) -> None:
-        if self.quirk_mode:
-            painter.setPen(self.quirkPen)
-            painter.drawLine(rect.topLeft(), rect.topRight())
-        painter.setPen(self.midPen)
-        painter.drawLine(rect.topLeft(), rect.bottomLeft())
-        if (
-            self.container_horizontal_scrollbar_visible is None
-            or not self.container_horizontal_scrollbar_visible
-        ):
-            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
-        if (
-            self.container_vertical_scrollbar_visible is None
-            or not self.container_vertical_scrollbar_visible
-        ):
-            painter.drawLine(rect.topRight(), rect.bottomRight())
-
-
-class FlexiFrame(QWidget, FlexiFrameObject):
-    def __init__(
-        self, render_top_edge: bool = False, parent: QWidget | None = None
-    ) -> None:
-        super().__init__(parent=parent)
-        self.render_top_edge = render_top_edge
-        self.setAutoFillBackground(True)
-        palette = self.palette()
-        palette.setColor(self.backgroundRole(), palette.color(palette.ColorRole.Base))
-        self.setPalette(palette)
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-
-    @pyqtSlot(bool)
-    def containerVerticalScrollBar(self, visible: bool) -> None:
-        self.container_vertical_scrollbar_visible = visible
-
-    @pyqtSlot(bool)
-    def containerHorizontalScrollBar(self, visible: bool) -> None:
-        self.container_horizontal_scrollbar_visible = visible
-
-    def paintEvent(self, event: QPaintEvent) -> None:
-        super().paintEvent(event)
-        rect = self.rect()
-        painter = QPainter(self)
-        self.paintBorders(painter=painter, rect=rect)
-        if self.render_top_edge:
-            painter.drawLine(rect.topLeft(), rect.topRight())
-
-
-class TightFlexiFrame(FlexiFrame):
-    def __init__(
-        self, render_top_edge: bool = False, parent: QWidget | None = None
-    ) -> None:
-        super().__init__(render_top_edge=render_top_edge, parent=parent)
-        top_margin = self.frame_width if render_top_edge else 0
-        self.layout().setContentsMargins(
-            self.frame_width, top_margin, self.frame_width, self.frame_width
-        )
-        if not render_top_edge:
-            self.quirk_mode = True
-
-    @pyqtSlot(bool)
-    def containerVerticalScrollBar(self, visible: bool) -> None:
-        width = 0 if visible else self.frame_width
-        margins = self.layout().contentsMargins()
-        margins.setRight(width)
-        self.layout().setContentsMargins(margins)
-        self.container_vertical_scrollbar_visible = visible
-
-    @pyqtSlot(bool)
-    def containerHorizontalScrollBar(self, visible: bool) -> None:
-        height = 0 if visible else self.frame_width
-        margins = self.layout().contentsMargins()
-        margins.setBottom(height)
-        self.layout().setContentsMargins(margins)
-        self.container_horizontal_scrollbar_visible = visible
-
-
-class ListViewFlexiFrame(QListView, FlexiFrameObject):
-    def __init__(
-        self, frame_enabled: bool | None = True, parent: QWidget | None = None
-    ) -> None:
-        super().__init__(parent)
-        self.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_enabled = frame_enabled
-
-    @pyqtSlot(bool)
-    def containerVerticalScrollBar(self, visible: bool) -> None:
-        self.container_vertical_scrollbar_visible = visible
-
-    @pyqtSlot(bool)
-    def containerHorizontalScrollBar(self, visible: bool) -> None:
-        self.container_horizontal_scrollbar_visible = visible
-
-    def paintEvent(self, event: QPaintEvent) -> None:
-        super().paintEvent(event)
-        if self.frame_enabled:
-            painter = QPainter(self.viewport())
-            self.paintBorders(painter=painter, rect=self.viewport().rect())
-
-
-class BlankWidget(FlexiFrame):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        palette = QPalette()
-        palette.setColor(
-            QPalette.ColorRole.Window, palette.color(palette.ColorRole.Base)
-        )
-        self.setAutoFillBackground(True)
-        self.setPalette(palette)
-
-
 class StyledLinkLabel(QLabel):
     """
     Setting a link style this way works. It does not work with regular style sheets.
@@ -611,138 +481,11 @@ class ProxyStyleNoFocusRectangle(QProxyStyle):
             super().drawPrimitive(element, option, painter, widget)
 
 
-_is_dark_mode = False
-
-
-def is_dark_mode() -> bool:
-    return _is_dark_mode
-
-
 def highlight_is_dark() -> bool:
     highlight_hsv_value = (
         QApplication.palette().color(QPalette.ColorRole.Highlight).value()
     )
     return highlight_hsv_value < 128
-
-
-class NarrowListWidget(QListWidget):
-    """
-    Create a list widget that is not by default enormously wide.
-
-    See http://stackoverflow.com/questions/6337589/qlistwidget-adjust-size-to-content
-    """
-
-    def __init__(
-        self,
-        minimum_rows: int = 0,
-        minimum_width: int = 0,
-        no_focus_rectangle: bool = False,
-        flat_look: bool = False,
-        parent=None,
-    ) -> None:
-        super().__init__(parent=parent)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self._minimum_rows = minimum_rows
-        self._minimum_width = minimum_width
-        palette = QPalette()
-
-        if no_focus_rectangle:
-            self.setStyle(ProxyStyleNoFocusRectangle())
-        if flat_look:
-            self.setFrameShape(QFrame.Shape.NoFrame)
-            color = palette.window().color()  # type: QColor
-            palette.setColor(QPalette.ColorRole.Base, color)
-            self.right_padding = 60
-            self.setSpacing(2)
-            # Enable hover effect in delegate
-            self.viewport().setMouseTracking(True)
-        else:
-            self.right_padding = 0
-        self.setPalette(palette)
-
-    @property
-    def minimum_width(self) -> int:
-        return self._minimum_width
-
-    @minimum_width.setter
-    def minimum_width(self, width: int) -> None:
-        self._minimum_width = width
-        self.updateGeometry()
-
-    def sizeHint(self):
-        s = QSize()
-        if self._minimum_rows:
-            s.setHeight(self.count() * self.sizeHintForRow(0) + self.frameWidth() * 2)
-        else:
-            s.setHeight(super().sizeHint().height())
-        s.setWidth(
-            max(
-                self.sizeHintForColumn(0) + self.frameWidth() * 2 + self.right_padding,
-                self._minimum_width,
-            )
-        )
-        return s
-
-
-class NarrowListDelegate(QStyledItemDelegate):
-    def paint(
-        self, painter: QPainter, inOption: QStyleOptionViewItem, index: QModelIndex
-    ) -> None:
-
-        option = QStyleOptionViewItem(inOption)
-        self.initStyleOption(option, index)
-
-        painter.save()
-        rect = option.rect  # type: QRect
-        icon = option.icon  # type: QIcon
-
-        if (
-            QStyle.StateFlag.State_MouseOver in option.state
-            or QStyle.StateFlag.State_Selected in option.state
-        ):
-            painter.fillRect(
-                rect,
-                option.palette.color(
-                    QPalette.ColorGroup.Active, QPalette.ColorRole.Midlight
-                ),
-            )
-
-        icon_width = option.decorationSize.width()
-        bar_width = 4
-        padding = 12
-        icon.paint(
-            painter,
-            rect.x() + bar_width + padding,
-            rect.y(),
-            icon_width,
-            rect.height(),
-            alignment=Qt.AlignmentFlag.AlignVCenter,
-        )
-        text_x = rect.x() + bar_width + padding * 2 + icon_width
-        textRect = rect.adjusted(text_x, 0, 0, 0)
-
-        if QStyle.StateFlag.State_Selected in option.state:
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-            path = QPainterPath()
-            highlightRect = QRect(rect.x(), rect.y(), bar_width, rect.height())
-            vertical_crop = 7
-            highlightRect.adjust(0, vertical_crop, 0, -vertical_crop)
-            highlightRect = QRectF(highlightRect)
-            path.addRoundedRect(highlightRect, 2.0, 2.0)
-            painter.fillPath(
-                path,
-                option.palette.color(
-                    QPalette.ColorGroup.Active, QPalette.ColorRole.Highlight
-                ),
-            )
-
-        painter.drawText(
-            textRect,
-            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-            option.text,
-        )
-
-        painter.restore()
 
 
 def standardIconSize() -> QSize:
@@ -969,11 +712,12 @@ def darkModePixmap(
     pixmap: QPixmap | None = None,
     size: QSize | None = None,
     soften_regular_mode_color: bool | None = False,
+    dark_mode: bool = False,
 ) -> QPixmap:
     """
     Inverts pixmap when in dark mode
     """
-    if is_dark_mode():
+    if dark_mode:
         color = QApplication.palette().windowText().color()
         return coloredPixmap(path=path, pixmap=pixmap, color=color, size=size)
     elif soften_regular_mode_color:
@@ -988,14 +732,56 @@ def darkModePixmap(
             return QPixmap(data_file_path(path))
 
 
-def darkModeIcon(
+class ProgramIcon(QIcon):
+    def __init__(
+        self,
+        path: str,
+        path_dark: str | None = None,
+        size: QSize | None = None,
+        soften_regular_mode_color: bool = False,
+    ):
+        self._size = size
+        if soften_regular_mode_color:
+            color = QColor(HeaderBackgroundName)
+            pixmap = coloredPixmap(path=path, size=size, color=color)
+            super().__init__(pixmap)
+        else:
+            if size:
+                super().__init__(QIcon(data_file_path(path)).pixmap(size))
+            else:
+                super().__init__(data_file_path(path))
+        self.darkIcon = QIcon(data_file_path(path_dark)) if path_dark else None
+
+    @property
+    def size(self) -> QSize | None:
+        return self._size
+
+    @size.setter
+    def size(self, size: QSize) -> None:
+        self._size = size
+
+    def darkModeAware(self, dark_mode: bool) -> QIcon:
+        assert self._size is not None
+        if dark_mode:
+            if self.darkIcon is not None:
+                return self.darkIcon
+            else:
+                color = QApplication.palette().windowText().color()
+                pixmap = coloredPixmap(pixmap=self.pixmap(self._size), color=color)
+                return QIcon(pixmap)
+        else:
+            return QIcon(self)
+
+
+def programIcon(
     icon: QIcon | None = None,
     path: str | None = None,
     size: QSize | None = None,
-    soften_regular_mode_color: bool | None = False,
+    soften_regular_mode_color: bool = False,
+    dark_mode: bool = False,
 ) -> QIcon:
-    if is_dark_mode() or soften_regular_mode_color:
-        if is_dark_mode():
+    if dark_mode or soften_regular_mode_color:
+        if dark_mode:
             color = QApplication.palette().windowText().color()
         else:
             color = QColor(HeaderBackgroundName)
@@ -1015,8 +801,8 @@ def darkModeIcon(
             return QIcon(data_file_path(path))
 
 
-def menuHoverColor() -> QColor:
-    if is_dark_mode():
+def menuHoverColor(dark_mode: bool) -> QColor:
+    if dark_mode:
         return QGuiApplication.palette().color(QPalette.ColorRole.Highlight)
     else:
         return QGuiApplication.palette().color(QPalette.ColorRole.Window).darker(110)
@@ -1127,9 +913,9 @@ class CheckBoxDelegate(QItemDelegate):
         )
 
 
-def device_name_highlight_color() -> QColor:
+def device_name_highlight_color(dark_mode: bool) -> QColor:
     palette = QApplication.palette()
-    if is_dark_mode():
+    if dark_mode:
         return QColor("#393939")
     else:
         alternate_color = palette.alternateBase().color()

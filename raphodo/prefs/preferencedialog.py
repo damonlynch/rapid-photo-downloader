@@ -7,12 +7,14 @@ Dialog window to show and manipulate selected user preferences
 
 import logging
 import webbrowser
+from typing import cast
 
 from PyQt6.QtCore import QObject, QSize, Qt, QThread, QTimer, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import (
     QCloseEvent,
     QFont,
     QFontMetrics,
+    QGuiApplication,
     QIcon,
     QMouseEvent,
     QPalette,
@@ -45,6 +47,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from raphodo.application import Application
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.constants import (
     CompletedDownloads,
@@ -71,10 +74,10 @@ from raphodo.tools.utilities import (
     data_file_path,
     format_size_for_user,
 )
+from raphodo.ui.narrowlistwidget import NarrowListDelegate, NarrowListWidget
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
-    NarrowListDelegate,
-    NarrowListWidget,
+    ProgramIcon,
     StyledLinkLabel,
     darkModePixmap,
     highlight_is_dark,
@@ -125,9 +128,11 @@ class PreferencesDialog(QDialog):
 
         self.prefs = prefs
 
-        flat_look = self.screen().size().width() > 800
+        self.flat_look = self.screen().size().width() > 800
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
 
-        self.setupMenuChooser(flat_look=flat_look)
+        self.setupMenuChooser()
 
         self.setupDeviceControls()
         self.layoutDeviceControls()
@@ -166,11 +171,13 @@ class PreferencesDialog(QDialog):
         self.setupButtons()
         self.layoutDialog()
 
-    def setupMenuChooser(self, flat_look: bool) -> None:
+    def setupMenuChooser(self) -> None:
         self.panels = QStackedWidget()
 
-        self.chooser = NarrowListWidget(no_focus_rectangle=True, flat_look=flat_look)
-        if flat_look:
+        self.chooser = NarrowListWidget(
+            no_focus_rectangle=True, flat_look=self.flat_look
+        )
+        if self.flat_look:
             self.chooserDelegate = NarrowListDelegate(self.chooser)
             self.chooser.setItemDelegate(self.chooserDelegate)
 
@@ -179,10 +186,8 @@ class PreferencesDialog(QDialog):
         icon_padding = 6
         icon_height = max(fontMetrics.height(), 16)
         icon_width = icon_height + icon_padding
-        self.chooser.setIconSize(QSize(icon_width, icon_height))
-
-        palette = QPalette()
-        selectedTextColour = palette.color(palette.ColorRole.HighlightedText)
+        self.iconSize = QSize(icon_width, icon_height)
+        self.chooser.setIconSize(self.iconSize)
 
         if CONSOLIDATION_IMPLEMENTED:
             self.chooser_items = (
@@ -207,6 +212,9 @@ class PreferencesDialog(QDialog):
                 "prefs/bw/consolidation.svg",
                 "prefs/bw/miscellaneous.svg",
             )
+            self.chooser_icons = tuple(
+                ProgramIcon(path=icon, size=self.iconSize) for icon in icons
+            )
         else:
             self.chooser_items = (
                 _("Devices"),
@@ -218,7 +226,7 @@ class PreferencesDialog(QDialog):
                 _("Warnings"),
                 _("Miscellaneous"),
             )
-            if flat_look:
+            if self.flat_look:
                 icons = (
                     "prefs/devices.svg",
                     "prefs/language.svg",
@@ -228,6 +236,9 @@ class PreferencesDialog(QDialog):
                     "prefs/error-handling.svg",
                     "prefs/warnings.svg",
                     "prefs/miscellaneous.svg",
+                )
+                self.chooser_icons = tuple(
+                    ProgramIcon(path=icon, size=self.iconSize) for icon in icons
                 )
             else:
                 icons = (
@@ -240,33 +251,50 @@ class PreferencesDialog(QDialog):
                     "prefs/bw/warnings.svg",
                     "prefs/bw/miscellaneous.svg",
                 )
+                self.chooser_icons = tuple(
+                    ProgramIcon(path=icon, size=self.iconSize) for icon in icons
+                )
 
-        for prefIcon, label in zip(icons, self.chooser_items):
-            # make the selected icons be the same color as the selected text
-            icon = QIcon()
-            pixmap = QPixmap(data_file_path(prefIcon))
-            if highlight_is_dark():
-                selected = QPixmap(pixmap.size())
-                selected.fill(selectedTextColour)
-                selected.setMask(pixmap.createMaskFromColor(Qt.GlobalColor.transparent))
-            else:
-                selected = None
-            if not flat_look:
-                pixmap = darkModePixmap(pixmap=pixmap)
-            icon.addPixmap(pixmap, QIcon.Mode.Normal)
-            if selected is not None:
-                icon.addPixmap(selected, QIcon.Mode.Selected)
-
-            item = QListWidgetItem(icon, label, self.chooser)
+        for label in self.chooser_items:
+            item = QListWidgetItem(label, self.chooser)
             item.setFont(QFont())
             width = fontMetrics.horizontalAdvance(label) + icon_width + icon_padding * 2
             item.setSizeHint(QSize(width, icon_height * 2))
+
+        if self.flat_look:
+            for i in range(self.chooser.count()):
+                item = self.chooser.item(i)
+                icon = self.chooser_icons[i]
+                item.setIcon(icon)
+        else:
+            self.setDarkMode(dark_mode=self.app.darkMode)
 
         self.chooser.currentRowChanged.connect(self.rowChanged)
         self.chooser.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.chooser.setSizePolicy(
             QSizePolicy.Policy.Minimum, QSizePolicy.Policy.MinimumExpanding
         )
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        if not self.flat_look:
+            palette = QPalette()
+            selectedTextColour = palette.color(palette.ColorRole.HighlightedText)
+            h_is_dark = highlight_is_dark()
+
+            for i in range(self.chooser.count()):
+                item = self.chooser.item(i)
+                _icon = self.chooser_icons[i]  # type: ProgramIcon
+                icon = _icon.darkModeAware(self.app.darkMode)
+                if h_is_dark:
+                    pixmap = icon.pixmap(self.iconSize)
+                    selected = QPixmap(pixmap)
+                    selected.fill(selectedTextColour)
+                    selected.setMask(
+                        pixmap.createMaskFromColor(Qt.GlobalColor.transparent)
+                    )
+                    icon.addPixmap(selected, QIcon.Mode.Selected)
+                item.setIcon(icon)
 
     def reject(self) -> None:
         # If not called, rejecting this dialog will cause Rapid Photo Downloader to

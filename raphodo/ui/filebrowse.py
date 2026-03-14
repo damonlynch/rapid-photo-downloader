@@ -9,6 +9,7 @@ import logging
 import os
 import pathlib
 import re
+from typing import cast
 
 from PyQt6.QtCore import (
     QDir,
@@ -21,7 +22,7 @@ from PyQt6.QtCore import (
     pyqtSignal,
     pyqtSlot,
 )
-from PyQt6.QtGui import QAction, QFileSystemModel, QFont, QPainter
+from PyQt6.QtGui import QAction, QFileSystemModel, QFont, QGuiApplication, QPainter
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QMenu,
@@ -32,6 +33,7 @@ from PyQt6.QtWidgets import (
 )
 from showinfm import show_in_file_manager
 
+from raphodo.application import Application
 from raphodo.constants import (
     Roles,
     filtered_file_browser_directories,
@@ -42,8 +44,8 @@ from raphodo.constants import (
 from raphodo.internationalisation.install import install_gettext
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
 from raphodo.ui.viewutils import (
+    ProgramIcon,
     TopFramedVerticalScrollBar,
-    darkModeIcon,
     standard_font_size,
 )
 from raphodo.wsl.wslutils import wsl_filter_directories
@@ -61,6 +63,8 @@ class FileSystemModel(QFileSystemModel):
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
 
         # More filtering done in the FileSystemFilter
         self.setFilter(QDir.Filter.AllDirs | QDir.Filter.NoDotAndDotDot)
@@ -68,11 +72,14 @@ class FileSystemModel(QFileSystemModel):
         s = standard_font_size()
         size = QSize(s, s)
 
-        self.folder_icon = darkModeIcon(
+        self.folderIcon = ProgramIcon(
             path="icons/folder.svg", size=size, soften_regular_mode_color=True
         )
-        self.download_folder_icon = darkModeIcon(
-            path="icons/folder-filled.svg", size=size, soften_regular_mode_color=True
+        self.downloadFolderIcon = ProgramIcon(
+            path="icons/folder-filled.svg",
+            path_dark="icons/folder-filled-dark.svg",
+            size=size,
+            soften_regular_mode_color=True,
         )
 
         self.setRootPath("/")
@@ -98,9 +105,11 @@ class FileSystemModel(QFileSystemModel):
                 path in self.download_subfolders
                 or path in self.subfolders_downloaded_into
             ):
-                return self.download_folder_icon
+                return self.downloadFolderIcon.darkModeAware(
+                    dark_mode=self.app.darkMode
+                )
             else:
-                return self.folder_icon
+                return self.folderIcon.darkModeAware(dark_mode=self.app.darkMode)
         if role == Roles.folder_preview:
             path = index.data(QFileSystemModel.Roles.FilePathRole)
             return (
@@ -109,6 +118,14 @@ class FileSystemModel(QFileSystemModel):
             )
 
         return super().data(index, role)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.dataChanged.emit(
+            self.index(0, 0),
+            self.index(self.rowCount() - 1, self.columnCount() - 1),
+            [Qt.ItemDataRole.DecorationRole],
+        )
 
     def add_subfolder_downloaded_into(self, path: str, download_folder: str) -> bool:
         """

@@ -2,21 +2,22 @@
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
 import math
+from typing import cast
 
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, pyqtSlot
 from PyQt6.QtGui import (
     QFont,
     QFontMetrics,
     QGuiApplication,
-    QIcon,
     QPainter,
     QPaintEvent,
 )
-from PyQt6.QtWidgets import QApplication, QPushButton, QSizePolicy
+from PyQt6.QtWidgets import QPushButton, QSizePolicy
 
+from raphodo.application import Application
 from raphodo.internationalisation.install import install_gettext
 from raphodo.ui.rotatedpushbutton import FlatButton
-from raphodo.ui.viewutils import darkModeIcon, is_dark_mode
+from raphodo.ui.viewutils import ProgramIcon
 
 install_gettext()
 
@@ -47,14 +48,19 @@ class TopPushButton(QPushButton, FlatButton):
         padding_top = padding_bottom + extra_top
 
         self.non_elided_text = ""
-
-        padding = (
+        self._icon: ProgramIcon | None = None
+        self._padding = (
             f"padding-left: {self.padding_side}px; "
             f"padding-right: {self.padding_side}px; "
             f"padding-top: {padding_top}px; "
             f"padding-bottom: {padding_bottom}px; "
         )
-        self.setFlatStyle(self, darker_if_checked=False, padding=padding)
+        self.setFlatStyle(self, darker_if_checked=False)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.setFlatStyle(self, darker_if_checked=False)
+        super().setIcon(self._icon.darkModeAware(dark_mode=dark_mode))
 
     def text(self) -> str:
         return self.non_elided_text
@@ -63,11 +69,11 @@ class TopPushButton(QPushButton, FlatButton):
         self.non_elided_text = text
         self.update()
 
-    def setIcon(self, icon: QIcon) -> None:
-        size = QSize(self.top_row_icon_size, self.top_row_icon_size)
-        icon = darkModeIcon(icon=icon, size=size)
-        super().setIcon(icon)
-        self.setIconSize(size)
+    def setIcon(self, icon: ProgramIcon) -> None:
+        self._icon = icon
+        self._icon.size = QSize(self.top_row_icon_size, self.top_row_icon_size)
+        super().setIcon(self._icon.darkModeAware(dark_mode=self.app.darkMode))
+        self.setIconSize(self._icon.size)
 
     def paintEvent(self, event: QPaintEvent):
         """
@@ -102,7 +108,7 @@ class TopPushButton(QPushButton, FlatButton):
 
 def DownloadButtonHeight() -> tuple[int, int]:
     font_height = (
-        QFontMetrics(QApplication.font())
+        QFontMetrics(QFont())
         .tightBoundingRect(_("Download 8 Photos and 10 Videos"))
         .height()
     )
@@ -118,10 +124,15 @@ class DownloadButton(QPushButton):
 
     def __init__(self, text: str, parent) -> None:
         super().__init__(text, parent)
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
 
         self.rapidApp = parent
         self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
+        self.setDarkMode(self.app.darkMode)
 
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
         height, padding = DownloadButtonHeight()
         radius = height // 2
 
@@ -132,7 +143,7 @@ class DownloadButton(QPushButton):
         hoverBorderColor = hoverColor.darker(105)
         primaryTextColor = palette.highlightedText().color()
 
-        if is_dark_mode():
+        if dark_mode:
             disabledColor = palette.window().color().lighter(130)
             disabledBorderColor = disabledColor.lighter(115)
             disabledTextColor = palette.highlightedText().color()

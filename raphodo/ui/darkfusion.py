@@ -1,7 +1,6 @@
 #  SPDX-FileCopyrightText: 2026 Damon Lynch <damonlynch@gmail.com>
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
-
 from PyQt6.QtGui import QPainter, QPalette
 from PyQt6.QtWidgets import (
     QProxyStyle,
@@ -53,7 +52,9 @@ class DarkModeQuirkCheckBoxStyle(QProxyStyle):
         if (
             element == QStyle.PrimitiveElement.PE_IndicatorCheckBox
             and self._proxy_enabled
+            and isinstance(option, QStyleOptionButton)
         ):
+            # The isinstance check is needed on some development releases of  PyQt6
             new_option = QStyleOptionButton(option)
             highlight = option.palette.color(QPalette.ColorRole.Highlight)
 

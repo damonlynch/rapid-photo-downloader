@@ -54,7 +54,7 @@ from raphodo.constants import ErrorType
 from raphodo.internationalisation.install import install_gettext
 from raphodo.problemnotification import Problem, Problems
 from raphodo.tools.utilities import data_file_path
-from raphodo.ui.viewutils import darkModeIcon, translateDialogBoxButtons
+from raphodo.ui.viewutils import programIcon, translateDialogBoxButtons
 
 install_gettext()
 
@@ -193,12 +193,12 @@ class ErrorReport(QDialog):
         size = QSize(font_height, font_height)
 
         self.up = QPushButton()
-        self.up.setIcon(darkModeIcon(path="icons/up.svg", size=QSize(100, 100)))
+        self.up.setIcon(programIcon(path="icons/up.svg", size=QSize(100, 100)))
         self.up.setIconSize(size)
         self.up.clicked.connect(self.upClicked)
         self.up.setToolTip(_("Find the previous occurrence of the phrase"))
         self.down = QPushButton()
-        self.down.setIcon(darkModeIcon(path="icons/down.svg", size=QSize(100, 100)))
+        self.down.setIcon(programIcon(path="icons/down.svg", size=QSize(100, 100)))
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
         self.down.setToolTip(_("Find the next occurrence of the phrase"))

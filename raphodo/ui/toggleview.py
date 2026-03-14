@@ -14,9 +14,9 @@ from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget
 
 from raphodo.constants import DarkModeHeaderBackgroundName, HeaderBackgroundName
+from raphodo.ui.flexiframe import BlankWidget
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.toggleswitch import QToggleSwitch
-from raphodo.ui.viewutils import BlankWidget
 
 
 class QToggleView(QPanelView):

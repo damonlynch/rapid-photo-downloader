@@ -34,12 +34,12 @@ from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.chevroncombo import ChevronCombo
+from raphodo.ui.flexiframe import FlexiFrame
 from raphodo.ui.messagewidget import MessageButton, MessageWidget
+from raphodo.ui.narrowlistwidget import NarrowListWidget
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
-    FlexiFrame,
-    NarrowListWidget,
     ScrollAreaNoFrame,
     standardIconSize,
     standardMessageBox,

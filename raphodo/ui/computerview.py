@@ -15,7 +15,7 @@ from raphodo.ui.devicedisplay import (
     device_header_row_height,
 )
 from raphodo.ui.filebrowse import FileSystemView
-from raphodo.ui.viewutils import TightFlexiFrame
+from raphodo.ui.flexiframe import TightFlexiFrame
 
 
 class ComputerWidget(TightFlexiFrame):

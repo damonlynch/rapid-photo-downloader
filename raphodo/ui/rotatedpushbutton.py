@@ -2,8 +2,10 @@
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
 from enum import IntEnum
+from typing import cast
 
-from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtCore import pyqtSlot
+from PyQt6.QtGui import QColor, QGuiApplication, QPalette
 from PyQt6.QtWidgets import (
     QPushButton,
     QSizePolicy,
@@ -12,8 +14,9 @@ from PyQt6.QtWidgets import (
     QStylePainter,
 )
 
+from raphodo.application import Application
 from raphodo.internationalisation.install import install_gettext
-from raphodo.ui.viewutils import is_dark_mode, menuHoverColor
+from raphodo.ui.viewutils import menuHoverColor
 
 install_gettext()
 
@@ -24,15 +27,20 @@ class VerticalRotation(IntEnum):
 
 
 class FlatButton:
-    _padding = (
-        "padding-left: 7px; padding-right: 7px; padding-top: 6px; padding-bottom: 6px; "
-    )
+    def __init__(self):
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self._padding = "padding-left: 7px; padding-right: 7px; padding-top: 6px; padding-bottom: 6px; "  # noqa: E501
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        # Implemented in subclass
+        pass
 
     def setFlatStyle(
         self,
         button: QPushButton,
         darker_if_checked: bool = True,
-        padding: str = "",
         color: QColor | None = None,
         checkedHoverColor: QColor | None = None,
         text_color: QColor | None = None,
@@ -44,7 +52,6 @@ class FlatButton:
         :param button: QPushButton to apply styling to
         :param darker_if_checked: True if appearance darkens when the button
          is checked
-        :param padding: padding around the button
         :param color: button color
         :param checkedHoverColor: color to apply when the button is both checked
          and on hover
@@ -56,7 +63,7 @@ class FlatButton:
         default_color = color.name(QColor.NameFormat.HexRgb)
 
         if darker_if_checked:
-            if is_dark_mode():
+            if self.app.darkMode:
                 checked_color = (
                     QPalette()
                     .color(QPalette.ColorRole.Light)
@@ -68,12 +75,11 @@ class FlatButton:
             checked_color = default_color
 
         if checkedHoverColor is None:
-            hover_color = menuHoverColor().name(QColor.NameFormat.HexRgb)
+            hover_color = menuHoverColor(self.app.darkMode).name(
+                QColor.NameFormat.HexRgb
+            )
         else:
             hover_color = checkedHoverColor.name(QColor.NameFormat.HexRgb)
-
-        if not padding:
-            padding = self._padding
 
         if text_color is not None:
             text = f"color: {text_color.name(QColor.NameFormat.HexRgb)};"
@@ -88,7 +94,7 @@ class FlatButton:
             background-color: {default_color};
             border: 0px;
             outline: none;
-            {padding}
+            {self._padding}
             {text}
         }}
         QPushButton:checked {{
@@ -135,6 +141,7 @@ class RotatedButton(QPushButton, FlatButton):
 
         super().__init__(text, parent)
         self.buttonRotation = rotation
+        self._highlighted = False
         # Use only the stylesheet to give the appearance of being flat.
         # Don't mix and match stylesheet and non-stylesheet options for widgets.
         # http://stackoverflow.com/questions/34654545/qt-flat-qpushbutton-background-color-doesnt-work
@@ -143,6 +150,13 @@ class RotatedButton(QPushButton, FlatButton):
         self.setSizePolicy(
             QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding
         )
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        if self._highlighted:
+            self.setHighlightedFlatStyle(self)
+        else:
+            self.setFlatStyle(self)
 
     def paintEvent(self, event):
         painter = QStylePainter(self)
@@ -196,6 +210,7 @@ class RotatedButton(QPushButton, FlatButton):
         :param highlighted: if True the button will be highlighted
         """
 
+        self._highlighted = highlighted
         if highlighted:
             self.setHighlightedFlatStyle(self)
         else:

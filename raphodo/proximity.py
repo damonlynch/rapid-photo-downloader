@@ -91,9 +91,9 @@ from raphodo.tools.timeutils import (
     strip_zero,
 )
 from raphodo.tools.utilities import runs
+from raphodo.ui.flexiframe import TightFlexiFrame
 from raphodo.ui.viewutils import (
     ThumbnailDataForProximity,
-    TightFlexiFrame,
     base64_thumbnail,
     coloredPixmap,
     darkModePixmap,
