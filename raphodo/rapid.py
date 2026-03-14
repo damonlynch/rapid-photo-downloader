@@ -2322,18 +2322,8 @@ difference to the program's future.</p>"""
             widget.setFont(font)
 
         self.checkAllLabel = QLabel(_("Select All:"))
-
-        # Remove the border when the widget is highlighted
-        style = f"""
-        QCheckBox {{
-            border: none;
-            outline: none;
-            spacing: {self.standard_spacing // 2};
-        }}"""
         self.selectAllPhotosCheckbox = CompatCheckBox(_("Photos") + " ")
         self.selectAllVideosCheckbox = CompatCheckBox(_("Videos"))
-        self.selectAllPhotosCheckbox.setStyleSheet(style)
-        self.selectAllVideosCheckbox.setStyleSheet(style)
 
         for widget in (
             self.checkAllLabel,
