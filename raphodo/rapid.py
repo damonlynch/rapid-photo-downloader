@@ -238,10 +238,6 @@ from raphodo.tools.utilities import (
 )
 from raphodo.ui import viewutils
 from raphodo.ui.aboutdialog import AboutDialog
-from raphodo.ui.applicationpalette import (
-    darkPalette,
-    standardPalette,
-)
 from raphodo.ui.backuppanel import BackupPanel
 from raphodo.ui.chevroncombo import ChevronCombo
 from raphodo.ui.computerview import ComputerWidget
