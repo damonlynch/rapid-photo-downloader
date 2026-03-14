@@ -15,6 +15,12 @@ from showinfm import show_in_file_manager
 class FileSystemUrlHandler(QObject):
     @pyqtSlot(QUrl)
     def openFileBrowser(self, url: QUrl):
+        # PyQt6 crashes with QUrl.ComponentFormattingOption (even though Qt6 allows it).
+        # So wrap it:
         show_in_file_manager(
-            url.url(options=QUrl.ComponentFormattingOption.FullyEncoded)
+            url.url(
+                options=QUrl.UrlFormattingOption(
+                    QUrl.ComponentFormattingOption.FullyEncoded
+                )
+            )
         )
