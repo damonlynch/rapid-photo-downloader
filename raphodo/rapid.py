@@ -267,8 +267,10 @@ from raphodo.ui.splashscreen import SplashScreen
 from raphodo.ui.toggleview import QToggleView
 from raphodo.ui.viewutils import (
     MainWindowSplitter,
+    removeMessageButtonIcons,
     scaledIcon,
     standardMessageBox,
+    translateMessageBoxButtons,
     validateWindowPosition,
     validateWindowSizeLimit,
 )
@@ -1607,6 +1609,7 @@ difference to the program's future.</p>"""
                 QMessageBox.ButtonRole.DestructiveRole,
             )
             messagebox.setDefaultButton(yes)
+            removeMessageButtonIcons(messageBox=messagebox)
             messagebox.exec()
             response = messagebox.clickedButton()
             if response == yes:
@@ -3241,6 +3244,8 @@ Do you want to proceed with the download?"""
             msgBox.setWindowTitle(_("Download Failure"))
             msgBox.setText(_("The download cannot proceed."))
             msgBox.setInformativeText(msg)
+            translateMessageBoxButtons(messageBox=msgBox)
+            removeMessageButtonIcons(messageBox=msgBox)
             msgBox.exec()
         else:
             missing_destinations = self.backup_devices.backup_destinations_missing(
@@ -4658,9 +4663,11 @@ Do you want to proceed with the download?"""
             QMessageBox.StandardButton.NoButton,
             self,
         )
+        translateMessageBoxButtons(messageBox=msgBox)
         msgBox.setIconPixmap(self.devices[scan_id].get_pixmap())
         msgBox.addButton(_("&Try Again"), QMessageBox.ButtonRole.AcceptRole)
         msgBox.addButton(_("&Ignore This Device"), QMessageBox.ButtonRole.RejectRole)
+        removeMessageButtonIcons(messageBox=msgBox)
         self.prompting_for_user_action[device] = msgBox
         role = msgBox.exec()
         if role == QMessageBox.ButtonRole.AcceptRole:
@@ -5354,6 +5361,8 @@ Do you want to proceed with the download?"""
                     QMessageBox.StandardButton.Ok,
                 )
                 msgBox.setIconPixmap(camera.get_pixmap())
+                translateMessageBoxButtons(messageBox=msgBox)
+                removeMessageButtonIcons(messageBox=msgBox)
                 msgBox.exec()
         else:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
@@ -5979,6 +5988,8 @@ Do you want to proceed with the download?"""
         msgbox.setStandardButtons(
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
+        translateMessageBoxButtons(messageBox=msgbox)
+        removeMessageButtonIcons(messageBox=msgbox)
         if msgbox.exec() == QMessageBox.StandardButton.Yes:
             if device.device_type in (DeviceType.camera, DeviceType.camera_fuse):
                 self.prefs.add_list_value(
@@ -6501,6 +6512,8 @@ def critical_startup_error(message: str) -> None:
     msg.setText(f"<b>{message}</b>")
     msg.setInformativeText(_("Program aborting."))
     msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+    translateMessageBoxButtons(messageBox=msg)
+    removeMessageButtonIcons(messageBox=msg)
     msg.show()
     errorapp.exec()
 
