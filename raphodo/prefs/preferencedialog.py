@@ -71,7 +71,6 @@ from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import (
     available_cpu_count,
     available_languages,
-    data_file_path,
     format_size_for_user,
 )
 from raphodo.ui.narrowlistwidget import NarrowListDelegate, NarrowListWidget
@@ -79,8 +78,8 @@ from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     ProgramIcon,
     StyledLinkLabel,
-    darkModePixmap,
     highlight_is_dark,
+    removeDialogButtonBoxIcons,
     standardMessageBox,
     translateDialogBoxButtons,
 )
@@ -1223,7 +1222,8 @@ class PreferencesDialog(QDialog):
             | QDialogButtonBox.StandardButton.Close
             | QDialogButtonBox.StandardButton.Help
         )
-        translateDialogBoxButtons(self.buttonBox)
+        translateDialogBoxButtons(buttonBox=self.buttonBox)
+        removeDialogButtonBoxIcons(buttonBox=self.buttonBox)
         self.restoreButton: QPushButton = self.buttonBox.button(
             QDialogButtonBox.StandardButton.RestoreDefaults
         )

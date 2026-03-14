@@ -88,6 +88,8 @@ from raphodo.rpdfile import FileType, Photo, SamplePhoto, SampleVideo, Video
 from raphodo.tools.utilities import remove_last_char_from_list_str
 from raphodo.ui.messagewidget import MessageWidget
 from raphodo.ui.viewutils import (
+    removeDialogButtonBoxIcons,
+    removeMessageButtonIcons,
     standardMessageBox,
     translateDialogBoxButtons,
     translateMessageBoxButtons,
@@ -798,7 +800,8 @@ class CreatePreset(QDialog):
             QDialogButtonBox.StandardButton.Save
         )
         self.saveButton.setEnabled(False)
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
 
@@ -1194,7 +1197,8 @@ class PrefDialog(QDialog):
         )
         self.helpButton.clicked.connect(self.helpButtonClicked)
         self.helpButton.setToolTip(_("Get help online..."))
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
 
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
@@ -1692,6 +1696,7 @@ class PrefDialog(QDialog):
                 newButton = msgBox.addButton(
                     _("Save New Custom Preset"), QMessageBox.ButtonRole.YesRole
                 )
+                removeMessageButtonIcons(messageBox=msgBox)
 
             choice = msgBox.exec()
             save_new = update = False

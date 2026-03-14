@@ -493,6 +493,16 @@ def standardIconSize() -> QSize:
     return QSize(size, size)
 
 
+def removeDialogButtonBoxIcons(buttonBox: QDialogButtonBox) -> None:
+    for button in buttonBox.buttons():
+        button.setIcon(QIcon())
+
+
+def removeMessageButtonIcons(messageBox: QMessageBox) -> None:
+    for button in messageBox.buttons():
+        button.setIcon(QIcon())
+
+
 # If set to True, do translation of QMessageBox and QDialogButtonBox buttons
 # Set at program startup
 Do_Message_And_Dialog_Box_Button_Translation = True
@@ -579,6 +589,7 @@ def standardMessageBox(
     if defaultButton:
         msgBox.setDefaultButton(defaultButton)
     translateMessageBoxButtons(messageBox=msgBox)
+    removeMessageButtonIcons(messageBox=msgBox)
 
     if (
         iconType is None

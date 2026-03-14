@@ -14,7 +14,11 @@ from raphodo.constants import RememberThisButtons, RememberThisMessage
 from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.qtcompatibility import CompatCheckBox
-from raphodo.ui.viewutils import standardIconSize, translateDialogBoxButtons
+from raphodo.ui.viewutils import (
+    removeDialogButtonBoxIcons,
+    standardIconSize,
+    translateDialogBoxButtons,
+)
 
 install_gettext()
 
@@ -82,7 +86,8 @@ class RememberThisDialog(QDialog):
         else:
             okayButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Ok)
 
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
 
         grid = QGridLayout()
         grid.setSpacing(11)

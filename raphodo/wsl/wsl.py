@@ -45,6 +45,7 @@ from raphodo.sudocommand import SudoException, SudoExceptionCode, run_commands_a
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     CheckBoxDelegate,
+    removeDialogButtonBoxIcons,
     standardMessageBox,
     translateDialogBoxButtons,
 )
@@ -637,7 +638,7 @@ class WslMountDriveDialog(QDialog):
             | QDialogButtonBox.StandardButton.Close
             | QDialogButtonBox.StandardButton.Help
         )
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
         buttonBox.rejected.connect(self.reject)
         self.helpButton: QPushButton = buttonBox.button(
             QDialogButtonBox.StandardButton.Help
@@ -650,6 +651,7 @@ class WslMountDriveDialog(QDialog):
         self.applyButton.clicked.connect(self.applyButtonClicked)
         # Translators: see https://damonlynch.net/rapid/documentation/fullsize/wsl/windows-drive-dialog.png
         self.applyButton.setText(_("&Apply Pending Operations"))
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
 
         layout = QVBoxLayout()
         layout.setSpacing(18)

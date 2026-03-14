@@ -54,7 +54,11 @@ from raphodo.constants import ErrorType
 from raphodo.internationalisation.install import install_gettext
 from raphodo.problemnotification import Problem, Problems
 from raphodo.tools.utilities import data_file_path
-from raphodo.ui.viewutils import programIcon, translateDialogBoxButtons
+from raphodo.ui.viewutils import (
+    programIcon,
+    removeDialogButtonBoxIcons,
+    translateDialogBoxButtons,
+)
 
 install_gettext()
 
@@ -240,7 +244,8 @@ class ErrorReport(QDialog):
         findLayout.addWidget(self.findResults)
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        translateDialogBoxButtons(buttons)
+        translateDialogBoxButtons(buttonBox=buttons)
+        removeDialogButtonBoxIcons(buttonBox=buttons)
         self.clear: QPushButton = buttons.addButton(
             _("Clear"), QDialogButtonBox.ButtonRole.ActionRole
         )

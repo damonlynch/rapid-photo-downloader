@@ -30,7 +30,7 @@ from raphodo.internationalisation.install import install_gettext
 from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.qtcompatibility import CompatCheckBox
-from raphodo.ui.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import removeDialogButtonBoxIcons, translateDialogBoxButtons
 
 install_gettext()
 
@@ -479,7 +479,8 @@ class DidYouKnowDialog(QDialog):
         self.previousButton = QPushButton(_("&Previous"))
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        translateDialogBoxButtons(buttons)
+        translateDialogBoxButtons(buttonBox=buttons)
+        removeDialogButtonBoxIcons(buttonBox=buttons)
         buttons.addButton(self.previousButton, QDialogButtonBox.ButtonRole.ActionRole)
         buttons.addButton(self.nextButton, QDialogButtonBox.ButtonRole.ActionRole)
         self.previousButton.clicked.connect(self.previousButtonClicked)

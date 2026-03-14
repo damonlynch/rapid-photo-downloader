@@ -41,6 +41,7 @@ from raphodo.ui.panelview import QPanelView
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     ScrollAreaNoFrame,
+    removeDialogButtonBoxIcons,
     standardIconSize,
     standardMessageBox,
     translateDialogBoxButtons,
@@ -179,7 +180,8 @@ class JobCodeDialog(QDialog):
         buttonBox = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
 
         grid = QGridLayout()
         grid.addWidget(iconLabel, 0, 0, 4, 1)

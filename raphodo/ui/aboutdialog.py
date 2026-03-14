@@ -26,7 +26,7 @@ from PyQt6.QtWidgets import (
 import raphodo.__about__ as __about__
 from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path, pyqt_api
-from raphodo.ui.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import removeDialogButtonBoxIcons, translateDialogBoxButtons
 
 install_gettext()
 
@@ -386,7 +386,7 @@ class AboutDialog(QDialog):
         closeButton: QPushButton = buttonBox.addButton(
             QDialogButtonBox.StandardButton.Close
         )
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
         self.creditsButton: QPushButton = buttonBox.addButton(
             _("Credits"), QDialogButtonBox.ButtonRole.HelpRole
         )
@@ -398,6 +398,7 @@ class AboutDialog(QDialog):
         self.translatorsButton.setDefault(False)
         self.translatorsButton.setCheckable(True)
         closeButton.setDefault(True)
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
 
         buttonLayout = QVBoxLayout()
         buttonLayout.addWidget(buttonBox)

@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import (
 from raphodo.internationalisation.install import install_gettext
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.password import PasswordEdit
-from raphodo.ui.viewutils import translateDialogBoxButtons
+from raphodo.ui.viewutils import removeDialogButtonBoxIcons, translateDialogBoxButtons
 
 install_gettext()
 
@@ -116,7 +116,8 @@ class SudoCommand(QDialog):
             self.helpButton = buttonBox.addButton(QDialogButtonBox.StandardButton.Help)
             self.helpButton.clicked.connect(self.helpButtonClicked)
 
-        translateDialogBoxButtons(buttonBox)
+        translateDialogBoxButtons(buttonBox=buttonBox)
+        removeDialogButtonBoxIcons(buttonBox=buttonBox)
         buttonBox.rejected.connect(self.reject)
         buttonBox.accepted.connect(self.accept)
         buttonBox.setSizePolicy(
