@@ -8,6 +8,7 @@ Error log window for Rapid Photo Downloader
 import math
 import re
 from collections import deque
+from typing import cast
 
 from PyQt6.QtCore import (
     QEvent,
@@ -23,6 +24,7 @@ from PyQt6.QtGui import (
     QColor,
     QFont,
     QFontMetrics,
+    QGuiApplication,
     QIcon,
     QKeyEvent,
     QKeySequence,
@@ -50,12 +52,13 @@ from PyQt6.QtWidgets import (
 )
 from showinfm import show_in_file_manager
 
+from raphodo.application import Application
 from raphodo.constants import ErrorType
 from raphodo.internationalisation.install import install_gettext
 from raphodo.problemnotification import Problem, Problems
 from raphodo.tools.utilities import data_file_path
 from raphodo.ui.viewutils import (
-    programIcon,
+    ProgramIcon,
     removeDialogButtonBoxIcons,
     translateDialogBoxButtons,
 )
@@ -128,7 +131,8 @@ class ErrorReport(QDialog):
 
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent=parent)
-
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
         self.uris = []
         self.get_href = re.compile("<a href=\"?'?([^\"'>]*)")
 
@@ -155,7 +159,6 @@ class ErrorReport(QDialog):
 
         document: QTextDocument = self.log.document()
         document.setDefaultStyleSheet(sheet)
-        # document.setIndentWidth(QFontMetrics(QFont()).boundingRect('200').width())
 
         self.highlightColor = QColor("#cb1dfa")
         self.textHighlightColor = QColor(Qt.GlobalColor.white)
@@ -184,7 +187,7 @@ class ErrorReport(QDialog):
         message = _("Find in reports")
         self.find = QFindLineEdit(find_text=message)
         self.find.textEdited.connect(self.onFindChanged)
-        style: QStyle = self.find.style()
+        style = self.find.style()
         frame_width = style.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
         button_margin = style.pixelMetric(QStyle.PixelMetric.PM_ButtonMargin)
         spacing = (frame_width + button_margin) * 2 + 8
@@ -193,19 +196,22 @@ class ErrorReport(QDialog):
             QFontMetrics(QFont()).boundingRect(message).width() + spacing
         )
 
-        font_height = QFontMetrics(self.font()).height()
-        size = QSize(font_height, font_height)
-
         self.up = QPushButton()
-        self.up.setIcon(programIcon(path="icons/up.svg", size=QSize(100, 100)))
+        style = self.up.style()
+        width = style.pixelMetric(QStyle.PixelMetric.PM_ButtonIconSize)
+        size = QSize(width, width)
+        self.upIcon = ProgramIcon(path="icons/up.svg", size=size)
+        self.downIcon = ProgramIcon(path="icons/down.svg", size=size)
+
         self.up.setIconSize(size)
         self.up.clicked.connect(self.upClicked)
         self.up.setToolTip(_("Find the previous occurrence of the phrase"))
         self.down = QPushButton()
-        self.down.setIcon(programIcon(path="icons/down.svg", size=QSize(100, 100)))
+        self.down.setIcon(ProgramIcon(path="icons/down.svg", size=size))
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
         self.down.setToolTip(_("Find the next occurrence of the phrase"))
+        self.setDarkMode(dark_mode=self.app.darkMode)
 
         self.highlightAll = QPushButton(_("&Highlight All"))
         self.highlightAll.setToolTip(_("Highlight all occurrences of the phrase"))
@@ -267,6 +273,11 @@ class ErrorReport(QDialog):
             ErrorType.serious_error: "report/error.svg",
             ErrorType.critical_error: "report/critical.svg",
         }
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.up.setIcon(self.upIcon.darkModeAware(dark_mode))
+        self.down.setIcon(self.downIcon.darkModeAware(dark_mode))
 
     @pyqtSlot()
     def textChanged(self) -> None:
@@ -550,9 +561,10 @@ class SpeechBubble(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.rapidApp = parent
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.setDarkMode)
         self.image = QIcon(data_file_path("speech-bubble.svg"))
         self._count = 0
-        self.fillColor = QPalette().color(QPalette.ColorRole.Window)
         self.counterFont = QFont()
         self.counterFont.setPointSize(QFont().pointSize() - 1)
         self.custom_height = max(
@@ -564,6 +576,11 @@ class SpeechBubble(QLabel):
             "The number of new entries added to the Error Report since it was "
             "last open. Click to open the Error Report."
         )
+        self.setDarkMode(self.app.darkMode)
+
+    @pyqtSlot(bool)
+    def setDarkMode(self, dark_mode) -> None:
+        self.fillColor = QPalette().color(QPalette.ColorRole.Window)
 
     @property
     def count(self) -> int:
