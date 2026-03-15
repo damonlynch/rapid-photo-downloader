@@ -81,7 +81,10 @@ Source = "https://github.com/damonlynch/rapid-photo-downloader"
 path = "raphodo/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["raphodo", "man", "share", "/*.md"]
+packages = ["raphodo", "man", "/*.md"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"share" = "share"
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo", "data", "po", "/*.md"]
