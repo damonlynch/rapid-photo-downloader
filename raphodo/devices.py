@@ -63,7 +63,7 @@ from raphodo.tools.utilities import (
     same_device,
     stdchannel_redirected,
 )
-from raphodo.ui.viewutils import ProgramIcon
+from raphodo.ui.programicon import ProgramIcon
 
 install_gettext()
 

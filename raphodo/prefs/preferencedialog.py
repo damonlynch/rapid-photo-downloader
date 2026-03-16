@@ -71,12 +71,13 @@ from raphodo.prefs.preferences import Preferences
 from raphodo.tools.utilities import (
     available_cpu_count,
     available_languages,
+    data_file_path,
     format_size_for_user,
 )
 from raphodo.ui.narrowlistwidget import NarrowListDelegate, NarrowListWidget
+from raphodo.ui.programicon import ProgramIcon
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
-    ProgramIcon,
     StyledLinkLabel,
     highlight_is_dark,
     removeDialogButtonBoxIcons,

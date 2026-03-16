@@ -16,8 +16,8 @@ from PyQt6.QtWidgets import QPushButton, QSizePolicy
 
 from raphodo.application import Application
 from raphodo.internationalisation.install import install_gettext
+from raphodo.ui.programicon import ProgramIcon
 from raphodo.ui.rotatedpushbutton import FlatButton
-from raphodo.ui.viewutils import ProgramIcon
 
 install_gettext()
 

@@ -43,8 +43,8 @@ from raphodo.constants import (
 )
 from raphodo.internationalisation.install import install_gettext
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
+from raphodo.ui.programicon import ProgramIcon
 from raphodo.ui.viewutils import (
-    ProgramIcon,
     TopFramedVerticalScrollBar,
     standard_font_size,
 )
@@ -64,7 +64,7 @@ class FileSystemModel(QFileSystemModel):
     def __init__(self, parent) -> None:
         super().__init__(parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
         # More filtering done in the FileSystemFilter
         self.setFilter(QDir.Filter.AllDirs | QDir.Filter.NoDotAndDotDot)
@@ -119,8 +119,7 @@ class FileSystemModel(QFileSystemModel):
 
         return super().data(index, role)
 
-    @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self) -> None:
         self.dataChanged.emit(
             self.index(0, 0),
             self.index(self.rowCount() - 1, self.columnCount() - 1),
@@ -204,7 +203,8 @@ class FileSystemView(QTreeView):
         """
         if not path:
             return
-        index = self.model().mapFromSource(self.fileSystemModel.index(path))
+        model = cast(QSortFilterProxyModel, self.model())
+        index = model.mapFromSource(self.fileSystemModel.index(path))
         self.setExpanded(index, True)
         selection = self.selectionModel()
         selection.select(
@@ -228,16 +228,17 @@ class FileSystemView(QTreeView):
             return False
 
         expanded = False
+        model = cast(QSortFilterProxyModel, self.model())
         for path in self.fileSystemModel.download_subfolders:
-            # print('path', path)
-            index = self.model().mapFromSource(self.fileSystemModel.index(path))
+            index = model.mapFromSource(self.fileSystemModel.index(path))
             if not self.isExpanded(index):
                 self.expand(index)
                 expanded = True
         return expanded
 
     def expandPath(self, path) -> None:
-        index = self.model().mapFromSource(self.fileSystemModel.index(path))
+        model = cast(QSortFilterProxyModel, self.model())
+        index = model.mapFromSource(self.fileSystemModel.index(path))
         if not self.isExpanded(index):
             self.expand(index)
 
@@ -258,7 +259,8 @@ class FileSystemView(QTreeView):
     def doOpenInFileBrowserAct(self) -> None:
         index = self.clickedIndex
         if index:
-            uri = self.fileSystemModel.filePath(index.model().mapToSource(index))
+            model = cast(QSortFilterProxyModel, index.model())
+            uri = self.fileSystemModel.filePath(model.mapToSource(index))
             logging.debug(
                 "Calling show_in_file_manager() with %s and %s",
                 self.rapidApp.file_manager,

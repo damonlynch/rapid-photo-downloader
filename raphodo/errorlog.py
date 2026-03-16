@@ -57,8 +57,8 @@ from raphodo.constants import ErrorType
 from raphodo.internationalisation.install import install_gettext
 from raphodo.problemnotification import Problem, Problems
 from raphodo.tools.utilities import data_file_path
+from raphodo.ui.programicon import ProgramIcon
 from raphodo.ui.viewutils import (
-    ProgramIcon,
     removeDialogButtonBoxIcons,
     translateDialogBoxButtons,
 )

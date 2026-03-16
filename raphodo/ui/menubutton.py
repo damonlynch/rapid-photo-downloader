@@ -9,7 +9,8 @@ from PyQt6.QtWidgets import QMenu, QToolButton
 
 from raphodo.application import Application
 from raphodo.ui.primarybutton import DownloadButtonHeight
-from raphodo.ui.viewutils import ProgramIcon, menuHoverColor
+from raphodo.ui.programicon import ProgramIcon
+from raphodo.ui.viewutils import menuHoverColor
 
 
 class MenuButton(QToolButton):
