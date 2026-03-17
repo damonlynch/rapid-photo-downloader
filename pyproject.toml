@@ -85,6 +85,7 @@ packages = ["raphodo", "man", "/*.md"]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "share" = "share"
+"data/icons" = "share/icons/hicolor"
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo", "data", "po", "/*.md"]
