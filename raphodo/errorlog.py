@@ -132,7 +132,7 @@ class ErrorReport(QDialog):
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent=parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self.uris = []
         self.get_href = re.compile("<a href=\"?'?([^\"'>]*)")
 
@@ -211,7 +211,7 @@ class ErrorReport(QDialog):
         self.down.setIconSize(size)
         self.down.clicked.connect(self.downClicked)
         self.down.setToolTip(_("Find the next occurrence of the phrase"))
-        self.setDarkMode(dark_mode=self.app.darkMode)
+        self.applicationPaletteChanged(dark_mode=self.app.darkMode)
 
         self.highlightAll = QPushButton(_("&Highlight All"))
         self.highlightAll.setToolTip(_("Highlight all occurrences of the phrase"))
@@ -275,7 +275,7 @@ class ErrorReport(QDialog):
         }
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         self.up.setIcon(self.upIcon.darkModeAware(dark_mode))
         self.down.setIcon(self.downIcon.darkModeAware(dark_mode))
 
@@ -562,7 +562,7 @@ class SpeechBubble(QLabel):
         super().__init__(parent)
         self.rapidApp = parent
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self.image = QIcon(data_file_path("speech-bubble.svg"))
         self._count = 0
         self.counterFont = QFont()
@@ -576,10 +576,10 @@ class SpeechBubble(QLabel):
             "The number of new entries added to the Error Report since it was "
             "last open. Click to open the Error Report."
         )
-        self.setDarkMode(self.app.darkMode)
+        self.applicationPaletteChanged(self.app.darkMode)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         self.fillColor = QPalette().color(QPalette.ColorRole.Window)
 
     @property

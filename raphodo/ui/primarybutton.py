@@ -58,7 +58,7 @@ class TopPushButton(QPushButton, FlatButton):
         self.setFlatStyle(self, darker_if_checked=False)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode) -> None:
         self.setFlatStyle(self, darker_if_checked=False)
         super().setIcon(self._icon.darkModeAware(dark_mode=dark_mode))
 
@@ -125,14 +125,14 @@ class DownloadButton(QPushButton):
     def __init__(self, text: str, parent) -> None:
         super().__init__(text, parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
         self.rapidApp = parent
         self.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
-        self.setDarkMode(self.app.darkMode)
+        self.applicationPaletteChanged(self.app.darkMode)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         height, padding = DownloadButtonHeight()
         radius = height // 2
 

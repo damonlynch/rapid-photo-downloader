@@ -29,11 +29,11 @@ class VerticalRotation(IntEnum):
 class FlatButton:
     def __init__(self):
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self._padding = "padding-left: 7px; padding-right: 7px; padding-top: 6px; padding-bottom: 6px; "  # noqa: E501
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode) -> None:
         # Implemented in subclass
         pass
 
@@ -152,7 +152,7 @@ class RotatedButton(QPushButton, FlatButton):
         )
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode) -> None:
         if self._highlighted:
             self.setHighlightedFlatStyle(self)
         else:

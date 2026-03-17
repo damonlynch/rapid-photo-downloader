@@ -34,7 +34,7 @@ class NarrowListWidget(QListWidget):
     ) -> None:
         super().__init__(parent=parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self._flat_look = flat_look
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._minimum_rows = minimum_rows
@@ -48,12 +48,12 @@ class NarrowListWidget(QListWidget):
             self.setSpacing(2)
             # Enable hover effect in delegate
             self.viewport().setMouseTracking(True)
-            self.setDarkMode(self.app.darkMode)
+            self.applicationPaletteChanged(self.app.darkMode)
         else:
             self.right_padding = 0
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         if self._flat_look:
             palette = QPalette()
             color = palette.window().color()

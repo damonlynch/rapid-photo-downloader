@@ -27,10 +27,10 @@ class ChevronCombo(QComboBox):
         """
         super().__init__(parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode) -> None:
         self.update()
 
     def paintEvent(self, event):

@@ -48,7 +48,7 @@ class QToggleSwitch(QSlider):
         """
         super().__init__(Qt.Orientation.Horizontal, parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self._backgroundColor = backgroundColor
         self._backgroundDarkColor = backgroundDarkColor
 
@@ -68,13 +68,13 @@ class QToggleSwitch(QSlider):
         # Track if button was dragged in the control
         self.dragged = False
 
-        self.setDarkMode(dark_mode=self.app.darkMode)
+        self.applicationPaletteChanged(dark_mode=self.app.darkMode)
 
         self.actionTriggered.connect(self.onActionTriggered)
         self.sliderReleased.connect(self.onSliderRelease)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         self.setStyleSheet(
             self.stylesheet(
                 self._backgroundDarkColor if dark_mode else self._backgroundColor

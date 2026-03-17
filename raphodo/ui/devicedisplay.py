@@ -700,7 +700,7 @@ class DeviceDisplay(QObject):
     def __init__(self, parent: QObject, menuButtonIcon: QIcon | None = None) -> None:
         super().__init__(parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
         self.menuButtonIcon = menuButtonIcon
 
@@ -713,10 +713,10 @@ class DeviceDisplay(QObject):
 
         self.storageBorderColor = QColor("#bcbcbc")
         self.emptySpaceColor = QColor("#f2f2f2")
-        self.setDarkMode(self.app.darkMode)
+        self.applicationPaletteChanged(self.app.darkMode)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         self.deviceNameHighlightColor = device_name_highlight_color(dark_mode)
         if dark_mode:
             self.menuHighlightColor = QPalette().color(QPalette.ColorRole.Highlight)

@@ -2611,7 +2611,7 @@ class SyncButton(QPushButton):
         super().__init__(parent=parent)
 
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         scaling = self.devicePixelRatioF()
 
         self.activeIcon = SyncIcon(
@@ -2686,11 +2686,11 @@ class SyncButton(QPushButton):
         self.setToolTip(
             _("Toggle synchronizing Timeline and thumbnail scrolling (Ctrl-T)")
         )
-        self.setDarkMode(self.app.darkMode)
+        self.applicationPaletteChanged(self.app.darkMode)
         self.installEventFilter(self)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         if dark_mode:
             hoverColor = (
                 QPalette()

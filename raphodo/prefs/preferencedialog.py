@@ -130,7 +130,7 @@ class PreferencesDialog(QDialog):
 
         self.flat_look = self.screen().size().width() > 800
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
         self.setupMenuChooser()
 
@@ -267,7 +267,7 @@ class PreferencesDialog(QDialog):
                 icon = self.chooser_icons[i]
                 item.setIcon(icon)
         else:
-            self.setDarkMode(dark_mode=self.app.darkMode)
+            self.applicationPaletteChanged(dark_mode=self.app.darkMode)
 
         self.chooser.currentRowChanged.connect(self.rowChanged)
         self.chooser.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -276,7 +276,7 @@ class PreferencesDialog(QDialog):
         )
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         if not self.flat_look:
             palette = QPalette()
             selectedTextColour = palette.color(palette.ColorRole.HighlightedText)
@@ -285,7 +285,7 @@ class PreferencesDialog(QDialog):
             for i in range(self.chooser.count()):
                 item = self.chooser.item(i)
                 _icon = self.chooser_icons[i]  # type: ProgramIcon
-                icon = _icon.darkModeAware(self.app.darkMode)
+                icon = _icon.darkModeAware(dark_mode=dark_mode)
                 if h_is_dark:
                     pixmap = icon.pixmap(self.iconSize)
                     selected = QPixmap(pixmap)

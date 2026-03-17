@@ -40,7 +40,7 @@ class QPanelView(QWidget):
     ) -> None:
         super().__init__(parent=parent)
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self.header = QWidget(self)
 
         if headerColor is not None:
@@ -49,7 +49,7 @@ class QPanelView(QWidget):
             self.headerColorDark = QColor(DarkModeHeaderBackgroundName)
             self.headerColor = QColor(HeaderBackgroundName)
 
-        self.setDarkMode(self.app.darkMode)
+        self.applicationPaletteChanged(self.app.darkMode)
         self.header.setAutoFillBackground(True)
         self.header.setSizePolicy(
             QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed
@@ -79,7 +79,7 @@ class QPanelView(QWidget):
         layout.addWidget(self.header)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         headerColor = self.headerColorDark if dark_mode else self.headerColor
         palette = self.header.palette()
         palette.setColor(QPalette.ColorRole.Window, headerColor)

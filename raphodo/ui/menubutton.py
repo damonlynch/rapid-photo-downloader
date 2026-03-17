@@ -21,7 +21,7 @@ class MenuButton(QToolButton):
     def __init__(self, path: str, menu: QMenu) -> None:
         super().__init__()
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
         self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
@@ -31,14 +31,11 @@ class MenuButton(QToolButton):
         height = round(DownloadButtonHeight()[0] * (2 / 3) * scaling)
         size = QSize(height, height)
         self._icon = ProgramIcon(path=path, size=size)
-        self.setDarkMode(self.app.darkMode)
-        # self.setIcon(self._icon.darkModeAware(self.app.darkMode))
-        # self.setIconSize(size)
-
+        self.applicationPaletteChanged(self.app.darkMode)
         self.setMenu(menu)
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         self.setIcon(self._icon.darkModeAware(dark_mode=dark_mode))
         hover_color = menuHoverColor(dark_mode=dark_mode).name(QColor.NameFormat.HexRgb)
         self.setStyleSheet(

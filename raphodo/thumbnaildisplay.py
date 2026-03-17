@@ -1943,7 +1943,7 @@ class ThumbnailView(QListView):
         super().__init__(parent)
         self.rapidApp = parent
         self.app = cast(Application, QGuiApplication.instance())
-        self.app.applicationPaletteChanged.connect(self.setDarkMode)
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
         self.setObjectName("thumbnailView")
         self.setViewMode(QListView.ViewMode.IconMode)
         self.setResizeMode(QListView.ResizeMode.Adjust)
@@ -1951,7 +1951,7 @@ class ThumbnailView(QListView):
         self.setSpacing(8)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setFrameShadow(QFrame.Shadow.Plain)
-        self.setDarkMode(self.app.darkMode)
+        self.applicationPaletteChanged(self.app.darkMode)
         self.possiblyPreserveSelectionPostClick = False
 
         sbv = ScrollBarEmitsVisible(orientation=Qt.Orientation.Vertical)
@@ -1963,7 +1963,7 @@ class ThumbnailView(QListView):
         self.user_visible_columns = 0
 
     @pyqtSlot(bool)
-    def setDarkMode(self, dark_mode) -> None:
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
         palette = self.palette()
         if dark_mode:
             color = QColor(DarkModeThumbnailBackgroundName)
