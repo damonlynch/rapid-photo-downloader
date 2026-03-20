@@ -162,7 +162,7 @@ class Application(QtSingleApplication):
         if self._raw_accent_colour is not None:
             self.accentColor = QColor.fromRgbF(*self._raw_accent_colour)
         else:
-            logging.debug("Setting stock accent color", self._raw_accent_colour)
+            logging.debug("Setting stock accent color")
             self.accentColor = QColor(StockAccent)
 
     def _setThemeColor(self) -> None:
