@@ -45,7 +45,6 @@ from raphodo.internationalisation.install import install_gettext
 from raphodo.storage.storage import get_media_dir, gvfs_gphoto2_path
 from raphodo.ui.programicon import ProgramIcon
 from raphodo.ui.viewutils import (
-    TopFramedVerticalScrollBar,
     standard_font_size,
 )
 from raphodo.wsl.wslutils import wsl_filter_directories
@@ -185,8 +184,6 @@ class FileSystemView(QTreeView):
             triggered=self.doShowSystemFoldersAct,
         )
         self.contextMenu.addAction(self.showSystemFoldersAct)
-
-        self.setVerticalScrollBar(TopFramedVerticalScrollBar(name="fileSystemView"))
 
     def hideColumns(self) -> None:
         """

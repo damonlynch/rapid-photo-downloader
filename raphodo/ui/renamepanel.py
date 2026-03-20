@@ -38,7 +38,7 @@ from raphodo.ui.flexiframe import FlexiFrame
 from raphodo.ui.nameeditor import PrefDialog, PresetComboBox, make_sample_rpd_file
 from raphodo.ui.panelview import QPanelView
 from raphodo.ui.qtcompatibility import CompatCheckBox
-from raphodo.ui.viewutils import ScrollAreaNoFrame
+from raphodo.ui.scrollbarfusion import ScrollAreaNoFrame
 
 install_gettext()
 

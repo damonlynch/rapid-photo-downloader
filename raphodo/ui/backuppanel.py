@@ -60,8 +60,8 @@ from raphodo.ui.panelview import QPanelView
 from raphodo.ui.qtcompatibility import CompatCheckBox
 from raphodo.ui.viewutils import (
     RowTracker,
-    ScrollAreaNoFrame,
 )
+from raphodo.ui.scrollbarfusion import ScrollAreaNoFrame
 
 install_gettext()
 

@@ -1,7 +1,6 @@
 #  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
-import sys
 from collections import namedtuple
 
 from packaging.version import parse
@@ -17,7 +16,6 @@ from PyQt6.QtCore import (
     QSize,
     Qt,
     pyqtSignal,
-    pyqtSlot,
 )
 from PyQt6.QtGui import (
     QColor,
@@ -27,31 +25,23 @@ from PyQt6.QtGui import (
     QIcon,
     QMouseEvent,
     QPainter,
-    QPaintEvent,
     QPalette,
-    QPen,
     QPixmap,
     QResizeEvent,
-    QShowEvent,
 )
 from PyQt6.QtWidgets import (
     QApplication,
     QDialogButtonBox,
-    QFrame,
     QItemDelegate,
     QLabel,
     QMessageBox,
     QProxyStyle,
-    QScrollArea,
-    QScrollBar,
     QSplitter,
     QSplitterHandle,
     QStyle,
     QStyleOption,
     QStyleOptionButton,
-    QStyleOptionSlider,
     QStyleOptionViewItem,
-    QStylePainter,
     QWidget,
 )
 
@@ -189,13 +179,6 @@ ThumbnailDataForProximity = namedtuple(
 )
 
 
-def paletteMidPen() -> QPen:
-    if sys.platform == "win32":
-        return QPen(QApplication.palette().mid().color().lighter(120))
-    else:
-        return QPen(QApplication.palette().mid().color())
-
-
 class MainWindowSplitter(QSplitter):
     heightChanged = pyqtSignal(int)
 
@@ -239,210 +222,6 @@ class SourceSplitter(QSplitter):
 
     def createHandle(self) -> QSplitterHandle:
         return SourceSplitterHandle(Qt.Orientation.Vertical, self)
-
-
-class ScrollBarEmitsVisible(QScrollBar):
-    """
-    Emits a signal when it appears or disappears. Shares same code
-    with FramedScrollBar, which is unavoidable due to rules around
-    PyQt multiple inheritance.
-    """
-
-    scrollBarVisible = pyqtSignal(bool)
-
-    def __init__(self, orientation, parent: QWidget | None = None) -> None:
-        super().__init__(orientation=orientation, parent=parent)
-        self.rangeChanged.connect(self.scrollBarChange)
-        self.visible_state = None
-
-    @pyqtSlot(int, int)
-    def scrollBarChange(self, min: int, max: int) -> None:
-        visible = max != 0
-        if visible != self.visible_state:
-            self.visible_state = visible
-            self.scrollBarVisible.emit(visible)
-
-
-class FramedScrollBar(QScrollBar):
-    """
-    QScrollBar for use with Fusion widgets which expect to be framed
-    e.g. QScrollArea, but are not, typically because their children already
-    have a frame.
-    """
-
-    scrollBarVisible = pyqtSignal(bool)
-
-    def __init__(self, orientation, name: str, parent: QWidget | None = None) -> None:
-        super().__init__(orientation=orientation, parent=parent)
-        self.frame_width = self.style().pixelMetric(
-            QStyle.PixelMetric.PM_DefaultFrameWidth
-        )
-        orientation = (
-            "Vertical" if orientation == Qt.Orientation.Vertical else "Horizontal"
-        )
-        self.setObjectName(f"{name}{orientation}ScrollBar")
-        self.midPen = paletteMidPen()
-
-        self.rangeChanged.connect(self.scrollBarChange)
-        self.visible_state = None
-
-    @pyqtSlot(int, int)
-    def scrollBarChange(self, min: int, max: int) -> None:
-        visible = max != 0
-        if not visible and visible != self.visible_state:
-            self.visible_state = visible
-            self.scrollBarVisible.emit(visible)
-
-    def showEvent(self, event: QShowEvent) -> None:
-        super().showEvent(event)
-        if not self.visible_state:
-            self.visible_state = self.maximum() != 0
-            self.scrollBarVisible.emit(self.visible_state)
-
-    def sizeHint(self) -> QSize:
-        """
-        Increase the size of the scrollbar to account for the width of the frames
-        """
-
-        size = super().sizeHint()
-        if self.orientation() == Qt.Orientation.Vertical:
-            return QSize(
-                size.width() + self.frame_width, size.height() + self.frame_width * 2
-            )
-        else:
-            return QSize(
-                size.width() + self.frame_width * 2, size.height() + self.frame_width
-            )
-
-    def paintEvent(self, event: QPaintEvent) -> None:
-        """
-        Render the scrollbars using Qt's draw control, and render the frame elements
-        dependent on whether the partner horizontal / vertical scrollbar is also visible
-        """
-
-        painter = QStylePainter(self)
-        if self.orientation() == Qt.Orientation.Vertical:
-            painter.translate(0.0, self.frame_width)
-        else:
-            painter.translate(self.frame_width, 0.0)
-
-        option = QStyleOptionSlider()
-        option.initFrom(self)
-        option.maximum = self.maximum()
-        option.minimum = self.minimum()
-        option.pageStep = self.pageStep()
-        option.singleStep = self.singleStep()
-        option.sliderPosition = self.sliderPosition()
-        option.orientation = self.orientation()
-        if self.orientation() == Qt.Orientation.Horizontal:
-            option.state |= QStyle.StateFlag.State_Horizontal
-
-        rect = self.renderRect()
-
-        option.rect = rect
-        option.palette = self.palette()
-        option.subControls = (
-            QStyle.SubControl.SC_ScrollBarAddLine
-            | QStyle.SubControl.SC_ScrollBarSubLine
-            | QStyle.SubControl.SC_ScrollBarAddPage
-            | QStyle.SubControl.SC_ScrollBarSubPage
-            | QStyle.SubControl.SC_ScrollBarFirst
-            | QStyle.SubControl.SC_ScrollBarLast
-        )
-
-        painter.fillRect(
-            option.rect, QApplication.palette().window().color().darker(102)
-        )
-        self.style().drawComplexControl(
-            QStyle.ComplexControl.CC_ScrollBar, option, painter
-        )
-
-        # Highlight the handle (slider) on mouse over, otherwise render it as normal
-        option.subControls = QStyle.SubControl.SC_ScrollBarSlider
-        if (
-            option.state & QStyle.StateFlag.State_MouseOver
-            == QStyle.StateFlag.State_MouseOver
-        ):
-            palette = self.palette()
-            if sys.platform == "win32":
-                color = self.palette().base().color()
-            else:
-                color = self.palette().button().color().lighter(102)
-            palette.setColor(QPalette.ColorRole.Button, color)
-            option.palette = palette
-        self.style().drawComplexControl(
-            QStyle.ComplexControl.CC_ScrollBar, option, painter
-        )
-
-        # Render the borders
-        painter.resetTransform()
-        painter.setPen(self.midPen)
-        self.renderEdges(painter)
-
-    def renderRect(self) -> QRect:
-        rect = QRect(self.rect())
-        if self.orientation() == Qt.Orientation.Vertical:
-            rect.adjust(self.frame_width, self.frame_width * 2, 0, 0)
-        else:
-            rect.adjust(self.frame_width * 2, self.frame_width, 0, 0)
-        return rect
-
-    def renderEdges(self, painter: QStylePainter) -> None:
-        rect = self.rect()
-        if self.orientation() == Qt.Orientation.Vertical:
-            painter.drawLine(rect.topLeft(), rect.topRight())
-            painter.drawLine(rect.topRight(), rect.bottomRight())
-            painter.drawLine(rect.topLeft(), rect.bottomLeft())
-            if not self.parent().parent().horizontalScrollBar().isVisible():
-                painter.drawLine(rect.bottomLeft(), rect.bottomRight())
-        else:
-            painter.drawLine(rect.topLeft(), rect.bottomLeft())
-            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
-            painter.drawLine(rect.topLeft(), rect.topRight())
-            if not self.parent().parent().verticalScrollBar().isVisible():
-                painter.drawLine(rect.bottomRight(), rect.topRight())
-
-
-class TopFramedVerticalScrollBar(FramedScrollBar):
-    def __init__(self, name: str, parent: QWidget | None = None) -> None:
-        super().__init__(orientation=Qt.Orientation.Vertical, name=name, parent=parent)
-
-    def sizeHint(self) -> QSize:
-        """
-        Increase the size of the scrollbar to account for the extra height
-        """
-
-        size = super().sizeHint()
-        return QSize(size.width(), size.height() + self.frame_width)
-
-    def renderRect(self) -> QRect:
-        rect = QRect(self.rect())
-        rect.adjust(0, self.frame_width, 0, 0)
-        return rect
-
-    def renderEdges(self, painter: QStylePainter) -> None:
-        rect = self.rect()
-        painter.drawLine(rect.topLeft(), rect.topRight())
-        painter.drawLine(rect.topLeft(), rect.bottomLeft())
-
-
-class ScrollAreaNoFrame(QScrollArea):
-    """
-    Scroll Area with no frame and scrollbars that frame themselves
-    """
-
-    horizontalScrollBarVisible = pyqtSignal(bool)
-    verticalScrollBarVisible = pyqtSignal(bool)
-
-    def __init__(self, name: str, parent: QWidget) -> None:
-        super().__init__(parent=parent)
-        self.setFrameShape(QFrame.Shape.NoFrame)
-        sbv = FramedScrollBar(orientation=Qt.Orientation.Vertical, name=name)
-        sbh = FramedScrollBar(orientation=Qt.Orientation.Horizontal, name=name)
-        self.setVerticalScrollBar(sbv)
-        self.setHorizontalScrollBar(sbh)
-        sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)
-        sbh.scrollBarVisible.connect(self.horizontalScrollBarVisible)
 
 
 class StyledLinkLabel(QLabel):

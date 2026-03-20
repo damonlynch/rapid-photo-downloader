@@ -5,9 +5,13 @@
 Display photo and video destinations
 """
 
-from PyQt6.QtCore import Qt
+from typing import cast
+
+from PyQt6.QtCore import Qt, pyqtSlot
+from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtWidgets import QSplitter, QVBoxLayout, QWidget
 
+from raphodo.application import Application
 from raphodo.devices import DownloadingTo
 from raphodo.internationalisation.install import install_gettext
 from raphodo.rpdfile import FileType
@@ -19,7 +23,7 @@ from raphodo.ui.destinationdisplay import (
     DisplayingFilesOfType,
 )
 from raphodo.ui.panelview import QPanelView
-from raphodo.ui.viewutils import ScrollAreaNoFrame
+from raphodo.ui.scrollbarfusion import ScrollAreaNoFrame
 
 install_gettext()
 
@@ -30,6 +34,8 @@ class DestinationPanel(ScrollAreaNoFrame):
         assert parent is not None
         self.rapidApp = parent
         self.prefs = self.rapidApp.prefs
+        self.app = cast(Application, QGuiApplication.instance())
+        self.app.applicationPaletteChanged.connect(self.applicationPaletteChanged)
 
         self.setObjectName("destinationPanelScrollArea")
 
@@ -46,6 +52,10 @@ class DestinationPanel(ScrollAreaNoFrame):
         self.splitter.setCollapsible(1, False)
         self.setWidget(self.splitter)
         self.setWidgetResizable(True)
+
+    @pyqtSlot(bool)
+    def applicationPaletteChanged(self, dark_mode: bool) -> None:
+        self.update()
 
     def createDestinationViews(self) -> None:
         """

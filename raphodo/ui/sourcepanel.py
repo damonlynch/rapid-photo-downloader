@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import QApplication, QSizePolicy, QStyle, QVBoxLayout, QWid
 from raphodo.constants import TemporalProximityState
 from raphodo.internationalisation.install import install_gettext
 from raphodo.proximity import TemporalProximityControls
-from raphodo.ui.viewutils import ScrollAreaNoFrame, SourceSplitter
+from raphodo.ui.viewutils import SourceSplitter
+from raphodo.ui.scrollbarfusion import ScrollAreaNoFrame
 
 install_gettext()
 

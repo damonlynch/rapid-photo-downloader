@@ -107,7 +107,6 @@ from raphodo.tools.utilities import (
     runs,
 )
 from raphodo.ui.viewutils import (
-    ScrollBarEmitsVisible,
     ThumbnailDataForProximity,
     scaledIcon,
 )
@@ -1953,10 +1952,6 @@ class ThumbnailView(QListView):
         self.setFrameShadow(QFrame.Shadow.Plain)
         self.applicationPaletteChanged(self.app.darkMode)
         self.possiblyPreserveSelectionPostClick = False
-
-        sbv = ScrollBarEmitsVisible(orientation=Qt.Orientation.Vertical)
-        self.setVerticalScrollBar(sbv)
-        sbv.scrollBarVisible.connect(self.verticalScrollBarVisible)
 
         # Track how many columns the user sees
         # QListView IconMode indexes are always set to column 0

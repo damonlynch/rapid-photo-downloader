@@ -12,7 +12,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from raphodo.ui.viewutils import device_name_highlight_color, paletteMidPen
+from raphodo.ui.scrollbarfusion import paletteMidPen
+from raphodo.ui.viewutils import device_name_highlight_color
 
 
 class FlexiFrameObject:

@@ -71,7 +71,8 @@ from raphodo.storage.storage import StorageSpace, get_mount_size, get_path_displ
 from raphodo.tools.utilities import data_file_path, format_size_for_user
 from raphodo.ui.devicedisplay import BodyDetails, DeviceDisplay, icon_size
 from raphodo.ui.nameeditor import PrefDialog, make_subfolder_menu_entry
-from raphodo.ui.viewutils import darkModePixmap, paletteMidPen
+from raphodo.ui.scrollbarfusion import paletteMidPen
+from raphodo.ui.viewutils import darkModePixmap
 
 
 def make_body_details(
