@@ -737,17 +737,19 @@ class DownloadedSQL:
         # h:mm. Set to actual offset when one is found. Can be negative.
         self.found_offset_hr = ""
 
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def no_downloaded(self) -> None:
         """
         :return: how many downloaded files are in the db
         """
 
-        with closing(sqlite3.connect(self.db)) as conn:
+        with closing(sqlite3.connect(self.db, timeout=sqlite3_timeout)) as conn:
             c = conn.cursor()
             c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
             count = c.fetchall()
             return count[0][0]
 
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def update_table(self, reset: bool = False) -> None:
         """
         Create or update the database table
@@ -756,7 +758,9 @@ class DownloadedSQL:
         """
 
         with closing(
-            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+            sqlite3.connect(
+                self.db, detect_types=sqlite3.PARSE_DECLTYPES, timeout=sqlite3_timeout
+            )
         ) as conn:
             if reset:
                 conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
@@ -825,6 +829,7 @@ class DownloadedSQL:
             else:
                 conn.commit()
 
+    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
     def file_downloaded(
         self,
         name: str,
@@ -842,7 +847,9 @@ class DownloadedSQL:
          downloaded, else None if never downloaded
         """
         with closing(
-            sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+            sqlite3.connect(
+                self.db, detect_types=sqlite3.PARSE_DECLTYPES, timeout=sqlite3_timeout
+            )
         ) as conn:
             c = conn.cursor()
             c.execute(
