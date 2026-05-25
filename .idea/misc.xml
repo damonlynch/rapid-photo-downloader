@@ -7,8 +7,4 @@
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>
-  <component name="RuffConfiguration">
-    <option name="enabled" value="true" />
-    <option name="executableDiscoveryMode" value="PATH" />
-  </component>
 </project>
