@@ -39,11 +39,11 @@ import sys
 import time
 from collections import namedtuple
 from pathlib import Path
+from platform import freedesktop_os_release
 from tempfile import NamedTemporaryFile
 from typing import NamedTuple
 from urllib.parse import quote
 from urllib.request import pathname2url
-from platform import freedesktop_os_release
 
 import gi
 
@@ -69,6 +69,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from raphodo.constants import Distro, PostCameraUnmountAction
 from raphodo.internationalisation.install import install_gettext
+from raphodo.storage.udisksconfig import detect_run_media_dir
 from raphodo.tools.utilities import (
     log_os_release,
     remove_topmost_directory_from_path,
@@ -184,17 +185,17 @@ def get_distro_and_version() -> tuple[Distro, str]:
 
     version_id = os_release.get("VERSION_ID")
     if version_id:
-        return (distro, version_id)
+        return distro, version_id
 
     version = os_release.get("VERSION")
     if version:
-        return (distro, version)
+        return distro, version
 
     version_codename = os_release.get("VERSION_CODENAME")
     if version_codename:
-        return (distro, version_codename)
+        return distro, version_codename
 
-    return (distro, "")
+    return distro, ""
 
 
 def get_user_name() -> str:
@@ -222,13 +223,51 @@ def get_path_display_name(path: str) -> tuple[str, str]:
     return display_name, path
 
 
+def _guess_media_dir(run_media_dir: str, media_dir: str) -> str:
+
+    distro, version = get_distro_and_version()
+    if os.path.isdir(run_media_dir) and distro not in (
+        Distro.debian,
+        Distro.neon,
+        Distro.galliumos,
+        Distro.peppermint,
+        Distro.elementary,
+        Distro.zorin,
+        Distro.popos,
+    ):
+        if distro == Distro.ubuntu:
+            try:
+                version_num = tuple(map(int, version.split(".")))
+                if version_num < (26, 4):
+                    return media_dir
+            except Exception as e:
+                logging.error("Error reading Ubuntu's VERSION_ID: %s", str(e))
+        if distro not in (
+            Distro.ubuntu,
+            Distro.fedora,
+            Distro.manjaro,
+            Distro.arch,
+            Distro.opensuse,
+            Distro.gentoo,
+            Distro.centos,
+            Distro.centos_stream,
+        ):
+            logging.debug(
+                "Detected /run/media directory, but distro does not "
+                "appear to be CentOS, Fedora, Arch, openSUSE, Gentoo, "
+                "Manjaro or Ubuntu >= 26.04"
+            )
+            log_os_release()
+        return run_media_dir
+    return media_dir
+
+
 @functools.cache
 def get_media_dir() -> str:
     """
-    Returns the media directory, i.e. where external mounts are mounted.
+    Heuristically detects the media directory, i.e. where external mounts are mounted.
 
-    Assumes mount point of /media/<USER>.
-
+    Assumes mount point of /run/media/<USER> or legacy /media/<USER>.
     """
 
     if sys.platform.startswith("linux"):
@@ -237,41 +276,14 @@ def get_media_dir() -> str:
 
         media_dir = f"/media/{get_user_name()}"
         run_media_dir = "/run/media"
-        distro, version = get_distro_and_version()
-        if os.path.isdir(run_media_dir) and distro not in (
-            Distro.debian,
-            Distro.neon,
-            Distro.galliumos,
-            Distro.peppermint,
-            Distro.elementary,
-            Distro.zorin,
-            Distro.popos,
-        ):
-            if distro == Distro.ubuntu:
-                try:
-                    version_num = tuple(map(int, version.split(".")))
-                    if version_num < (26, 4):
-                        return media_dir
-                except Exception as e:
-                    logging.error("Error reading Ubuntu's VERSION_ID: %s", str(e))
-            if distro not in (
-                Distro.ubuntu,
-                Distro.fedora,
-                Distro.manjaro,
-                Distro.arch,
-                Distro.opensuse,
-                Distro.gentoo,
-                Distro.centos,
-                Distro.centos_stream,
-            ):
-                logging.debug(
-                    "Detected /run/media directory, but distro does not "
-                    "appear to be CentOS, Fedora, Arch, openSUSE, Gentoo, "
-                    "Manjoaro or newer Ubuntu"
-                )
-                log_os_release()
-            return run_media_dir
-        return media_dir
+
+        try:
+            folder = run_media_dir if detect_run_media_dir() else media_dir
+        except Exception as e:
+            logging.warning("Could not detect media directory using UDisks2: %s", e)
+            folder = _guess_media_dir(run_media_dir, media_dir)
+        logging.debug("Using media directory: %s", folder)
+        return folder
     else:
         raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform)
 
@@ -504,7 +516,9 @@ def platform_photos_directory(home_on_failure: bool = True) -> str | None:
         path = wsl_home()
         if path.is_dir():
             return str(path / "Pictures")
-    return _platform_special_dir(QStandardPaths.StandardLocation.PicturesLocation, home_on_failure)
+    return _platform_special_dir(
+        QStandardPaths.StandardLocation.PicturesLocation, home_on_failure
+    )
 
 
 def platform_videos_directory(home_on_failure: bool = True) -> str:
@@ -525,7 +539,9 @@ def platform_videos_directory(home_on_failure: bool = True) -> str:
         path = wsl_home()
         if path.is_dir():
             return str(path / "Videos")
-    return _platform_special_dir(QStandardPaths.StandardLocation.MoviesLocation, home_on_failure)
+    return _platform_special_dir(
+        QStandardPaths.StandardLocation.MoviesLocation, home_on_failure
+    )
 
 
 def platform_desktop_directory(home_on_failure: bool = True) -> str:
@@ -537,7 +553,9 @@ def platform_desktop_directory(home_on_failure: bool = True) -> str:
     :return: the directory if it is specified, else the user's
     home directory or None
     """
-    return _platform_special_dir(QStandardPaths.StandardLocation.DesktopLocation, home_on_failure)
+    return _platform_special_dir(
+        QStandardPaths.StandardLocation.DesktopLocation, home_on_failure
+    )
 
 
 def platform_photos_identifier() -> str:
@@ -547,7 +565,9 @@ def platform_photos_identifier() -> str:
     'Pictures'
     """
 
-    path = _platform_special_dir(QStandardPaths.StandardLocation.PicturesLocation, home_on_failure=False)
+    path = _platform_special_dir(
+        QStandardPaths.StandardLocation.PicturesLocation, home_on_failure=False
+    )
     if path is None:
         # translators: the name of the Pictures folder
         return _("Pictures")
@@ -561,7 +581,9 @@ def platform_videos_identifier() -> str:
     'Pictures'
     """
 
-    path = _platform_special_dir(QStandardPaths.StandardLocation.MoviesLocation, home_on_failure=False)
+    path = _platform_special_dir(
+        QStandardPaths.StandardLocation.MoviesLocation, home_on_failure=False
+    )
     if path is None:
         # translators: the name of the Videos folder
         return _("Videos")
