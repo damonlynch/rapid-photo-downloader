@@ -3,6 +3,7 @@
 ## 0.9.38 (2026-05-xx)
 
 - Fix bug [#334](https://github.com/damonlynch/rapid-photo-downloader/issues/334): SD Card / Camera not detected after upgrade to Kubuntu 26.04. Thanks to Michael Reiger and che-wf (Josh) for their fixes.
+- Fix packaging bug where the share directory was not installed in the correct location. Thanks to Erich Eickmeyer for the fix. 
 
 ## 0.9.37 (2026-02-18)
 
