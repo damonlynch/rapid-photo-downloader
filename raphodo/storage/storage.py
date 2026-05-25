@@ -43,6 +43,7 @@ from tempfile import NamedTemporaryFile
 from typing import NamedTuple
 from urllib.parse import quote
 from urllib.request import pathname2url
+from platform import freedesktop_os_release
 
 import gi
 
@@ -121,28 +122,13 @@ def guess_distro() -> Distro:
     return Distro.unknown
 
 
-def parse_os_release() -> dict[str, str]:
-    d = {}
-    if os.path.isfile("/etc/os-release"):
-        with open("/etc/os-release") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    kv = line.split("=", maxsplit=1)
-                    if len(kv) == 2:
-                        k, v = kv
-                        v = v.strip("'\"")
-                        d[k] = v
-    return d
-
-
-def get_distro() -> Distro:
+def get_distro_and_version() -> tuple[Distro, str]:
     """
     Determine the Linux distribution using /etc/os-release
     :param os_release: parsed /etc/os-release file
     """
 
-    os_release = parse_os_release()
+    os_release = freedesktop_os_release()
     name = os_release.get("NAME")
 
     distro = None
@@ -153,14 +139,9 @@ def get_distro() -> Distro:
         if "Fedora" in name:
             distro = Distro.fedora
         if "CentOS Linux" in name:
-            version_id = os_release.get("VERSION_ID")
-            distro = Distro.centos7 if version_id == "7" else Distro.centos8
+            distro = Distro.centos
         if "CentOS Stream" in name:
-            version_id = os_release.get("VERSION_ID")
-            if version_id == "8":
-                distro = Distro.centos_stream8
-            else:
-                distro = Distro.centos_stream9
+            distro = Distro.centos_stream
         if "Linux Mint" in name:
             distro = Distro.linuxmint
         if "elementary" in name:
@@ -201,7 +182,19 @@ def get_distro() -> Distro:
     if distro is None:
         distro = guess_distro()
 
-    return distro
+    version_id = os_release.get("VERSION_ID")
+    if version_id:
+        return (distro, version_id)
+
+    version = os_release.get("VERSION")
+    if version:
+        return (distro, version)
+
+    version_codename = os_release.get("VERSION_CODENAME")
+    if version_codename:
+        return (distro, version_codename)
+
+    return (distro, "")
 
 
 def get_user_name() -> str:
@@ -244,9 +237,8 @@ def get_media_dir() -> str:
 
         media_dir = f"/media/{get_user_name()}"
         run_media_dir = "/run/media"
-        distro = get_distro()
+        distro, version = get_distro_and_version()
         if os.path.isdir(run_media_dir) and distro not in (
-            Distro.ubuntu,
             Distro.debian,
             Distro.neon,
             Distro.galliumos,
@@ -255,20 +247,27 @@ def get_media_dir() -> str:
             Distro.zorin,
             Distro.popos,
         ):
+            if distro == Distro.ubuntu:
+                try:
+                    version_num = tuple(map(int, version.split(".")))
+                    if version_num < (26, 4):
+                        return media_dir
+                except Exception as e:
+                    logging.error("Error reading Ubuntu's VERSION_ID: %s", str(e))
             if distro not in (
+                Distro.ubuntu,
                 Distro.fedora,
                 Distro.manjaro,
                 Distro.arch,
                 Distro.opensuse,
                 Distro.gentoo,
-                Distro.centos8,
-                Distro.centos_stream8,
-                Distro.centos_stream9,
-                Distro.centos7,
+                Distro.centos,
+                Distro.centos_stream,
             ):
                 logging.debug(
-                    "Detected /run/media directory, but distro does not appear "
-                    "to be CentOS, Fedora, Arch, openSUSE, Gentoo, or Manjaro"
+                    "Detected /run/media directory, but distro does not "
+                    "appear to be CentOS, Fedora, Arch, openSUSE, Gentoo, "
+                    "Manjoaro or newer Ubuntu"
                 )
                 log_os_release()
             return run_media_dir
