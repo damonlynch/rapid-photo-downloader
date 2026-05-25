@@ -1,5 +1,9 @@
 # Changelog for Rapid Photo Downloader
 
+## 0.9.38 (2026-05-xx)
+
+- Fix bug [#334](https://github.com/damonlynch/rapid-photo-downloader/issues/334): SD Card / Camera not detected after upgrade to Kubuntu 26.04. Thanks to Michael Reiger and che-wf (Josh) for their fixes.
+
 ## 0.9.37 (2026-02-18)
 
 - Corrected a build configuration error in tarball of 0.9.37b1 release.
