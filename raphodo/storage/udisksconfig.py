@@ -30,7 +30,7 @@ def udisksd_path_systemd() -> str:
         value = result.stdout.strip()
 
         if not value:
-            return None
+            return ""
 
         # Example:
         # { path=/usr/libexec/udisks2/udisksd ; argv[]=/usr/libexec/udisks2/udisksd ... ; ... }
@@ -39,7 +39,7 @@ def udisksd_path_systemd() -> str:
         start = value.find(marker)
 
         if start == -1:
-            return None
+            return ""
 
         start += len(marker)
 
@@ -61,10 +61,8 @@ def detect_run_media_dir() -> bool:
       /media/$USER
     """
 
-    daemon = ""
-    if shutil.which("systemctl"):
-        daemon = udisksd_path_systemd()
-    else:
+    daemon = udisksd_path_systemd()
+    if not daemon:
         # Linux distributions without systemd
         for path in (
             "/usr/libexec/udisks2/udisksd",
@@ -79,14 +77,13 @@ def detect_run_media_dir() -> bool:
         raise Exception("UDisks2 daemon not detected")
 
     logging.debug("UDisks2 daemon detected at %s", daemon)
-    strings = subprocess.run(
-        ["strings", daemon],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
 
-    paths = set(re.findall(r"/[A-Za-z0-9._/+:-]+", strings))
+    data = Path(daemon).read_bytes()
+    # Extract printable ASCII path-like substrings
+    paths = {
+        m.group().decode("ascii", errors="ignore")
+        for m in re.finditer(rb"/[A-Za-z0-9._/+:-]+", data)
+    }
 
     has_media = {p for p in paths if p == "/media" or p.startswith("/media/")}
 
