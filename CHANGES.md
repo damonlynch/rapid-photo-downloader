@@ -1,5 +1,9 @@
 # Changelog for Rapid Photo Downloader
 
+## 0.9.38b2 (2026-06-01)
+
+- Fix bug [#315](https://github.com/damonlynch/rapid-photo-downloader/issues/315): TypeError when generating thumbnails for HEIF/HIF files from cameras that support thumbnail fetching (e.g. Canon EOS R7). Thanks to Thomas Vassilian for the fix.
+
 ## 0.9.38b1 (2026-05-28)
 
 - Fix bug [#334](https://github.com/damonlynch/rapid-photo-downloader/issues/334): SD Card / Camera not detected after upgrade to Kubuntu 26.04. Thanks to Michael Reiger and che-wf (Josh) for their fixes.

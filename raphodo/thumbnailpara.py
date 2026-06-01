@@ -551,13 +551,14 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             self.send_finished_command()
             sys.exit(0)
 
-        if not cache_file_from_camera:
-            for rpd_file in rpd_files:
-                if use_exiftool_on_photo(
-                    rpd_file.extension, preview_extraction_irrelevant=False
-                ):
-                    cache_file_from_camera = True
-                    break
+        cache_file_from_camera = cache_file_from_camera or any(
+            use_exiftool_on_photo(
+                rpd_file.extension,
+                preview_extraction_irrelevant=False,
+            )
+            or rpd_file.is_heif()
+            for rpd_file in rpd_files
+        )
 
         must_make_cache_dirs = (
             not self.camera.can_fetch_thumbnails or cache_file_from_camera
