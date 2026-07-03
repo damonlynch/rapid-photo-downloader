@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2007-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 from enum import Enum, Flag, IntEnum, auto
 
@@ -238,8 +238,13 @@ class ApplicationState(Flag):
     timeline_generating = auto()
     timeline_generated = auto()
 
-CORE_APPLICATION_STATE_MASK = ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
-TIMELINE_APPLICATION_STATE_MASK = ApplicationState.timeline_generating | ApplicationState.timeline_generated
+
+CORE_APPLICATION_STATE_MASK = (
+    ApplicationState.startup | ApplicationState.normal | ApplicationState.exiting
+)
+TIMELINE_APPLICATION_STATE_MASK = (
+    ApplicationState.timeline_generating | ApplicationState.timeline_generated
+)
 
 
 class PostCameraUnmountAction(Enum):
