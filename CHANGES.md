@@ -1,5 +1,9 @@
 # Changelog for Rapid Photo Downloader
 
+## 0.9.38 (2026-07-xx)
+
+- Assume `Exiv2` and `ExifTool` support HEIF/CR3 instead of using conditional checks.
+
 ## 0.9.38b2 (2026-06-01)
 
 - Fix bug [#315](https://github.com/damonlynch/rapid-photo-downloader/issues/315): TypeError when generating thumbnails for HEIF/HIF files from cameras that support thumbnail fetching (e.g. Canon EOS R7). Thanks to Thomas Vassilian for the fix.

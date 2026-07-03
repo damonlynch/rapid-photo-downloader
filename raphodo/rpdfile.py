@@ -729,7 +729,7 @@ class RPDFile:
         Inspects file extension to determine if an HEIF / HEIC file
         :return:
         """
-        return self.extension in fileformats.HEIF_EXTENTIONS
+        return self.extension in fileformats.HEIF_EXTENSIONS
 
     def is_tiff(self) -> bool:
         """

@@ -74,8 +74,7 @@ def get_versions(
     ]
     v = exiv2_version()
     if v:
-        cr3 = "CR3 support enabled" if fileformats.exiv2_cr3() else "no CR3 support"
-        versions.append(f"Exiv2: {v} ({cr3})")
+        versions.append(f"Exiv2: {v}")
     with contextlib.suppress(Exception):
         versions.append("{}: {}".format(*platform.libc_ver()))
     with contextlib.suppress(AttributeError):
@@ -85,9 +84,6 @@ def get_versions(
         import tornado
 
         versions.append(f"Tornado: {tornado.version}")
-    versions.append(
-        f"Can read HEIF/HEIC metadata: {'yes' if fileformats.heif_capable() else 'no'}"
-    )
     if have_heif_module:
         versions.append(f"Pillow-Heif: {pillow_heif_version()}")
         v = libheif_version()

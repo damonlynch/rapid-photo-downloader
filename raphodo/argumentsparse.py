@@ -14,7 +14,7 @@ try:
     from raphodo import __about__ as __about__
     from raphodo.internationalisation.install import install_gettext
     from raphodo.internationalisation.utilities import make_internationalized_list
-    from raphodo.metadata.otherextensions import OTHER_PHOTO_EXTENSIONS
+    from raphodo.metadata.fileformats import OTHER_PHOTO_EXTENSIONS
 
     install_gettext()
 except ImportError:
@@ -38,7 +38,7 @@ except ImportError:
     __about__ = About()
     __about__.__dict__.update(about)
 
-    with open(here / "metadata/otherextensions.py") as f:
+    with open(here / "metadata/fileformats.py") as f:
         file_extensions = {}
         exec(f.read(), file_extensions)
         OTHER_PHOTO_EXTENSIONS = file_extensions["OTHER_PHOTO_EXTENSIONS"]

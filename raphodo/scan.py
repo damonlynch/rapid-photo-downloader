@@ -867,18 +867,15 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 FileExtension.raw,
             )
 
-        if not fileformats.heif_capable():
-            order = order[1:]
-
-        have_photos = (
-            len(self._camera_photos_videos_by_type[FileExtension.raw]) > 0
-            or len(self._camera_photos_videos_by_type[FileExtension.jpeg]) > 0
-        )
-        if not have_photos and fileformats.heif_capable():
-            have_photos = (
-                len(self._camera_photos_videos_by_type[FileExtension.heif]) > 0
+        have_photos = any(
+            self._camera_photos_videos_by_type[ext]
+            for ext in (
+                FileExtension.raw,
+                FileExtension.jpeg,
+                FileExtension.heif,
             )
-        have_videos = len(self._camera_photos_videos_by_type[FileExtension.video]) > 0
+        )
+        have_videos = bool(self._camera_photos_videos_by_type[FileExtension.video])
 
         max_attempts = 5
         for ext_type in order:
@@ -1677,16 +1674,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
         raw_attempts = 0
         jpegs_heifs_and_videos = defaultdict(deque)
 
-        # Only use HEIF files if we can read their metadata
-        if fileformats.heif_capable():
-            extensions = (
-                FileExtension.raw,
-                FileExtension.jpeg,
-                FileExtension.heif,
-                FileExtension.video,
-            )
-        else:
-            extensions = (FileExtension.raw, FileExtension.jpeg, FileExtension.video)
+        extensions = (
+            FileExtension.raw,
+            FileExtension.jpeg,
+            FileExtension.heif,
+            FileExtension.video,
+        )
         non_raw_extensions = extensions[1:]
 
         for dir_name, name in self.walk_file_system(path):
