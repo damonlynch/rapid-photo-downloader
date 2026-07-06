@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2007-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2007-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Read photo and video metadata using ExifTool daemon process.
@@ -133,8 +133,8 @@ def generate_short_camera_model(
 
     m = model_name
     m = m.replace(" Mark ", "Mk")
-    if '-' in include_characters:
-        include_characters = include_characters.replace('-', '\\-')
+    if "-" in include_characters:
+        include_characters = include_characters.replace("-", "\\-")
     if m:
         s = (
             rf"(?:[^a-zA-Z0-9{include_characters}]?)"
@@ -158,7 +158,7 @@ class MetadataExiftool:
 
     def __init__(
         self,
-        full_file_name: str,
+        full_file_name: str | None,
         et_process: exiftool.ExifTool,
         file_type: FileType | None = None,
     ) -> None:
@@ -174,17 +174,8 @@ class MetadataExiftool:
 
         super().__init__()
 
-        self.full_file_name = full_file_name
-        if full_file_name is not None:
-            self.ext = fileformats.extract_extension(full_file_name)
-        else:
-            self.ext = None
-        self.metadata = dict()
-        self.metadata_string_format = dict()
+        self.clear()
         self.et_process = et_process
-        if file_type is None and full_file_name is not None:
-            file_type = fileformats.file_type_from_splitext(file_name=full_file_name)
-        assert file_type is not None
         self.file_type = file_type
 
         # All the names of the preview images we know about (there may be more, perhaps)
@@ -239,6 +230,25 @@ class MetadataExiftool:
         self.preview256["3fr"] = 3, 4
 
         self.ignore_tiff_preview_256 = ("cr2",)
+
+        if full_file_name is not None:
+            self.open_path(full_file_name)
+
+    def open_path(self, full_file_name: str) -> None:
+        self.full_file_name = full_file_name
+        self.ext = fileformats.extract_extension(full_file_name)
+        if self.file_type is None:
+            self.file_type = fileformats.file_type_from_splitext(
+                file_name=full_file_name
+            )
+            assert self.file_type is not None
+
+    def clear(self) -> None:
+        self.metadata = dict()
+        self.metadata_string_format = dict()
+        self.file_type = None
+        self.full_file_name = None
+        self.ext = None
 
     def _get(self, key, missing):
         if key in ("VideoStreamType", "FileNumber", "ExposureTime"):

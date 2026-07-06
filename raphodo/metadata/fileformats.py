@@ -36,6 +36,7 @@ RAW_EXTENSIONS.sort()
 EXIFTOOL_ONLY_EXTENSIONS_STRINGS_AND_PREVIEWS = ["mos", "mrw", "x3f"]
 
 HEIF_EXTENSIONS = ["heif", "heic", "hif"]
+# Synchronize with the value OTHER_PHOTO_EXTENSIONS in argumentsparse.py
 OTHER_PHOTO_EXTENSIONS = ["tif", "tiff", "mpo"]
 
 VIDEO_EXTENSIONS = [

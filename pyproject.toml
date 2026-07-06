@@ -89,7 +89,7 @@ packages = ["raphodo", "man", "/*.md"]
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo", "data", "po", "/*.md"]
-exclude = [".github", ".gitignore"]
+exclude = [".github", ".gitignore", "benchmark"]
 
 [tool.hatch.build.targets.wheel.hooks.argparse-manpage]
 include-url = false
