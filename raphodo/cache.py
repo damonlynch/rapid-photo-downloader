@@ -29,6 +29,7 @@ For the fdo cache specs, see:
 http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
 """
 
+import contextlib
 import hashlib
 import logging
 import os
@@ -526,7 +527,8 @@ class ThumbnailCacheSql:
 
         path = os.path.join(self.cache_dir, in_cache.md5_name)
         if not os.path.exists(path):
-            self.thumb_db.delete_thumbnails([in_cache.md5_name])
+            with contextlib.suppress(sqlite3.DatabaseError):
+                self.thumb_db.delete_thumbnails([in_cache.md5_name])
             return self.not_found
 
         return GetThumbnailPath(
@@ -554,13 +556,13 @@ class ThumbnailCacheSql:
                 ):
                     os.remove(thumbnail)
                     deleted_thumbnails.append(name)
-            if len(deleted_thumbnails):
-                if self.thumb_db.cache_exists():
+            if len(deleted_thumbnails) and self.thumb_db.cache_exists():
+                with contextlib.suppress(sqlite3.DatabaseError):
                     self.thumb_db.delete_thumbnails(deleted_thumbnails)
-                logging.debug(
-                    f"Deleted {len(deleted_thumbnails)} thumbnail files that had not "
-                    f"been accessed for {days} or more days"
-                )
+                    logging.debug(
+                        f"Deleted {len(deleted_thumbnails)} thumbnail files that had not "
+                        f"been accessed for {days} or more days"
+                    )
 
     def purge_cache(self) -> None:
         """
@@ -568,17 +570,18 @@ class ThumbnailCacheSql:
         directory
         """
         if self.valid and self.cache_dir is not None and os.path.isdir(self.cache_dir):
-            # Delete the sqlite3 database too
+            # The sqlite3 database is located within this directory
+            # It will also be deleted.
             shutil.rmtree(self.cache_dir)
 
-    def no_thumbnails(self) -> int:
+    def count_thumbnails(self) -> int:
         """
         :return: how many thumbnails there are in the thumbnail database
         """
 
         if not self.valid:
             return 0
-        return self.thumb_db.no_thumbnails()
+        return self.thumb_db.count_thumbnails()
 
     def cache_size(self) -> int:
         """
@@ -612,13 +615,14 @@ class ThumbnailCacheSql:
         """
 
         rows = self.thumb_db.md5_names()
-        rows = {row[0] for row in rows}
         cwd = os.getcwd()
+        assert self.cache_dir is not None
         os.chdir(self.cache_dir)
 
         to_delete_from_db = {md5 for md5 in rows if not os.path.exists(md5)}
         if len(to_delete_from_db):
-            self.thumb_db.delete_thumbnails(list(to_delete_from_db))
+            with contextlib.suppress(sqlite3.DatabaseError):
+                self.thumb_db.delete_thumbnails(list(to_delete_from_db))
 
         md5s = {md5 for md5 in os.listdir(".")} - {self.thumb_db.db_fs_name()}
         to_delete_from_fs = md5s - rows

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2017-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2017-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Dialog window to show and manipulate selected user preferences
@@ -1184,7 +1184,7 @@ class PreferencesDialog(QDialog):
         self.coresLabel.setEnabled(enable)
 
     def setCacheValues(self) -> None:
-        self.thumbnailNumber.setText(thousands(self.thumbnail_cache.no_thumbnails()))
+        self.thumbnailNumber.setText(thousands(self.thumbnail_cache.count_thumbnails()))
         self.thumbnailSqlSize.setText(
             format_size_for_user(self.thumbnail_cache.db_size())
         )

@@ -476,7 +476,7 @@ def get_desktop_environment() -> str | None:
 
 
 def _platform_special_dir(
-    dir_type: QStandardPaths, home_on_failure: bool = True
+    dir_type: QStandardPaths.StandardLocation, home_on_failure: bool = True
 ) -> str | None:
     """
     Use Qt to query the platforms standard paths

@@ -20,6 +20,7 @@ from glob import glob
 from importlib.resources import files
 from itertools import groupby
 from pathlib import Path
+from typing import Any
 
 import arrow
 import babel
@@ -269,7 +270,7 @@ def divide_list(source: list, no_pieces: int) -> list:
     return result
 
 
-def divide_list_on_length(source: list[int], length: int) -> list[list[int]]:
+def divide_list_on_length(source: list[Any], length: int) -> list[list[Any]]:
     r"""
     Break a list into lists no longer than length.
 
@@ -772,14 +773,18 @@ def create_bugreport_tar(
 
     if not log_path:
         log_path = os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericCacheLocation),
+            QStandardPaths.writableLocation(
+                QStandardPaths.StandardLocation.GenericCacheLocation
+            ),
             "rapid-photo-downloader",
             "log",
         )
 
     if not full_config_file:
         config_dir = os.path.join(
-            QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericConfigLocation),
+            QStandardPaths.writableLocation(
+                QStandardPaths.StandardLocation.GenericConfigLocation
+            ),
             "Rapid Photo Downloader",
         )
         config_file = "Rapid Photo Downloader.conf"

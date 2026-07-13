@@ -1558,7 +1558,9 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         self.errorsPending = SpeechBubble(self)
-        self.errorsPending.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.errorsPending.setSizePolicy(
+            QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum
+        )
         status.addPermanentWidget(self.errorsPending)
         status.addPermanentWidget(self.downloadProgressBar, 1)
 
@@ -1623,7 +1625,9 @@ difference to the program's future.</p>"""
             messagebox.setInformativeText(_("Do you want to take the survey?"))
 
             # Use custom buttons, thereby avoiding button icons
-            later = messagebox.addButton(_("Ask me later"), QMessageBox.ButtonRole.RejectRole)
+            later = messagebox.addButton(
+                _("Ask me later"), QMessageBox.ButtonRole.RejectRole
+            )
             yes = messagebox.addButton(_("Yes"), QMessageBox.ButtonRole.AcceptRole)
             alreadyDid = messagebox.addButton(
                 # Translators: "I already took it" means "I already took the survey"
@@ -5140,6 +5144,8 @@ Do you want to proceed with the download?"""
         self.devices.delete_cache_dirs_and_sample_video()
         logging.debug("Unmounting any devices mounted with FUSE")
         self.devices.unmount_fuse_devices()
+        # Close the in-memory thumbnail row database
+        self.thumbnailModel.tsql.close()
         tc = ThumbnailCacheSql(create_table_if_not_exists=False)
         logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache(days=self.prefs.keep_thumbnails_days)
@@ -6972,7 +6978,7 @@ def main():
 
         if args.forget_files:
             d = DownloadedSQL()
-            count = d.no_downloaded()
+            count = d.count_downloaded()
             if count:
                 d.update_table(reset=True)
             print(

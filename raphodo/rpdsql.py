@@ -1,15 +1,15 @@
 #  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
 #  SPDX-License-Identifier: GPL-3.0-or-later
 
-
+import contextlib
 import datetime
 import logging
 import os
+import re
 import sqlite3
-from collections import namedtuple
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from contextlib import closing
-from typing import Any, NamedTuple
+from typing import Any, Literal, NamedTuple, overload
 
 from PyQt5.QtCore import Qt
 from tenacity import retry, stop_after_attempt
@@ -21,19 +21,41 @@ from raphodo.storage.storage import (
 )
 from raphodo.tools.utilities import divide_list_on_length, runs
 
+# MAX_HOST_PARAMETERS is the maximum number of host parameters (also known as bind
+# variables) in a single SQLite statement. See https://www.sqlite.org/limits.html
+# Linux distributions can explicitly override this limit during compilation,
+# e.g. on Ubuntu 24.04 the value is 250,000.
+# Record the value as a module level variable because we do not modify it.
+with sqlite3.connect(":memory:") as conn:
+    MAX_HOST_PARAMETERS = conn.getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER)
+
 
 class FileDownloaded(NamedTuple):
     download_name: str
     download_datetime: datetime.datetime
 
 
-InCache = namedtuple("InCache", "md5_name, mdatatime, orientation_unknown, failure")
+class InCache(NamedTuple):
+    md5_name: str
+    mdatatime: float
+    orientation_unknown: bool
+    failure: bool
 
-ThumbnailRow = namedtuple(
-    "ThumbnailRow",
-    "uid, scan_id, mtime, marked, file_name, extension, file_type, downloaded, "
-    "previously_downloaded, job_code, proximity_col1, proximity_col2",
-)
+
+class ThumbnailRow(NamedTuple):
+    uid: bytes
+    scan_id: int
+    mtime: float
+    marked: bool
+    file_name: str
+    extension: str
+    file_type: FileType
+    downloaded: bool
+    previously_downloaded: bool
+    job_code: bool
+    proximity_col1: int
+    proximity_col2: int
+
 
 sqlite3.register_adapter(bool, int)
 sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
@@ -45,13 +67,43 @@ sqlite3_timeout = 10.0
 sqlite3_retry_attempts = 5
 
 
+def _applyWriteAheadLogging(conn: sqlite3.Connection, name: str) -> None:
+    """
+    Applies Write Ahead Logging (WAL) mode to a sqlite connection if it is not
+    already applied.
+
+    Increases performance when one process write and other processes read.
+
+    See https://sqlite.org/wal.html
+
+    :param conn: sqlite connection
+    :param name: database name in human-readable form
+    """
+
+    # Query the current journal mode status
+    result = conn.execute("PRAGMA journal_mode;").fetchone()
+    current_mode = result[0]
+
+    # Check the state
+    if current_mode.lower() != "wal":
+        logging.debug(
+            "WAL mode for %s is not active. Current mode: %s", name, current_mode
+        )
+        # Enable Write Ahead Logging mode and fetch the result to confirm the change
+        # took effect
+        result = conn.execute("PRAGMA journal_mode=WAL;").fetchone()
+        logging.debug("Journal Mode for %s now set to: %s", name, result[0])
+
+
 class ThumbnailRowsSQL:
     """
     In-memory database of thumbnail rows displayed in the main window.
     """
 
     def __init__(self) -> None:
-        """ """
+        """
+        Set up the in-memory database of thumbnail rows displayed in the main window
+        """
 
         self.db = ":memory:"
 
@@ -93,7 +145,7 @@ class ThumbnailRowsSQL:
         )
 
         self.conn.execute(
-            "CREATE INDEX IF NOT EXISTS scand_id_idx ON devices (scan_id)"
+            "CREATE INDEX IF NOT EXISTS files_scan_id_idx ON files (scan_id)"
         )
 
         self.conn.execute("CREATE INDEX IF NOT EXISTS marked_idx ON files (marked)")
@@ -130,7 +182,7 @@ class ThumbnailRowsSQL:
 
     def add_or_update_device(self, scan_id: int, device_name: str) -> None:
         query = "INSERT OR REPLACE INTO devices (scan_id, device_name) VALUES (?,?)"
-        logging.debug("%s (%s, %s)", query, scan_id, device_name)
+        logging.debug("%s %s, %s", query, scan_id, device_name)
         self.conn.execute(query, (scan_id, device_name))
 
         self.conn.commit()
@@ -140,24 +192,35 @@ class ThumbnailRowsSQL:
         rows = self.conn.execute(query).fetchall()
         return [row[0] for row in rows]
 
-    def add_thumbnail_rows(self, thumbnail_rows: Sequence[ThumbnailRow]) -> None:
+    def add_thumbnail_rows(self, thumbnail_rows: list[ThumbnailRow]) -> None:
         """
         Add a list of rows to the database of thumbnail rows
         """
 
         logging.debug("Adding %s rows to db", len(thumbnail_rows))
-        self.conn.executemany(
-            r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
-            extension, file_type, downloaded, previously_downloaded, job_code, 
-            proximity_col1, proximity_col2)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-            thumbnail_rows,
-        )
 
+        if len(thumbnail_rows) > MAX_HOST_PARAMETERS:
+            chunks = divide_list_on_length(thumbnail_rows, MAX_HOST_PARAMETERS)
+            for chunk in chunks:
+                self.conn.executemany(
+                    r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
+                    extension, file_type, downloaded, previously_downloaded, job_code, 
+                    proximity_col1, proximity_col2)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    chunk,
+                )
+        else:
+            self.conn.executemany(
+                r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
+                extension, file_type, downloaded, previously_downloaded, job_code, 
+                proximity_col1, proximity_col2)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                thumbnail_rows,
+            )
         self.conn.commit()
 
+    @staticmethod
     def _build_where(
-        self,
         scan_id: int | None = None,
         show: Show | None = None,
         previously_downloaded: bool | None = None,
@@ -200,7 +263,7 @@ class ThumbnailRowsSQL:
             where_clauses.append("job_code=?")
             where_values.append(job_code)
 
-        if extensions is not None:
+        if extensions:
             if len(extensions) == 1:
                 where_clauses.append("extension=?")
                 where_values.append(extensions[0])
@@ -210,18 +273,16 @@ class ThumbnailRowsSQL:
                 )
                 where_values.extend(extensions)
 
-        if uids is not None:
+        if uids:
             if len(uids) == 1:
                 where_clauses.append("uid=?")
                 where_values.append(uids[0])
             else:
-                # assume max host parameters in a single SQL statement is 999
-                if len(uids) > 900:
-                    uids = uids[:900]
+                assert len(uids) <= MAX_HOST_PARAMETERS
                 where_clauses.append("uid IN ({})".format(",".join("?" * len(uids))))
                 where_values.extend(uids)
 
-        if exclude_scan_ids is not None:
+        if exclude_scan_ids:
             if len(exclude_scan_ids) == 1:
                 where_clauses.append("scan_id!=?")
                 where_values.append(exclude_scan_ids[0])
@@ -241,9 +302,8 @@ class ThumbnailRowsSQL:
                 where_clauses.append(f"{col_name}=?")
                 where_values.append(p[0])
             else:
-                p.sort()
                 or_clauses = []
-                for first, last in runs(p):
+                for first, last in runs(sorted(p)):
                     if first == last:
                         or_clauses.append(f"{col_name}=?")
                         where_values.append(first)
@@ -282,7 +342,7 @@ class ThumbnailRowsSQL:
         query = "SELECT uid, marked FROM files"
 
         if sort_by == Sort.device:
-            query = f"{query} NATURAL JOIN devices"
+            query = f"{query} JOIN devices ON files.scan_id = devices.scan_id"
 
         if where:
             query = f"{query} WHERE {where}"
@@ -310,29 +370,103 @@ class ThumbnailRowsSQL:
         uid that the user will have displayed -- if any are displayed.
         """
 
+        assert uids
+        if len(uids) <= MAX_HOST_PARAMETERS:
+            where, where_values = self._build_where(
+                show=show,
+                proximity_col1=proximity_col1,
+                proximity_col2=proximity_col2,
+                uids=uids,
+            )
+
+            sort = self._build_sort(sort_by, sort_order)
+
+            query = "SELECT uid FROM files"
+
+            if sort_by == Sort.device:
+                query = f"{query} JOIN devices ON files.scan_id = devices.scan_id"
+
+            query = f"{query} WHERE {where}"
+
+            query = f"{query} {sort} LIMIT 1"
+
+            logging.debug(
+                "%s (using %s where values)",
+                filter_logged_parameter_list(query),
+                len(where_values),
+            )
+            row = self.conn.execute(query, tuple(where_values)).fetchone()
+            return row[0] if row else None
+
+        # Number of UIDs exceeds maximum number of host parameters SQLite can handle.
+        # Use a temporary table to run the query.
+
+        # 1. Build filters WITHOUT the uid clause
         where, where_values = self._build_where(
             show=show,
             proximity_col1=proximity_col1,
             proximity_col2=proximity_col2,
-            uids=uids,
         )
-
         sort = self._build_sort(sort_by, sort_order)
 
-        query = "SELECT uid FROM files"
+        # 2. Create a temporary table to hold the UIDs
+        self.conn.execute("CREATE TEMPORARY TABLE _temp_uids (uid BLOB PRIMARY KEY)")
+        try:
+            # executemany reuses the compiled statement per row, safely bypassing
+            # the parameter limit
+            self.conn.executemany(
+                "INSERT INTO _temp_uids (uid) VALUES (?)", ((uid,) for uid in uids)
+            )
 
-        if sort_by == Sort.device:
-            query = f"{query} NATURAL JOIN devices"
+            query = "SELECT uid FROM files"
+            if sort_by == Sort.device:
+                query = f"{query} JOIN devices ON files.scan_id = devices.scan_id"
 
-        query = f"{query} WHERE {where}"
+            # 3. Replace uid IN (...) with a subquery against the temp table
+            query = f"{query} WHERE files.uid IN (SELECT uid FROM _temp_uids)"
+            if where:
+                query = f"{query} AND {where}"
+            query = f"{query} {sort} LIMIT 1"
 
-        query = f"{query} {sort}"
+            logging.debug("%s (using %d UIDs)", query, len(uids))
+            row = self.conn.execute(query, tuple(where_values)).fetchone()
+            return row[0] if row else None
 
-        logging.debug("%s (using %s where values)", query, len(where_values))
-        row = self.conn.execute(query, tuple(where_values)).fetchone()
-        if row:
-            return row[0]
-        return None
+        finally:
+            # 4. Clean up the temporary table
+            self.conn.execute("DROP TABLE IF EXISTS _temp_uids")
+
+    @overload
+    def get_uids(
+        self,
+        scan_id: int | None = None,
+        show: Show | None = None,
+        previously_downloaded: bool | None = None,
+        downloaded: bool | None = None,
+        job_code: bool | None = None,
+        file_type: FileType | None = None,
+        marked: bool | None = None,
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
+        exclude_scan_ids: list[int] | None = None,
+        return_file_name: Literal[False] = False,
+    ) -> list[bytes]: ...
+
+    @overload
+    def get_uids(
+        self,
+        scan_id: int | None = None,
+        show: Show | None = None,
+        previously_downloaded: bool | None = None,
+        downloaded: bool | None = None,
+        job_code: bool | None = None,
+        file_type: FileType | None = None,
+        marked: bool | None = None,
+        proximity_col1: list[int] | None = None,
+        proximity_col2: list[int] | None = None,
+        exclude_scan_ids: list[int] | None = None,
+        return_file_name: Literal[True] = True,
+    ) -> list[str]: ...
 
     def get_uids(
         self,
@@ -347,7 +481,7 @@ class ThumbnailRowsSQL:
         proximity_col2: list[int] | None = None,
         exclude_scan_ids: list[int] | None = None,
         return_file_name=False,
-    ) -> list[bytes]:
+    ) -> list[bytes] | list[str]:
         where, where_values = self._build_where(
             scan_id=scan_id,
             show=show,
@@ -371,9 +505,11 @@ class ThumbnailRowsSQL:
 
         if where_values:
             logging.debug("%s %s", query, where_values)
-            rows = self.conn.execute(query, tuple(where_values)).fetchall()
+            rows = self.conn.execute(
+                filter_logged_parameter_list(query), tuple(where_values)
+            ).fetchall()
         else:
-            logging.debug("%s", query)
+            logging.debug("%s", filter_logged_parameter_list(query))
             rows = self.conn.execute(query).fetchall()
         return [row[0] for row in rows]
 
@@ -409,30 +545,18 @@ class ThumbnailRowsSQL:
         if where_values:
             rows = self.conn.execute(query, tuple(where_values)).fetchone()
         else:
-            # logging.debug('%s', query)
             rows = self.conn.execute(query).fetchone()
         return rows[0]
 
     def validate_uid(self, uid: bytes) -> None:
-        rows = self.conn.execute("SELECT uid FROM files WHERE uid=?", (uid,)).fetchall()
-        if not rows:
+        row = self.conn.execute("SELECT 1 FROM files WHERE uid=?", (uid,)).fetchone()
+        if not row:
             raise KeyError("UID does not exist in database")
 
     def set_marked(self, uid: bytes, marked: bool) -> None:
         query = "UPDATE files SET marked=? WHERE uid=?"
         logging.debug("%s (%s, %s)", query, marked, uid)
         self.conn.execute(query, (marked, uid))
-        self.conn.commit()
-
-    def set_all_marked_as_unmarked(self, scan_id: int = None) -> None:
-        if scan_id is None:
-            query = "UPDATE files SET marked=0 WHERE marked=1"
-            logging.debug(query)
-            self.conn.execute(query)
-        else:
-            query = "UPDATE files SET marked=0 WHERE marked=1 AND scan_id=?"
-            logging.debug("%s (%s)", query, scan_id)
-            self.conn.execute(query, (scan_id,))
         self.conn.commit()
 
     def _update_marked(self, uids: list[bytes], marked: bool) -> None:
@@ -450,13 +574,11 @@ class ThumbnailRowsSQL:
         )
 
     def _set_list_values(self, uids: list[bytes], update_value, value) -> None:
-        if len(uids) == 0:
+        if not uids:
             return
 
-        # Limit to number of parameters: 900
-        # See https://www.sqlite.org/limits.html
-        if len(uids) > 900:
-            uid_chunks = divide_list_on_length(uids, 900)
+        if len(uids) > MAX_HOST_PARAMETERS:
+            uid_chunks = divide_list_on_length(uids, MAX_HOST_PARAMETERS)
             for chunk in uid_chunks:
                 update_value(chunk, value)
         else:
@@ -482,15 +604,14 @@ class ThumbnailRowsSQL:
         self.conn.commit()
 
     def set_job_code_assigned(self, uids: list[bytes], job_code: bool) -> None:
+        if not uids:
+            return
         if len(uids) == 1:
             query = "UPDATE files SET job_code=? WHERE uid=?"
-            # logging.debug('%s (%s, <uid>)', query, job_code)
             self.conn.execute(query, (job_code, uids[0]))
         else:
-            # Limit to number of parameters: 900
-            # See https://www.sqlite.org/limits.html
-            if len(uids) > 900:
-                name_chunks = divide_list_on_length(uids, 900)
+            if len(uids) > MAX_HOST_PARAMETERS:
+                name_chunks = divide_list_on_length(uids, MAX_HOST_PARAMETERS)
                 for chunk in name_chunks:
                     self._mass_set_job_code_assigned(chunk, job_code)
             else:
@@ -508,7 +629,7 @@ class ThumbnailRowsSQL:
         self.conn.executemany(query, groups)
         self.conn.commit()
 
-    def get_uids_for_device(self, scan_id: int) -> list[int]:
+    def get_uids_for_device(self, scan_id: int) -> list[bytes]:
         query = "SELECT uid FROM files WHERE scan_id=?"
         logging.debug("%s (%s, )", query, scan_id)
         rows = self.conn.execute(query, (scan_id,)).fetchall()
@@ -625,6 +746,7 @@ class ThumbnailRowsSQL:
         return row is not None
 
     def _any_not_previously_downloaded(self, uids: list[bytes]) -> bool:
+        assert uids
         query = (
             "SELECT uid FROM files WHERE uid IN ({}) "
             "AND previously_downloaded=0 LIMIT 1"
@@ -642,12 +764,14 @@ class ThumbnailRowsSQL:
         :return: True if any of the files associated with the UIDs have not been
          previously downloaded
         """
-        if len(uids) > 900:
-            uid_chunks = divide_list_on_length(uids, 900)
-            for chunk in uid_chunks:
-                if self._any_not_previously_downloaded(uids=uid_chunks):
-                    return True
+        if not uids:
             return False
+
+        if len(uids) > MAX_HOST_PARAMETERS:
+            uid_chunks = divide_list_on_length(uids, MAX_HOST_PARAMETERS)
+            return any(
+                self._any_not_previously_downloaded(uids=chunk) for chunk in uid_chunks
+            )
         else:
             return self._any_not_previously_downloaded(uids=uids)
 
@@ -662,13 +786,11 @@ class ThumbnailRowsSQL:
         :param uids: list of uids to delete
         """
 
-        if len(uids) == 0:
+        if not uids:
             return
 
-        # Limit to number of parameters: 900
-        # See https://www.sqlite.org/limits.html
-        if len(uids) > 900:
-            name_chunks = divide_list_on_length(uids, 900)
+        if len(uids) > MAX_HOST_PARAMETERS:
+            name_chunks = divide_list_on_length(uids, MAX_HOST_PARAMETERS)
             for chunk in name_chunks:
                 self._delete_uids(chunk)
         else:
@@ -681,7 +803,7 @@ class ThumbnailRowsSQL:
         query = "DELETE FROM files"
         where, where_values = self._build_where(scan_id=scan_id, downloaded=downloaded)
         query = f"{query} WHERE {where}"
-        logging.debug("%s (%s)", query, where_values)
+        logging.debug("%s (%s)", filter_logged_parameter_list(query), where_values)
         self.conn.execute(query, where_values)
         self.conn.commit()
 
@@ -690,6 +812,38 @@ class ThumbnailRowsSQL:
         logging.debug("%s (%s, )", query, scan_id)
         self.conn.execute(query, (scan_id,))
         self.conn.commit()
+
+    def close(self) -> None:
+        """
+        Safely close the connection.
+
+        Call this when the main window closes.
+        """
+        with contextlib.suppress(sqlite3.DatabaseError):
+            self.conn.close()
+
+
+def _generate_time_zone_offsets() -> Mapping[int, tuple[int, ...]]:
+    offsets = {}
+
+    for resolution in (60, 30, 15):  # minutes
+        positive = range(
+            resolution * 60,  # seconds
+            24 * 60 * 60 + 1,  # seconds
+            resolution * 60,  # seconds
+        )
+
+        negative = range(
+            resolution * 60 * -1,  # seconds
+            (24 * 60 * 60 + 1) * -1,  # seconds
+            resolution * 60 * -1,  # seconds
+        )
+
+        offsets[resolution] = tuple(
+            value for pair in zip(positive, negative) for value in pair
+        )
+
+    return offsets
 
 
 class DownloadedSQL:
@@ -701,6 +855,9 @@ class DownloadedSQL:
     are the same. For performance reasons, Exif information is never
     checked.
     """
+
+    # Generate values to calculate shifts in time zones
+    time_zone_offsets = _generate_time_zone_offsets()
 
     def __init__(self, data_dir: str = None) -> None:
         """
@@ -714,39 +871,18 @@ class DownloadedSQL:
         self.table_name = "downloaded"
         self.update_table()
 
-        # Generate values to calculate shifts in time zones /
-        self.time_zone_offsets: dict[int, tuple[int]] = {}
-        for time_zone_offset_resolution in (60, 30, 15):  # minutes
-            positive = range(
-                time_zone_offset_resolution * 60,  # seconds
-                24 * 60 * 60 + 1,  # seconds
-                time_zone_offset_resolution * 60,  # seconds
-            )
-
-            negative = range(
-                time_zone_offset_resolution * 60 * -1,  # seconds
-                (24 * 60 * 60 + 1) * -1,  # seconds
-                time_zone_offset_resolution * 60 * -1,  # seconds
-            )
-
-            self.time_zone_offsets[time_zone_offset_resolution] = tuple(
-                val for pair in zip(positive, negative) for val in pair
-            )
-
         self.found_offset = 0  # in seconds. Set to actual offset when one is found.
         # h:mm. Set to actual offset when one is found. Can be negative.
         self.found_offset_hr = ""
 
-    def no_downloaded(self) -> None:
+    def count_downloaded(self) -> int:
         """
         :return: how many downloaded files are in the db
         """
 
         with closing(sqlite3.connect(self.db)) as conn:
-            c = conn.cursor()
-            c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
-            count = c.fetchall()
-            return count[0][0]
+            row = conn.execute(f"SELECT COUNT(*) FROM {self.table_name}").fetchone()
+            return row[0]
 
     def update_table(self, reset: bool = False) -> None:
         """
@@ -758,6 +894,7 @@ class DownloadedSQL:
         with closing(
             sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         ) as conn:
+            _applyWriteAheadLogging(conn=conn, name="downloaded_files.sqlite")
             if reset:
                 conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
                 conn.execute("VACUUM")
@@ -815,13 +952,13 @@ class DownloadedSQL:
                         datetime.datetime.now(),
                     ),
                 )
-            except sqlite3.OperationalError as e:
+            except sqlite3.DatabaseError as e:
                 logging.warning(
                     "Database error adding download file %s: %s. May retry.",
                     download_full_file_name,
                     e,
                 )
-                raise sqlite3.OperationalError from e
+                raise  # Preserves original message, traceback, and cause chain
             else:
                 conn.commit()
 
@@ -838,6 +975,7 @@ class DownloadedSQL:
         :param name: file name, not including path
         :param size: file size in bytes
         :param modification_time: file modification time
+        :param time_zone_offset_resolution: time zone offset resolution
         :return: download name (including path) and when it was
          downloaded, else None if never downloaded
         """
@@ -874,7 +1012,8 @@ class DownloadedSQL:
                         "Using time zone offset unsuccessful %s", self.found_offset_hr
                     )
 
-            # Determine if there is a file with the same time and date within +- 24 hours
+            # Determine if there is a file with the same time and date within
+            # +- 24 hours
             # i.e. 3600 seconds * 24 = 86400
             # For why 24 hours, see this map:
             # https://en.wikipedia.org/wiki/Time_zone#/media/File:World_Time_Zones_Map.png
@@ -895,8 +1034,10 @@ class DownloadedSQL:
                         h, m = divmod(m, 60)
                         self.found_offset_hr = f"{h:d}:{m:02d}"
                         logging.info("Time zone offset is %s", self.found_offset_hr)
+                        # Cannot use _make here because of row has one more value than
+                        # the NamedTuple
                         return FileDownloaded(
-                            download_name=name, download_datetime=row[1]
+                            download_name=row[0], download_datetime=row[1]
                         )
             return None
 
@@ -937,6 +1078,7 @@ class CacheSQL:
         with closing(
             sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         ) as conn:
+            _applyWriteAheadLogging(conn=conn, name=self.db_fs_name())
             if reset:
                 conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
                 conn.execute("VACUUM")
@@ -1000,11 +1142,11 @@ class CacheSQL:
                         failure,
                     ),
                 )
-            except sqlite3.OperationalError as e:
+            except sqlite3.DatabaseError as e:
                 logging.warning(
                     "Database error adding thumbnail for %s: %s. May retry.", uri, e
                 )
-                raise sqlite3.OperationalError from e
+                raise  # Preserves original message, traceback, and cause chain
             else:
                 conn.commit()
 
@@ -1030,19 +1172,18 @@ class CacheSQL:
                     (uri, size, mtime),
                 )
                 row = c.fetchone()
-            except sqlite3.OperationalError as e:
+            except sqlite3.DatabaseError as e:
                 logging.warning(
                     "Database error reading thumbnail for %s: %s. May retry.", uri, e
                 )
-                raise sqlite3.OperationalError from e
+                raise
 
             if row is not None:
                 return InCache._make(row)
             else:
                 return None
 
-    @retry(stop=stop_after_attempt(sqlite3_retry_attempts))
-    def _delete(self, names: list[str], conn):
+    def _delete(self, names: list[str], conn: sqlite3.Connection) -> None:
         conn.execute(
             """DELETE FROM {tn} WHERE md5_name IN ({values})""".format(
                 tn=self.table_name, values=",".join("?" * len(names))
@@ -1056,47 +1197,50 @@ class CacheSQL:
         :param md5_names: list of names, without path
         """
 
-        if len(md5_names) == 0:
+        if not md5_names:
             return
 
-        with closing(sqlite3.connect(self.db)) as conn:
-            # Limit to number of parameters: 900
-            # See https://www.sqlite.org/limits.html
+        with closing(sqlite3.connect(self.db, timeout=sqlite3_timeout)) as conn:
             try:
-                if len(md5_names) > 900:
-                    name_chunks = divide_list_on_length(md5_names, 900)
+                if len(md5_names) > MAX_HOST_PARAMETERS:
+                    name_chunks = divide_list_on_length(md5_names, MAX_HOST_PARAMETERS)
                     for chunk in name_chunks:
                         self._delete(chunk, conn)
                 else:
                     self._delete(md5_names, conn)
-            except sqlite3.OperationalError as e:
+            except sqlite3.DatabaseError as e:
                 logging.error(
                     "Database error while deleting %s thumbnails: %s", len(md5_names), e
                 )
+                raise
             else:
                 conn.commit()
 
-    def no_thumbnails(self) -> int:
+    def count_thumbnails(self) -> int:
         """
         :return: how many thumbnails are in the db
         """
 
         with closing(sqlite3.connect(self.db)) as conn:
-            c = conn.cursor()
-            c.execute(f"SELECT COUNT(*) FROM {self.table_name}")
-            count = c.fetchall()
-            return count[0][0]
+            row = conn.execute(f"SELECT COUNT(*) FROM {self.table_name}").fetchone()
+            return row[0]
 
-    def md5_names(self) -> list[tuple[str]]:
+    def md5_names(self) -> set[str]:
         with closing(sqlite3.connect(self.db)) as conn:
             c = conn.cursor()
             c.execute(f"SELECT md5_name FROM {self.table_name}")
-            rows = c.fetchall()
-            return rows
+            return {row[0] for row in c.fetchall()}
 
     def vacuum(self) -> None:
         with closing(sqlite3.connect(self.db)) as conn:
             conn.execute("VACUUM")
+
+
+_filter_query_re = re.compile(r"\((?:\?,){3,}\?\)")
+
+
+def filter_logged_parameter_list(query: str) -> str:
+    return _filter_query_re.sub(r"(?,...)", query)
 
 
 if __name__ == "__main__":

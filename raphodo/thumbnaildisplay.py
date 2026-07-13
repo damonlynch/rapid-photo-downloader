@@ -4,7 +4,7 @@
 import datetime
 import logging
 import os
-from collections import defaultdict, deque
+from collections import defaultdict
 from collections.abc import Sequence
 from typing import NamedTuple
 
@@ -151,12 +151,13 @@ class AddBuffer:
         self.buffer_length = self.min_buffer_length
 
     def initialize(self) -> None:
-        self.buffer: dict[int, deque] = defaultdict(deque)
+        # scan_id: list
+        self.buffer: defaultdict[int, list] = defaultdict(list)
 
     def __len__(self):
         return sum(len(buffer) for buffer in self.buffer.values())
 
-    def __getitem__(self, scan_id: int) -> deque:
+    def __getitem__(self, scan_id: int) -> list:
         return self.buffer[scan_id]
 
     def should_flush(self) -> bool:
@@ -169,7 +170,7 @@ class AddBuffer:
     def set_buffer_length(self, length: int) -> None:
         self.buffer_length = max(self.min_buffer_length, length)
 
-    def extend(self, scan_id: int, thumbnail_rows: Sequence[ThumbnailRow]) -> None:
+    def extend(self, scan_id: int, thumbnail_rows: list[ThumbnailRow]) -> None:
         self.buffer[scan_id].extend(thumbnail_rows)
 
     def purge(self, scan_id: int) -> None:
@@ -783,8 +784,6 @@ class ThumbnailListModel(QAbstractListModel):
         if not rpd_files:
             return
 
-        thumbnail_rows = deque(maxlen=len(rpd_files))
-
         for rpd_file in rpd_files:
             uid = rpd_file.uid
             self.rpd_files[uid] = rpd_file
@@ -798,8 +797,9 @@ class ThumbnailListModel(QAbstractListModel):
                 self.total_thumbs_to_generate += 1
                 self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
-            tr = ThumbnailRow(
-                uid=uid,
+        thumbnail_rows = [
+            ThumbnailRow(
+                uid=rpd_file.uid,
                 scan_id=rpd_file.scan_id,
                 mtime=rpd_file.modification_time,
                 marked=not rpd_file.previously_downloaded,
@@ -812,8 +812,8 @@ class ThumbnailListModel(QAbstractListModel):
                 proximity_col1=-1,
                 proximity_col2=-1,
             )
-
-            thumbnail_rows.append(tr)
+            for rpd_file in rpd_files
+        ]
 
         self.add_buffer.extend(scan_id=scan_id, thumbnail_rows=thumbnail_rows)
 
@@ -2004,9 +2004,12 @@ class ThumbnailView(QListView):
             current = self.currentIndex()
             if not (len(selected.indexes()) == 1 and selected.indexes()[0] == current):
                 deselected.merge(
-                    self.selectionModel().selection(), QItemSelectionModel.SelectionFlag.Select
+                    self.selectionModel().selection(),
+                    QItemSelectionModel.SelectionFlag.Select,
                 )
-                self.selectionModel().select(deselected, QItemSelectionModel.SelectionFlag.Select)
+                self.selectionModel().select(
+                    deselected, QItemSelectionModel.SelectionFlag.Select
+                )
 
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
