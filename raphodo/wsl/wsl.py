@@ -1588,37 +1588,40 @@ class WslWindowsRemovableDriveMonitor(QObject):
         drives = []
 
         for drive in new_drives:
-            if not wsl_drive_valid(drive.drive_letter):
+            added = False
+            if wsl_drive_valid(drive.drive_letter):
+                mount_point = wsl_mount_point(drive.drive_letter)
+                if wsl_drive_accessible(mount_point):
+                    label = drive.label or (
+                        # Translators: this is the name Windows uses for a removable drive,
+                        # like a USB drive
+                        _("Removable Drive")
+                        if drive.drive_type == WindowsDriveType.removable_disk
+                        # Translators: this is the name Windows uses for a drive that is
+                        # normally part of the computer, like an internal hard drive
+                        # (although for some reason some USB drives are classified by
+                        # Windows as local drives)
+                        else _("Local Drive")
+                    )
+                    windows_drive_mount = WindowsDriveMount(
+                        drive_letter=drive.drive_letter,
+                        label=label,
+                        mount_point=mount_point,
+                        drive_type=drive.drive_type,
+                        system_mounted=drive.drive_type == WindowsDriveType.local_disk
+                        and mount_point != "",
+                    )
+                    drives.append(windows_drive_mount)
+                    self.detected_drives[drive.drive_letter] = windows_drive_mount
+                    added = True
+
+            if not added:
                 logging.debug(
-                    "WslWindowsRemovableDriveMonitor adding invalid drive %s:",
+                    "WslWindowsRemovableDriveMonitor adding drive %s to list of "
+                    "invalid drives",
                     drive.drive_letter,
                 )
                 self.invalid_drives.add(drive)
-            else:
-                mount_point = wsl_mount_point(drive.drive_letter)
-                if mount_point:
-                    assert os.path.ismount(mount_point)
-                label = drive.label or (
-                    # Translators: this is the name Windows uses for a removable drive,
-                    # like a USB drive
-                    _("Removable Drive")
-                    if drive.drive_type == WindowsDriveType.removable_disk
-                    # Translators: this is the name Windows uses for a drive that is
-                    # normally part of the computer, like an internal hard drive
-                    # (although for some reason some USB drives are classified by
-                    # Windows as local drives)
-                    else _("Local Drive")
-                )
-                windows_drive_mount = WindowsDriveMount(
-                    drive_letter=drive.drive_letter,
-                    label=label,
-                    mount_point=mount_point,
-                    drive_type=drive.drive_type,
-                    system_mounted=drive.drive_type == WindowsDriveType.local_disk
-                    and mount_point != "",
-                )
-                drives.append(windows_drive_mount)
-                self.detected_drives[drive.drive_letter] = windows_drive_mount
 
         if drives:
             self.driveMounted.emit(drives)
@@ -1679,7 +1682,9 @@ def wsl_mount_point(drive_letter: str) -> str:
 def wsl_drive_valid(drive_letter: str) -> bool:
     """
     Use the Windows command 'vol' to determine if the drive letter indicates a valid
-    drive
+    drive.
+
+    Does not detect if the drive is accessible or available.
 
     :param drive_letter: drive letter to check in Windows
     :return: True if valid, False otherwise
@@ -1694,6 +1699,15 @@ def wsl_drive_valid(drive_letter: str) -> bool:
         )
         return True
     except subprocess.CalledProcessError:
+        return False
+
+
+def wsl_drive_accessible(mount_point: str) -> bool:
+    try:
+        os.stat(mount_point)
+        return os.path.ismount(mount_point)
+    except Exception as e:
+        logging.error("Error with WSL drive: %s", e)
         return False
 
 
