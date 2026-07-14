@@ -173,6 +173,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         """
 
         super().__init__(full_file_name, et_process, FileType.photo)
+        GExiv2.Metadata.__init__(self)
 
         self.et_process = et_process
 
@@ -185,24 +186,20 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
                 assert app1_segment is not None
                 self.from_app1_segment(app1_segment)
 
-    def _get_rational_components(self, tag: str) -> tuple[Any, Any] | None:
+    def _get_rational_components(self, tag: str) -> tuple[int, int] | tuple[None, None]:
         try:
+            # returns a fractions.Fraction
             x = self.get_exif_tag_rational(tag)
         except Exception:
             return None, None
 
-        try:
-            return x.numerator, x.denominator
-        except AttributeError:
-            try:
-                return x.nom, x.den
-            except Exception:
-                return None, None
+        return x.numerator, x.denominator
 
     def _get_rational(self, tag: str) -> float | None:
         x, y = self._get_rational_components(tag)
-        if x is not None and y is not None:
+        if x is not None and y is not None and y != 0:
             return float(x) / float(y)
+        return None
 
     def aperture(self, missing="") -> str | Any:
         """
@@ -373,18 +370,19 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
         """
 
         try:
-            return self.get_tag_string("Exif.Photo.SubSecTimeOriginal")
+            val = self.get_tag_string("Exif.Photo.SubSecTimeOriginal")
+            return val if val is not None else missing
         except (KeyError, AttributeError):
             return missing
 
     def orientation(self, missing="") -> str | Any:
         """
         Returns the orientation of the image, as recorded by the camera
-        Return type int
         """
 
         try:
-            return self.get_tag_string("Exif.Image.Orientation")
+            val = self.get_tag_string("Exif.Image.Orientation")
+            return val if val is not None else missing
         except (KeyError, AttributeError):
             return missing
 
@@ -433,7 +431,7 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
 
     def get_preview_256(self) -> bytes | None:
         """
-        :return: if possible, return a preview image that is preferrably larger than
+        :return: if possible, return a preview image that is preferably larger than
          256 pixels, else the smallest preview if it exists
         """
 
@@ -449,6 +447,9 @@ class MetaData(metadataexiftool.MetadataExiftool, GExiv2.Metadata):
                 and preview.get_mime_type() == "image/tiff"
             ):
                 break
+        else:
+            # No preview met the size criteria; fall back to the smallest (first)
+            preview = previews[0]
 
         # At this point we have a preview that may or may not be bigger than 160x120.
         # On older RAW files, no. On newer RAW files, yes.
@@ -507,11 +508,11 @@ class DummyMetaData(MetaData):
     def date_time(self, missing="", ignore_file_modify_date=False):
         return datetime.datetime.now()
 
-    def subSeconds(self, missing="00"):
+    def sub_seconds(self, missing="00"):
         return "57"
 
     def orientation(self, missing=""):
-        return 1
+        return "1"
 
     def file_number(self, missing=""):
         return "428"
@@ -545,10 +546,10 @@ if __name__ == "__main__":
     print("Subseconds:", m.sub_seconds(), type(m.sub_seconds()))
     print("File number:", m.file_number())
     preview = m.get_small_thumbnail_or_first_indexed_preview()
-    if m is not None:
+    if preview is not None:
         print("Preview size", len(preview))
     else:
-        print("Preview not availabe")
+        print("Preview not available")
 
     if et_process is not None:
         et_process.terminate()

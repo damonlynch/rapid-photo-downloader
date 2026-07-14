@@ -5,6 +5,7 @@
 Read photo and video metadata using ExifTool daemon process.
 """
 
+import contextlib
 import datetime
 import logging
 import re
@@ -133,8 +134,7 @@ def generate_short_camera_model(
 
     m = model_name
     m = m.replace(" Mark ", "Mk")
-    if "-" in include_characters:
-        include_characters = include_characters.replace("-", "\\-")
+    include_characters = re.escape(include_characters)
     if m:
         s = (
             rf"(?:[^a-zA-Z0-9{include_characters}]?)"
@@ -171,8 +171,6 @@ class MetadataExiftool:
         :param file_type: photo or video. If not specified, will be determined
          using file extension
         """
-
-        super().__init__()
 
         self.clear()
         self.et_process = et_process
@@ -232,9 +230,9 @@ class MetadataExiftool:
         self.ignore_tiff_preview_256 = ("cr2",)
 
         if full_file_name is not None:
-            self.open_path(full_file_name)
+            self.open_path_with_exiftool(full_file_name)
 
-    def open_path(self, full_file_name: str) -> None:
+    def open_path_with_exiftool(self, full_file_name: str) -> None:
         self.full_file_name = full_file_name
         self.ext = fileformats.extract_extension(full_file_name)
         if self.file_type is None:
@@ -263,7 +261,7 @@ class MetadataExiftool:
                     return missing
             try:
                 return self.metadata_string_format[0][key]
-            except Exception:
+            except (KeyError, IndexError):
                 return missing
 
         elif not self.metadata:
@@ -385,8 +383,8 @@ class MetadataExiftool:
         if v is not None:
             try:
                 v = float(v)
-                v = "%0.f" % v
-            except Exception:
+                v = str(round(v))
+            except (ValueError, TypeError, ArithmeticError):
                 return missing
             return v
         else:
@@ -400,8 +398,9 @@ class MetadataExiftool:
         if v is None:
             return missing
         try:
-            v = "%.0f" % v
-        except Exception:
+            v = float(v)
+            v = str(round(v))
+        except (ValueError, TypeError, ArithmeticError):
             return missing
         return v
 
@@ -443,7 +442,7 @@ class MetadataExiftool:
         """
         Returns in string format the integer value of the image's ISO.
 
-        Returns missing if the metadata value is not present.
+        Returns missing if the metadata value is not present, or is the value zero.
         """
         v = self._get("ISO", None)
         if v:
@@ -525,12 +524,12 @@ class MetadataExiftool:
                         return str(e0)
                 else:
                     return f"{e0}/{e1}"
-            elif e0 > e1:
+            elif e0 > e1 and e1 != 0:
                 e = float(e0) / e1
                 if alternative_format:
-                    return "%.0fs" % e
+                    return f"{e:.0f}s"
                 else:
-                    return "%.0f" % e
+                    return f"{e:.0f}"
             else:
                 return "1s"
         else:
@@ -554,8 +553,7 @@ class MetadataExiftool:
             return str(v)
         return missing
 
-    def short_camera_model(self, include_characters="", missing=""):
-        """ """
+    def short_camera_model(self, include_characters="", missing="") -> str:
         m = self.camera_model()
         return generate_short_camera_model(m, include_characters, missing)
 
@@ -587,7 +585,7 @@ class MetadataExiftool:
             return str(v)
         return missing
 
-    def artist(self, missing=""):
+    def artist(self, missing="") -> str | Any:
         v = self._get("Artist", None)
         if v is not None:
             return str(v)
@@ -625,7 +623,7 @@ class MetadataExiftool:
 
         :param preview_number: which preview to get
         :param force: if True, get only that preview. Otherwise, take a flexible
-         approach where every preview is tried image, in order found in index_preview
+         approach where every preview is tried, in order found in index_preview
         :return: preview image in raw bytes, if found, else None
         """
 
@@ -643,10 +641,13 @@ class MetadataExiftool:
             self.full_file_name,
         )
 
-        assert not force
         untried_indexes = (
             index for index in self.index_preview if index != preview_number
         )
+
+        if not self.metadata:
+            with contextlib.suppress(ValueError):
+                self.metadata = self.et_process.get_metadata(self.full_file_name)
 
         valid_untried_indexes = [
             index
@@ -777,7 +778,7 @@ if __name__ == "__main__":
             else:
                 print("No previews detected")
 
-            # print("%sx%s" % (m.width(), m.height()))
+            # print(f"{m.width()}x{m.height()}")
             # print("Length:", m.length())
             # print("FPS: ", m.frames_per_second())
             # print("Codec:", m.codec())

@@ -96,7 +96,7 @@ def exiv2_vs_exiftool_hief(path: Path, et_process: ExifTool) -> None:
     tag = "DateTimeOriginal"
     for f in files:
         with stdchannel_redirected(sys.stderr, os.devnull):
-            metadata.open_path(f)
+            metadata.open_path_with_exiftool(f)
             dt_string = metadata._get(tag, "")
             metadata.clear()
     end_time = time.perf_counter()
