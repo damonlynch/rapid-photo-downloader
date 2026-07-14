@@ -5,7 +5,7 @@
 import logging
 import os
 import re
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 import gphoto2 as gp
 from packaging.version import parse
@@ -121,6 +121,10 @@ def camera_is_mtp_device(camera_port: str) -> bool:
 class Camera:
     """Access a camera via libgphoto2."""
 
+    REQUIRED_STORAGE_INFO_FLAGS = (
+        gp.GP_STORAGEINFO_MAXCAPACITY | gp.GP_STORAGEINFO_FREESPACEKBYTES
+    )
+
     def __init__(
         self,
         model: str,
@@ -161,6 +165,7 @@ class Camera:
         self._dual_slots_active = False
 
         self.storage_info = []
+        self.can_fetch_thumbnails = False
 
         self.camera_initialized = False
         try:
@@ -269,7 +274,7 @@ class Camera:
         folders = dict(camera_list_iterator(self.camera.folder_list_folders(path)))
 
         if specific_folders is None:
-            found_folders = [[path + folder] for folder in folders]
+            found_folders = [[os.path.join(path, folder)] for folder in folders]
         else:
             found_folders = []
             # look for the folders one level down from the root folder
@@ -388,127 +393,6 @@ class Camera:
             raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
         return bytearray(exif_data)
 
-    def get_exif_extract_from_jpeg_manual_parse(
-        self, folder: str, file_name: str
-    ) -> bytes | None:
-        """
-        Extract exif section of a jpeg.
-
-        I wrote this before I understood that libpghoto2 provides the
-        same functionality!
-
-        Reads first few bytes of jpeg on camera to determine the
-        location and length of the exif header, then reads in the
-        header.
-
-        Assumes jpeg on camera is straight from the camera, i.e. not
-        modified by an exif altering program off the camera.
-
-        :param folder: directory on the camera where the jpeg is stored
-        :param file_name: name of the jpeg
-        :return: first section of jpeg such that it can be read by
-         exiv2 or similar
-
-        """
-
-        # Step 1: determine the location of APP1 in the jpeg file
-        # See http://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_JPEG_files
-
-        soi_marker_length = 2
-        marker_length = 2
-        exif_header_length = 8
-        read0_size = soi_marker_length + marker_length + exif_header_length
-
-        view = memoryview(bytearray(read0_size))
-        try:
-            gp.check_result(
-                self.camera.file_read(
-                    folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, view
-                )
-            )
-        except gp.GPhoto2Error as ex:
-            logging.error(
-                "Error reading %s from camera: %s",
-                os.path.join(folder, file_name),
-                gphoto2_named_error(ex.code),
-            )
-            return None
-
-        jpeg_header = view.tobytes()
-        view.release()
-
-        if jpeg_header[0:2] != b"\xff\xd8":
-            logging.error("%s not a jpeg image: no SOI marker", file_name)
-            return None
-
-        app_marker = jpeg_header[2:4]
-
-        # Step 2: handle presence of APP0 - it's optional
-        if app_marker == b"\xff\xe0":
-            # There is an APP0 before the probable APP1
-            # Don't neeed the content of the APP0
-            app0_data_length = jpeg_header[4] * 256 + jpeg_header[5]
-            # We've already read twelve bytes total, going into the APP1 data.
-            # Now we want to download the rest of the APP1, along with the app0 marker
-            # and the app0 exif header
-            read1_size = app0_data_length + 2
-            app0_view = memoryview(bytearray(read1_size))
-            try:
-                gp.check_result(
-                    self.camera.file_read(
-                        folder,
-                        file_name,
-                        gp.GP_FILE_TYPE_NORMAL,
-                        read0_size,
-                        app0_view,
-                    )
-                )
-            except gp.GPhoto2Error as ex:
-                logging.error(
-                    "Error reading %s from camera: %s",
-                    os.path.join(folder, file_name),
-                    gphoto2_named_error(ex.code),
-                )
-            app0 = app0_view.tobytes()
-            app0_view.release()
-            app_marker = app0[(exif_header_length + 2) * -1 : exif_header_length * -1]
-            exif_header = app0[exif_header_length * -1 :]
-            jpeg_header = jpeg_header + app0
-            offset = read0_size + read1_size
-        else:
-            exif_header = jpeg_header[exif_header_length * -1 :]
-            offset = read0_size
-
-        # Step 3: process exif header
-        if app_marker != b"\xff\xe1":
-            logging.error("Could not locate APP1 marker in %s", file_name)
-            return None
-        if exif_header[2:6] != b"Exif" or exif_header[6:8] != b"\x00\x00":
-            logging.error("APP1 is malformed in %s", file_name)
-            return None
-        app1_data_length = exif_header[0] * 256 + exif_header[1]
-
-        # Step 4: read APP1
-        view = memoryview(bytearray(app1_data_length))
-        try:
-            gp.check_result(
-                self.camera.file_read(
-                    folder,
-                    file_name,
-                    gp.GP_FILE_TYPE_NORMAL,
-                    offset,
-                    view,
-                )
-            )
-        except gp.GPhoto2Error as ex:
-            logging.error(
-                "Error reading %s from camera: %s",
-                os.path.join(folder, file_name),
-                gphoto2_named_error(ex.code),
-            )
-            return None
-        return jpeg_header + view.tobytes()
-
     def _get_file(
         self,
         dir_name: str,
@@ -579,7 +463,6 @@ class Camera:
         buffer = self.get_exif_extract(dir_name, file_name, chunk_size_in_bytes)
 
         view = memoryview(buffer)
-        dest_file = None
         try:
             with open(dest_full_filename, "wb") as dest_file:
                 src_bytes = view.tobytes()
@@ -591,7 +474,7 @@ class Camera:
                 "Error saving file %s from camera %s: %s",
                 os.path.join(dir_name, file_name),
                 self.display_name,
-                gphoto2_named_error(ex.errno),
+                str(ex),
             )
             raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
 
@@ -601,11 +484,10 @@ class Camera:
         file_name: str,
         size: int,
         dest_full_filename: str,
-        progress_callback,
-        check_for_command,
-        return_file_bytes=False,
-        chunk_size=1048576,
-    ) -> bytes | None:
+        progress_callback: Callable[[int, int], None],
+        check_for_command: Callable[[], None],
+        chunk_size: int = 1048576,
+    ) -> None:
         """
         :param dir_name: directory on the camera
         :param file_name: the photo or video
@@ -616,61 +498,55 @@ class Camera:
          copy progress
         :param check_for_command: a function with which to check to see
          if the execution should pause, resume or stop
-        :param return_file_bytes: if True, return a copy of the file's
-         bytes, else make that part of the return value None
         :param chunk_size: the size of the chunks to copy. The default
          is 1MB.
-        :return: True if the file was successfully saved, else False,
-         and the bytes that were copied
         """
 
-        src_bytes = None
-        view = memoryview(bytearray(size))
         amount_downloaded = 0
-        for offset in range(0, size, chunk_size):
-            check_for_command()
-            stop = min(offset + chunk_size, size)
-            try:
-                bytes_read = gp.check_result(
-                    self.camera.file_read(
-                        dir_name,
-                        file_name,
-                        gp.GP_FILE_TYPE_NORMAL,
-                        offset,
-                        view[offset:stop],
+        chunk_buffer = bytearray(chunk_size)
+        with open(dest_full_filename, "wb") as dest_file:
+            for offset in range(0, size, chunk_size):
+                check_for_command()
+                stop = min(offset + chunk_size, size)
+                read_len = stop - offset
+                try:
+                    bytes_read = gp.check_result(
+                        self.camera.file_read(
+                            dir_name,
+                            file_name,
+                            gp.GP_FILE_TYPE_NORMAL,
+                            offset,
+                            memoryview(chunk_buffer)[:read_len],
+                        )
                     )
-                )
-                amount_downloaded += bytes_read
-                if progress_callback is not None:
-                    progress_callback(amount_downloaded, size)
-            except gp.GPhoto2Error as ex:
-                logging.error(
-                    "Error copying file %s from camera %s: %s",
-                    os.path.join(dir_name, file_name),
-                    self.display_name,
-                    gphoto2_named_error(ex.code),
-                )
-                if progress_callback is not None:
-                    progress_callback(size, size)
-                raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
+                    amount_downloaded += bytes_read
+                    dest_file.write(memoryview(chunk_buffer)[:bytes_read].tobytes())
 
-        dest_file = None
-        try:
-            with open(dest_full_filename, "wb") as dest_file:
-                src_bytes = view.tobytes()
-                dest_file.write(src_bytes)
-        except (OSError, PermissionError) as ex:
-            logging.error(
-                "Error saving file %s from camera %s. Error %s: %s",
-                os.path.join(dir_name, file_name),
-                self.display_name,
-                ex.errno,
-                ex.strerror,
-            )
-            raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
+                    if progress_callback is not None:
+                        progress_callback(amount_downloaded, size)
+                except gp.GPhoto2Error as ex:
+                    logging.error(
+                        "Error copying file %s from camera %s: %s",
+                        os.path.join(dir_name, file_name),
+                        self.display_name,
+                        gphoto2_named_error(ex.code),
+                    )
+                    if progress_callback is not None:
+                        progress_callback(size, size)
+                    raise CameraProblemEx(code=CameraErrorCode.read, gp_exception=ex)
+                except (OSError, PermissionError) as ex:
+                    logging.error(
+                        "Error saving file %s from camera %s. Error %s: %s",
+                        os.path.join(dir_name, file_name),
+                        self.display_name,
+                        ex.errno,
+                        ex.strerror,
+                    )
+                    if progress_callback is not None:
+                        progress_callback(size, size)
+                    raise CameraProblemEx(code=CameraErrorCode.write, py_exception=ex)
 
-        if return_file_bytes:
-            return src_bytes
+        return None
 
     def get_thumbnail(
         self,
@@ -812,9 +688,9 @@ class Camera:
         storage_capacity = []
         for media_index in range(len(self.storage_info)):
             info = self.storage_info[media_index]
-            if not (
-                info.fields & gp.GP_STORAGEINFO_MAXCAPACITY
-                and info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES
+            if (
+                info.fields & self.REQUIRED_STORAGE_INFO_FLAGS
+                != self.REQUIRED_STORAGE_INFO_FLAGS
             ):
                 logging.error("Could not locate storage on %s", self.display_name)
             else:

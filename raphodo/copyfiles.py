@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import contextlib
 import errno
@@ -263,14 +263,13 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
         try:
-            src_bytes = self.camera.save_file_by_chunks(
+            self.camera.save_file_by_chunks(
                 dir_name=rpd_file.path,
                 file_name=rpd_file.name,
                 size=rpd_file.size,
                 dest_full_filename=rpd_file.temp_full_file_name,
                 progress_callback=self.update_progress,
                 check_for_command=self.check_for_controller_directive,
-                return_file_bytes=self.verify_file,
             )
         except CameraProblemEx as e:
             name = rpd_file.name
@@ -287,10 +286,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     FileWriteProblem(name=name, uri=uri, exception=e.py_exception)
                 )
             return False
-
-        if self.verify_file:
-            rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
-
         return True
 
     def copy_associate_file(
