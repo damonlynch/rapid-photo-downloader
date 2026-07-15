@@ -1043,8 +1043,10 @@ class DownloadedSQL:
 
 
 class CacheSQL:
+    db_fs_name = "thumbnail_cache.sqlite"
+
     def __init__(
-        self, location: str = None, create_table_if_not_exists: bool = True
+        self, location: str | None = None, create_table_if_not_exists: bool = True
     ) -> None:
         """
 
@@ -1053,13 +1055,11 @@ class CacheSQL:
         """
         if location is None:
             location = get_program_cache_directory(create_if_not_exist=True)
-        self.db = os.path.join(location, self.db_fs_name())
+        assert location is not None
+        self.db = os.path.join(location, self.db_fs_name)
         self.table_name = "cache"
         if create_table_if_not_exists:
             self.update_table()
-
-    def db_fs_name(self) -> str:
-        return "thumbnail_cache.sqlite"
 
     def cache_exists(self) -> bool:
         with closing(sqlite3.connect(self.db)) as conn:
@@ -1078,7 +1078,7 @@ class CacheSQL:
         with closing(
             sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         ) as conn:
-            _applyWriteAheadLogging(conn=conn, name=self.db_fs_name())
+            _applyWriteAheadLogging(conn=conn, name=self.db_fs_name)
             if reset:
                 conn.execute(rf"""DROP TABLE IF EXISTS {self.table_name}""")
                 conn.execute("VACUUM")

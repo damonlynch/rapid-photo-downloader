@@ -624,7 +624,7 @@ class ThumbnailCacheSql:
             with contextlib.suppress(sqlite3.DatabaseError):
                 self.thumb_db.delete_thumbnails(list(to_delete_from_db))
 
-        md5s = {md5 for md5 in os.listdir(".")} - {self.thumb_db.db_fs_name()}
+        md5s = {md5 for md5 in os.listdir(".")} - {self.thumb_db.db_fs_name}
         to_delete_from_fs = md5s - rows
         if len(to_delete_from_fs):
             for md5 in to_delete_from_fs:
