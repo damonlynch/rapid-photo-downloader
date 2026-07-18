@@ -32,30 +32,7 @@ from gi.repository import GExiv2  # noqa: E402
 from raphodo.metadata.exiftool import ExifTool
 from raphodo.metadata.fileformats import HEIF_EXTENSIONS
 from raphodo.metadata.metadataexiftool import MetadataExiftool
-from raphodo.tools.utilities import stdchannel_redirected
-
-
-def find_files_by_extensions(base_path: Path, extensions: list[str]) -> list[str]:
-    """
-    Finds all files in a directory and its subdirectories matching a list of extensions.
-    Requires Python 3.12+.
-    """
-
-    valid_exts = {
-        ext.lower() if ext.startswith(".") else f".{ext.lower()}" for ext in extensions
-    }
-
-    matched_files = []
-
-    for root, dirs, files in base_path.walk():
-        for file_name in files:
-            file_path = root / file_name
-
-            # Check if the file's extension matches our list
-            if file_path.suffix.lower() in valid_exts:
-                matched_files.append(str(file_path))
-
-    return matched_files
+from raphodo.tools.utilities import find_files_by_extensions, stdchannel_redirected
 
 
 def show_execution_time(num_files: int, start_time: float, end_time: float):
@@ -70,7 +47,7 @@ def exiv2_vs_exiftool_hief(path: Path, et_process: ExifTool) -> None:
     Time how long it takes Exiv2 and ExifTool to open the same collection of HEIF files.
     """
 
-    files = find_files_by_extensions(path, HEIF_EXTENSIONS)
+    files = find_files_by_extensions(base_path=path, extensions=HEIF_EXTENSIONS)
     print(f"Working with {len(files)} HEIF files")
 
     metadata = GExiv2.Metadata()

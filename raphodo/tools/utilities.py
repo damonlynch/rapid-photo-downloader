@@ -17,7 +17,7 @@ import tempfile
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from glob import glob
-from importlib.resources import files
+from importlib import resources
 from itertools import groupby
 from pathlib import Path
 from typing import Any
@@ -53,7 +53,7 @@ def data_file_path(data_file: str) -> str:
     :return: the absolute path to the data file
     """
 
-    return str((files("raphodo") / "data").joinpath(data_file))
+    return str((resources.files("raphodo") / "data").joinpath(data_file))
 
 
 def available_cpu_count(physical_only=False) -> int:
@@ -104,41 +104,6 @@ def available_cpu_count(physical_only=False) -> int:
 def default_thumbnail_process_count() -> int:
     num_system_cores = max(available_cpu_count(physical_only=True), 2)
     return min(num_system_cores, 8)
-
-
-def confirm(prompt: str | None = None, resp: bool | None = False) -> bool:
-    r"""
-    Prompts for yes or no response from the user.
-
-    :param prompt: prompt displayed to user
-    :param resp: the default value assumed by the caller when user
-     simply types ENTER.
-    :return: True for yes and False for no.
-    """
-
-    # >>> confirm(prompt='Create Directory?', resp=True)
-    # Create Directory? [y]|n:
-    # True
-    # >>> confirm(prompt='Create Directory?', resp=False)
-    # Create Directory? [n]|y:
-    # False
-    # >>> confirm(prompt='Create Directory?', resp=False)
-    # Create Directory? [n]|y: y
-    # True
-
-    if prompt is None:
-        prompt = "Confirm"
-
-    prompt = f"{prompt} [y]|n: " if resp else f"{prompt} [n]|y: "
-
-    while True:
-        ans = input(prompt)
-        if not ans:
-            return resp
-        if ans not in ["y", "Y", "n", "N"]:
-            print("please enter y or n.")
-            continue
-        return ans in ["y", "Y"]
 
 
 @contextlib.contextmanager
@@ -965,16 +930,6 @@ def image_large_enough_fdo(size: QSize) -> bool:
     return size.width() >= 256 or size.height() >= 256
 
 
-def is_venv():
-    """
-    :return: True if the python interpreter is running in venv or virtualenv
-    """
-
-    return hasattr(sys, "real_prefix") or (
-        hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix
-    )
-
-
 def available_lang_codes() -> list[str]:
     """
     Detect translations that exist for Rapid Photo Downloader
@@ -1129,19 +1084,86 @@ def getQtSystemTranslation(locale_name: str) -> QTranslator | None:
             logging.debug("Could not load Qt locale file %s", qm_file)
 
 
-def existing_parent_for_new_dir(path: Path) -> Path:
-    """
-    Locate the first parent folder that exists for a given path
-    :param path: path to look for first existing parent
-    :return: the first parent folder that exists for the  path
-    """
-    for parent in path.parents:
-        if parent.is_dir():
-            return parent
-
-
 def pyqt_api() -> bool:
     """
     Whether PyQt or PySide is being used
     """
     return True
+
+
+def segment_in_path_case_insensitive(segment: str, path: Path) -> bool:
+    """
+    Check if a segment (directory or file name) exists in any part of a path,
+    using case-insensitive comparison.
+
+    :param segment: The segment to search for
+    :param path: The path to search within
+    :return: True if the segment is found in any part of the path, False otherwise
+    """
+    return segment.lower() in (p.lower() for p in path.parts)
+
+
+def find_files_by_extensions(
+    base_path: Path,
+    extensions: list[str],
+    exclude_directories: tuple[str, ...] | None = None,
+    exclude_extensions: dict[str, tuple[str, ...]] | None = None,
+) -> list[str]:
+    """
+    Recursively find files by extension within a directory tree, with support
+    for excluding directories and conditionally excluding files based on their
+    location.
+
+    Walks the directory tree starting from base_path, pruning any directories
+    listed in exclude_directories. For each file with a matching extension,
+    checks if the extension has location-based exclusion rules defined in
+    exclude_extensions. If so, files found within paths containing any of
+    the excluded directory segments are skipped.
+
+    :param base_path: Root directory to begin the search from
+    :param extensions: List of file extensions to match (with or without
+     leading dot, e.g. '.jpg' or 'jpg')
+    :param exclude_directories: Tuple of directory names to skip entirely
+     during traversal (case-insensitive)
+    :param exclude_extensions: Dictionary mapping file extensions to tuples
+     of directory segment names. Files with a given extension are excluded
+     if any of the corresponding segment names appear in their path
+    :return: List of matched file paths as strings
+    """
+
+    valid_exts = {
+        ext.lower() if ext.startswith(".") else f".{ext.lower()}" for ext in extensions
+    }
+    if exclude_directories is not None:
+        exclude_directories = [d.lower() for d in exclude_directories]
+    else:
+        exclude_directories = []
+    if exclude_extensions is not None:
+        exclude_extensions = {
+            f".{key.lower()}" if key[0] != "." else key.lower(): value
+            for key, value in exclude_extensions.items()
+        }
+    else:
+        exclude_extensions = {}
+
+    matched_files = []
+
+    for root, dirs, files in base_path.walk():
+        dirs[:] = [d for d in dirs if d.lower() not in exclude_directories]
+        for file_name in files:
+            file_path = root / file_name
+
+            # Check if the file's extension matches our list
+            ext = file_path.suffix.lower()
+            if ext in valid_exts:
+                exclude_dirs = exclude_extensions.get(ext, [])
+                if not exclude_dirs:
+                    matched_files.append(str(file_path))
+                else:
+                    if not any(
+                        segment_in_path_case_insensitive(exclude_dir, root)
+                        for exclude_dir in exclude_dirs
+                    ):
+                        matched_files.append(str(file_path))
+
+    return matched_files

@@ -3,6 +3,8 @@
 ## 0.9.38 (2026-07-xx)
 
 - Assume `Exiv2` and `ExifTool` support HEIF/CR3 instead of using conditional checks.
+- Refactor SQL database and photo metadata handling to fix  bugs and improve performance.
+- Minimum required Python version is now 3.12.
 
 ## 0.9.38b2 (2026-06-01)
 

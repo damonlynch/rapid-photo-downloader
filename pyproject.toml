@@ -7,7 +7,7 @@ name = "rapid-photo-downloader"
 description = "Downloads, renames and backs up photos and videos from cameras, phones, memory cards and other devices."
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
     { name = "Damon Lynch", email = "damonlynch@gmail.com" },
 ]
@@ -39,7 +39,6 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -89,7 +88,7 @@ packages = ["raphodo", "man", "/*.md"]
 
 [tool.hatch.build.targets.sdist]
 include = ["raphodo", "data", "po", "/*.md"]
-exclude = [".github", ".gitignore", "benchmark"]
+exclude = [".github", ".gitignore", "/tools"]
 
 [tool.hatch.build.targets.wheel.hooks.argparse-manpage]
 include-url = false
@@ -146,8 +145,8 @@ exclude = [
 line-length = 88
 indent-width = 4
 
-# Assume Python 3.11
-target-version = "py311"
+# Assume Python 3.12
+target-version = "py312"
 
 builtins = ["ic", "_"]
 
