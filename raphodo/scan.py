@@ -104,7 +104,7 @@ from raphodo.tools.utilities import (
     GenerateRandomFileName,
     datetime_roughly_equal,
     format_size_for_user,
-    stdchannel_redirected,
+    suppress_stderr,
 )
 
 FileInfo = namedtuple(
@@ -1419,7 +1419,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
             else:
                 try:
-                    with stdchannel_redirected(sys.stderr, os.devnull):
+                    with suppress_stderr():
                         metadata = metadataphoto.MetaData(
                             app1_segment=self.sample_exif_bytes,
                             et_process=self.et_process,
@@ -1475,7 +1475,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 if self.sample_exif_bytes is not None:
                     try:
-                        with stdchannel_redirected(sys.stderr, os.devnull):
+                        with suppress_stderr():
                             metadata = metadataphoto.MetaData(
                                 raw_bytes=self.sample_exif_bytes,
                                 et_process=self.et_process,
@@ -1581,7 +1581,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 dt: datetime = metadata.date_time(missing=None)
             else:
                 try:
-                    with stdchannel_redirected(sys.stderr, os.devnull):
+                    with suppress_stderr():
                         metadata = metadataphoto.MetaData(
                             full_file_name=full_file_name, et_process=self.et_process
                         )

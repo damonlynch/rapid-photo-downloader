@@ -3,6 +3,7 @@
 
 import contextlib
 import ctypes
+import io
 import locale
 import logging
 import os
@@ -15,6 +16,7 @@ import sys
 import tarfile
 import tempfile
 from collections import defaultdict, namedtuple
+from collections.abc import Iterator
 from datetime import datetime
 from glob import glob
 from importlib import resources
@@ -107,33 +109,51 @@ def default_thumbnail_process_count() -> int:
 
 
 @contextlib.contextmanager
-def stdchannel_redirected(stdchannel, dest_filename):
-    """
-    A context manager to temporarily redirect stdout or stderr
-
-    Usage:
-    with stdchannel_redirected(sys.stderr, os.devnull):
-       do_work()
-
-    Source:
-    http://marc-abramowitz.com/archives/2013/07/19/python-context-manager-for-redirected-stdout-and-stderr/
-    """
-    oldstdchannel = dest_file = None
-    try:
-        oldstdchannel = os.dup(stdchannel.fileno())
-        dest_file = open(dest_filename, "w")  # noqa: SIM115
-        os.dup2(dest_file.fileno(), stdchannel.fileno())
-        yield
-    finally:
-        if oldstdchannel is not None:
-            os.dup2(oldstdchannel, stdchannel.fileno())
-        if dest_file is not None:
-            dest_file.close()
+def show_errors():
+    yield
 
 
 @contextlib.contextmanager
-def show_errors():
-    yield
+def redirect_fd(
+    fd: int,
+    destination: str | os.PathLike[str] | io.TextIOBase,
+) -> Iterator[None]:
+    """
+    Temporarily redirect a file descriptor.
+
+    Unlike contextlib.redirect_stdout() and redirect_stderr(), this
+    redirects writes performed at the operating system level, including those
+    made by C extensions that write directly to stdout/stderr.
+
+    :param fd: The file descriptor to redirect (e.g. 1 for stdout or 2 for
+        stderr, or sys.stdout.fileno() / sys.stderr.fileno()).
+    :param destination: Either a path or an already-open writable file object.
+    """
+    saved_fd = os.dup(fd)
+
+    if isinstance(destination, io.IOBase):
+        dest = destination
+        close_dest = False
+    else:
+        dest = Path(destination).open("w")  # ruff:ignore[open-file-with-context-handler]
+        close_dest = True
+
+    try:
+        os.dup2(dest.fileno(), fd)
+        yield
+    finally:
+        os.dup2(saved_fd, fd)
+        os.close(saved_fd)
+
+        if close_dest:
+            dest.close()
+
+
+@contextlib.contextmanager
+def suppress_stderr() -> Iterator[None]:
+    """Suppress all writes to stderr, including C-level output."""
+    with redirect_fd(sys.stderr.fileno(), os.devnull):
+        yield
 
 
 # Translators: these values are file size suffixes like B representing bytes, KB

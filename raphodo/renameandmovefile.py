@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2011-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2011-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Generates names for files and folders, and renames (moves) files.
@@ -57,7 +57,7 @@ from raphodo.storage.storage import get_uri
 from raphodo.tools.utilities import (
     datetime_roughly_equal,
     platform_c_maxint,
-    stdchannel_redirected,
+    suppress_stderr,
 )
 
 install_gettext()
@@ -72,7 +72,7 @@ class SyncRawJpegStatus(Enum):
 
 SyncRawJpegMatch = namedtuple("SyncRawJpegMatch", "status, sequence_number")
 SyncRawJpegResult = namedtuple(
-    "SyncRawJpegResult", "sequence_to_use, failed, photo_name, " "photo_ext"
+    "SyncRawJpegResult", "sequence_to_use, failed, photo_name, photo_ext"
 )
 SyncRawJpegRecord = namedtuple(
     "SyncRawJpegRecord", "extension, date_time, sequence_number_used"
@@ -1001,7 +1001,7 @@ class RenameMoveFileWorker(DaemonProcess):
         )
 
         with (
-            stdchannel_redirected(sys.stderr, os.devnull),
+            suppress_stderr(),
             exiftool.ExifTool() as self.exiftool_process,
         ):
             while True:
@@ -1050,8 +1050,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     # saved when a sync is done at download start, overwriting
                     # the values that may have been changed in the main process
                     logging.debug(
-                        "Rename and move process syncing preferences to the file "
-                        "system"
+                        "Rename and move process syncing preferences to the file system"
                     )
                     self.prefs.sync()
                     self.content = pickle.dumps(

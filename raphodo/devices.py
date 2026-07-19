@@ -61,7 +61,7 @@ from raphodo.tools.utilities import (
     data_file_path,
     number,
     same_device,
-    stdchannel_redirected,
+    suppress_stderr,
 )
 
 install_gettext()
@@ -1116,7 +1116,7 @@ class DeviceCollection:
             self._sample_photo.metadata is None
             and not self._sample_photo.metadata_failure
         ):
-            with stdchannel_redirected(sys.stderr, os.devnull):
+            with suppress_stderr():
                 if self._sample_photo.exif_source == ExifSource.raw_bytes:
                     self._sample_photo.load_metadata(
                         raw_bytes=bytearray(self._sample_photo.raw_exif_bytes)

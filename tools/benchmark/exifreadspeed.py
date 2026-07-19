@@ -32,7 +32,7 @@ from gi.repository import GExiv2  # noqa: E402
 from raphodo.metadata.exiftool import ExifTool
 from raphodo.metadata.fileformats import HEIF_EXTENSIONS
 from raphodo.metadata.metadataexiftool import MetadataExiftool
-from raphodo.tools.utilities import find_files_by_extensions, stdchannel_redirected
+from raphodo.tools.utilities import find_files_by_extensions, suppress_stderr
 
 
 def show_execution_time(num_files: int, start_time: float, end_time: float):
@@ -56,7 +56,7 @@ def exiv2_vs_exiftool_hief(path: Path, et_process: ExifTool) -> None:
     start_time = time.perf_counter()
     tag = "Exif.Photo.DateTimeOriginal"
     for f in files:
-        with stdchannel_redirected(sys.stderr, os.devnull):
+        with suppress_stderr():
             metadata.open_path(f)
             dt_string = metadata.get_tag_string(tag)
     end_time = time.perf_counter()
@@ -72,7 +72,7 @@ def exiv2_vs_exiftool_hief(path: Path, et_process: ExifTool) -> None:
     metadata = MetadataExiftool(full_file_name=None, et_process=et_process)
     tag = "DateTimeOriginal"
     for f in files:
-        with stdchannel_redirected(sys.stderr, os.devnull):
+        with suppress_stderr():
             metadata.open_path_with_exiftool(f)
             dt_string = metadata._get(tag, "")
             metadata.clear()

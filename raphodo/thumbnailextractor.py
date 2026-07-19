@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2015-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2015-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 # ruff: noqa: E402
 
@@ -38,7 +38,7 @@ from raphodo.rpdfile import Photo, RPDFile, Video
 from raphodo.tools.utilities import (
     image_large_enough_fdo,
     show_errors,
-    stdchannel_redirected,
+    suppress_stderr,
 )
 from raphodo.ui.filmstrip import add_filmstrip
 
@@ -816,18 +816,16 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if not data.send_thumb_to_main:
                 png_data = None
             rpd_file.metadata = None
-            self.sender.send_multipart(
-                [
-                    b"0",
-                    b"data",
-                    pickle.dumps(
-                        GenerateThumbnailsResults(
-                            rpd_file=rpd_file, thumbnail_bytes=png_data
-                        ),
-                        pickle.HIGHEST_PROTOCOL,
+            self.sender.send_multipart([
+                b"0",
+                b"data",
+                pickle.dumps(
+                    GenerateThumbnailsResults(
+                        rpd_file=rpd_file, thumbnail_bytes=png_data
                     ),
-                ]
-            )
+                    pickle.HIGHEST_PROTOCOL,
+                ),
+            ])
             self.requester.send_multipart([b"", b"", b"OK"])
 
     def do_work(self):
@@ -837,7 +835,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             self.error_stream = sys.stderr
         else:
             # Redirect stderr, hiding error output from exiv2
-            context = stdchannel_redirected(sys.stderr, os.devnull)
+            context = suppress_stderr()
             self.error_stream = sys.stdout
         with context:
             # In some situations, using a context manager for exiftool can
