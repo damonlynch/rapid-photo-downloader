@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2021-2024 Damon Lynch <damonlynch@gmail.com>
-# SPDX-License-Identifier: GPL-3.0-or-later
+#  SPDX-FileCopyrightText: 2021-2026 Damon Lynch <damonlynch@gmail.com>
+#  SPDX-License-Identifier: GPL-3.0-or-later
 
 import configparser
 import functools
@@ -20,9 +20,10 @@ def wsl_env_variable(variable: str) -> str:
 
     assert variable
     return subprocess.run(
-        shlex.split(f"wslvar {variable}"),
+        ["cmd.exe", "/c", f"echo %{variable}%"],
         text=True,
         stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
     ).stdout.strip()
 
 
